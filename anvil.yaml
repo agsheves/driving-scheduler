@@ -1,5 +1,10 @@
 allow_embedding: false
 db_schema:
+  company_and_school_schedule:
+    client: none
+    columns: []
+    server: full
+    title: company_and_school_schedule
   files:
     client: none
     columns:
@@ -21,8 +26,22 @@ db_schema:
       name: instructor
       target: users
       type: link_single
+    - admin_ui: {order: 1, width: 200}
+      name: vacation_days
+      type: simpleObject
+    - admin_ui: {order: 2, width: 200}
+      name: school_term_availability
+      type: simpleObject
+    - admin_ui: {order: 3, width: 200}
+      name: school_vacation_availability
+      type: simpleObject
     server: full
     title: instructor_schedules
+  table_5:
+    client: none
+    columns: []
+    server: full
+    title: Table 5
   users:
     client: none
     columns:
