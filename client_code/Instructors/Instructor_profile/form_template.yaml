@@ -1,0 +1,33 @@
+components:
+- components:
+  - layout_properties: {grid_position: 'SGYEWS,GHNOBU'}
+    name: card_title
+    properties: {role: headline}
+    type: Label
+  - layout_properties: {grid_position: 'SGYEWS,ZJIXCY'}
+    name: edit_button
+    properties: {align: right, enabled: false, icon: 'fa:edit', text: ' Edit'}
+    type: Button
+  - components:
+    - layout_properties: {grid_position: 'SUOTFS,QXGFSU'}
+      name: label_1
+      properties: {role: title, text: Personal info}
+      type: Label
+    - layout_properties: {grid_position: 'WBHYIU,ZGCYXC'}
+      name: full_name_label
+      properties: {}
+      type: Label
+    - layout_properties: {grid_position: 'HVNXLI,OZDPNA'}
+      name: phone_number_label
+      properties: {}
+      type: Label
+    layout_properties: {grid_position: 'VFDEFQ,HYRZOT'}
+    name: card_2
+    properties: {role: card}
+    type: ColumnPanel
+  layout_properties: {grid_position: 'MLUIVF,PRWISQ'}
+  name: card_1
+  properties: {col_widths: '{"GHNOBU":50,"ZJIXCY":10}', role: card}
+  type: ColumnPanel
+container: {type: ColumnPanel}
+is_package: true

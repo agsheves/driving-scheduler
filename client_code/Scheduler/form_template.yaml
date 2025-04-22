@@ -1,0 +1,7 @@
+components:
+- layout_properties: {grid_position: 'IGJCBD,QIIFKD'}
+  name: label_1
+  properties: {align: center, role: headline, text: Scheduler page}
+  type: Label
+container: {type: ColumnPanel}
+is_package: true
