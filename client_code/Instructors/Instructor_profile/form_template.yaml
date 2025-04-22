@@ -23,11 +23,11 @@ components:
       type: Label
     layout_properties: {grid_position: 'VFDEFQ,HYRZOT'}
     name: card_2
-    properties: {role: card}
+    properties: {role: outlined-card}
     type: ColumnPanel
   layout_properties: {grid_position: 'MLUIVF,PRWISQ'}
   name: card_1
-  properties: {col_widths: '{"GHNOBU":50,"ZJIXCY":10}', role: card}
+  properties: {col_widths: '{"GHNOBU":50,"ZJIXCY":10}', role: elevated-card}
   type: ColumnPanel
 container: {type: ColumnPanel}
 is_package: true
