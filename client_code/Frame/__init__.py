@@ -37,9 +37,10 @@ class Frame(FrameTemplate):
 
   def instructor_page_link_click(self, **event_args):
     self.content_panel.clear()
-    self.content_panel.add_component(instructors())
+    self.content_panel.add_component(Instructors())
     self.instructor_page_link.background = app.theme_colors['Primary Container']
     self.schedule_page_link.background = "transparent"
+
 
 
 

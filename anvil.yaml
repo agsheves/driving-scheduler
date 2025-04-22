@@ -1,5 +1,14 @@
 allow_embedding: false
 db_schema:
+  instructor_schedules:
+    client: none
+    columns:
+    - admin_ui: {order: 0, width: 200}
+      name: instructor
+      target: users
+      type: link_single
+    server: full
+    title: instructor_schedules
   users:
     client: none
     columns:
@@ -21,15 +30,25 @@ db_schema:
     - admin_ui: {order: 5, width: 200}
       name: confirmed_email
       type: bool
+    - admin_ui: {order: 6, width: 200}
+      name: firstName
+      type: string
+    - admin_ui: {order: 7, width: 200}
+      name: surname
+      type: string
+    - admin_ui: {order: 8, width: 200}
+      name: is_admin
+      type: bool
     server: full
     title: Users
 dependencies: []
-name: M3 App 2
-package_name: M3_App_2
+metadata: {description: A Scheduling App for 1st Learn to Drive, logo_img: 'asset:1stLearnToDriveLogo (1)-logo.png', title: 1st Learn to Drive Dashboard}
+name: 1st Learn to Drive 2
+package_name: _1st_Learn_to_Drive_2
 renamed: true
 runtime_options:
   client_version: '3'
-  server_spec: {base: python310-minimal}
+  server_spec: {base: python310-machine-learning}
   server_version: python3-sandbox
   version: 2
 services:
