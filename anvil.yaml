@@ -37,11 +37,6 @@ db_schema:
       type: simpleObject
     server: full
     title: instructor_schedules
-  table_5:
-    client: none
-    columns: []
-    server: full
-    title: Table 5
   users:
     client: none
     columns:
