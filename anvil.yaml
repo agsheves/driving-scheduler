@@ -1,5 +1,19 @@
 allow_embedding: false
 db_schema:
+  files:
+    client: none
+    columns:
+    - admin_ui: {order: 0, width: 200}
+      name: path
+      type: string
+    - admin_ui: {order: 1, width: 200}
+      name: file
+      type: media
+    - admin_ui: {order: 2, width: 200}
+      name: file_version
+      type: string
+    server: full
+    title: Files
   instructor_schedules:
     client: none
     columns:
@@ -61,5 +75,8 @@ services:
 - client_config: {allow_signup: false, confirm_email: true, enable_automatically: true, use_email: true}
   server_config: {user_table: users}
   source: /runtime/services/anvil/users.yml
+- client_config: {}
+  server_config: {file_table: files}
+  source: /runtime/services/anvil/files.yml
 startup: {module: Frame, type: form}
 startup_form: null

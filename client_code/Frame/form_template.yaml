@@ -45,7 +45,7 @@ components:
     - event_bindings: {click: signout_link_click}
       layout_properties: {grid_position: 'QDWBQK,DOAOHZ'}
       name: signout_link
-      properties: {align: center, background: '', bold: false, border: '', enabled: true, font: '', font_size: null, foreground: '', icon: 'fa:sign-out', icon_align: left, italic: false, role: null, spacing_above: small, spacing_below: small, text: Sign out, tooltip: '', underline: false, visible: true}
+      properties: {align: center, background: '', bold: false, border: '', enabled: true, font: '', font_size: 18, foreground: '', icon: 'fa:sign-out', icon_align: left, italic: false, role: null, spacing_above: small, spacing_below: small, text: Sign out, tooltip: '', underline: false, visible: true}
       type: Button
     layout_properties: {grid_position: 'ECNABY,VMQDYR'}
     name: column_panel_2

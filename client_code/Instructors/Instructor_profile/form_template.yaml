@@ -4,15 +4,15 @@ components:
     name: card_title
     properties: {role: headline}
     type: Label
-  - layout_properties: {grid_position: 'SGYEWS,ZJIXCY'}
-    name: edit_button
-    properties: {align: right, enabled: false, icon: 'fa:edit', text: ' Edit'}
-    type: Button
   - components:
     - layout_properties: {grid_position: 'SUOTFS,QXGFSU'}
       name: label_1
       properties: {role: title, text: Personal info}
       type: Label
+    - layout_properties: {grid_position: 'SUOTFS,VCPZIY'}
+      name: edit_personal_info_button
+      properties: {align: right, enabled: false, icon: 'fa:edit', text: ' Edit'}
+      type: Button
     - layout_properties: {grid_position: 'WBHYIU,ZGCYXC'}
       name: full_name_label
       properties: {}
@@ -23,11 +23,45 @@ components:
       type: Label
     layout_properties: {grid_position: 'VFDEFQ,HYRZOT'}
     name: card_2
-    properties: {role: outlined-card}
+    properties: {col_widths: '{"QXGFSU":50,"VCPZIY":10}', role: outlined-card}
+    type: ColumnPanel
+  - components:
+    - layout_properties: {grid_position: 'JOFFMY,DSJEHP'}
+      name: label_2
+      properties: {role: title, text: Availability}
+      type: Label
+    - layout_properties: {grid_position: 'JOFFMY,ULXSUU'}
+      name: edit_availability_button
+      properties: {align: right, enabled: false, icon: 'fa:edit', text: ' Edit'}
+      type: Button
+    - layout_properties: {grid_position: 'ECMKXF,LCVJAE'}
+      name: label_3
+      properties: {bold: true, text: School Term Availability ℹ️, tooltip: 'Hours, days and locations available to work while school is in session'}
+      type: Label
+    - layout_properties: {grid_position: 'FRBPGA,ATLSMB'}
+      name: label_4
+      properties: {bold: true, text: School Vacation Availability ℹ️, tooltip: 'Hours, days and locations available to work while school is on vacation'}
+      type: Label
+    layout_properties: {grid_position: 'WDDEMC,AUUALI'}
+    name: outlined_card_1
+    properties: {col_widths: '{"DSJEHP":50,"ULXSUU":10}', role: outlined-card}
+    type: ColumnPanel
+  - components:
+    - layout_properties: {grid_position: 'YAIHHJ,LZTHGG'}
+      name: label_5
+      properties: {role: title, text: Vacation / Scheduled Time Off}
+      type: Label
+    - layout_properties: {grid_position: 'YAIHHJ,IERZNL'}
+      name: edit_vacation_button
+      properties: {align: right, enabled: false, icon: 'fa:edit', text: ' Edit'}
+      type: Button
+    layout_properties: {grid_position: 'CDYZFO,VQLYDN'}
+    name: outlined_card_2
+    properties: {col_widths: '{"LZTHGG":50,"IERZNL":10}', role: outlined-card}
     type: ColumnPanel
   layout_properties: {grid_position: 'MLUIVF,PRWISQ'}
   name: card_1
-  properties: {col_widths: '{"GHNOBU":50,"ZJIXCY":10}', role: elevated-card}
+  properties: {col_widths: '{"GHNOBU":50}', role: elevated-card}
   type: ColumnPanel
 container: {type: ColumnPanel}
 is_package: true

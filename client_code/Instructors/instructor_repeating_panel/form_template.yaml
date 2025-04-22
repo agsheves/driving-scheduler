@@ -1,0 +1,17 @@
+components:
+- layout_properties: {grid_position: 'OOOZYC,KEGHXI'}
+  name: name_label
+  properties: {}
+  type: Label
+- layout_properties: {grid_position: 'OOOZYC,DASNIO'}
+  name: schedule_link
+  properties: {icon: 'fa:clock-o', text: Schedule}
+  type: Link
+- layout_properties: {grid_position: 'OOOZYC,OEISWH'}
+  name: profile_link
+  properties: {icon: 'fa:user', text: Profile}
+  type: Link
+container:
+  properties: {col_widths: '{"KEGHXI":40,"DASNIO":10,"OEISWH":10}'}
+  type: ColumnPanel
+is_package: true

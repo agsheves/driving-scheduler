@@ -1,7 +1,21 @@
 components:
-- layout_properties: {grid_position: 'WSZCXG,THOCID'}
-  name: label_1
-  properties: {align: center, role: headline, text: Instructor Page}
-  type: Label
+- components:
+  - layout_properties: {grid_position: 'CYOZBN,VNCPIQ'}
+    name: label_1
+    properties: {align: center, role: headline, text: Instructor Page}
+    type: Label
+  - components:
+    - layout_properties: {grid_position: 'CEDKIV,YJEUSP'}
+      name: instructor_repeating_panel
+      properties: {item_template: Instructors.instructor_repeating_panel}
+      type: RepeatingPanel
+    layout_properties: {grid_position: 'PLZOSX,EAXIXV'}
+    name: instructor_panel
+    properties: {role: outlined-card}
+    type: ColumnPanel
+  layout_properties: {grid_position: 'DSPNVP,GXKFAE'}
+  name: outlined_card_1
+  properties: {role: outlined-card}
+  type: ColumnPanel
 container: {type: ColumnPanel}
 is_package: true
