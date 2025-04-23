@@ -31,61 +31,54 @@ class Instructor_profile(Instructor_profileTemplate):
 
   
   def setup_data_grid_term(self, instructorEmail):
-    # Configure columns - one for time slot and one for each day
-    columns = [
-      {"id": "time_slot", "title": "Time Slot", "data_key": "time_slot", "width": 75}
-    ]
-    self.availability_colors = {
-    "all": "#90EE90",     # Light green
-    "drive": "#ADD8E6",   # Light blue
-    "class": "#FFD700",   # Gold/yellow
-    "unavailable": "#FFCCCB"  # Light red
-      }
-    instructor = app_tables.users.get(email=instructorEmail)
-    instructor_availability_row = app_tables.instructor_schedules.get(instructor=instructor)
-    school_term_availability = instructor_availability_row['school_term_availability']
-    if school_term_availability is not 'null':
-      existing_term_scheule = True
-      print(existing_term_scheule)
-    school_vacation_availability = instructor_availability_row['vacation_days']
-    if school_vacation_availability is not 'null':
-      existing_vacation_scheule = True
-    
-    # Extract schedule from the JSON
-    schedule = school_term_availability['weekly_availability']
-    
-    for day in self.days:
-      columns.append({
-        "id": day.lower(),
-        "title": day,
-        "data_key": day.lower(),
-        "width": 100,
-
-      })
-    
-    # Set the columns property of the DataGrid
-    self.term_availability_grid.columns = columns
-    
-    # Prepare the data structure for the repeating panel
-    rows = []
-    for time in self.time_slots:
-      row = {"time_slot": time}
-      # Set availability based on schedule JSON
-      if existing_term_scheule == True:
-        for day in self.days:
-          day_lower = day.lower()
-          # Extract availability for this day and time from the JSON
-          if day_lower in schedule:
-              row[day_lower] = schedule[day_lower].get(time, 'no')
-          else:
-              row[day_lower] = 'no'
+      # Configure columns - one for time slot and one for each day
+      columns = [
+        {"id": "time_slot", "title": "Time Slot", "data_key": "time_slot", "width": 75}
+      ]
+      instructor = app_tables.users.get(email=instructorEmail)
+      instructor_availability_row = app_tables.instructor_schedules.get(instructor=instructor)
+      school_term_availability = instructor_availability_row['school_term_availability']
+      existing_term_scheule = False # Initialize to False
+      if school_term_availability is not 'null':
+        existing_term_scheule = True
+        print(existing_term_scheule)
+      school_vacation_availability = instructor_availability_row['vacation_days']
+      existing_vacation_scheule = False # Initialize to False
+      if school_vacation_availability is not 'null':
+        existing_vacation_scheule = True
+  
+      # Extract schedule from the JSON
+      schedule = school_term_availability.get('weekly_availability', {}) if school_term_availability else {}
+  
+      for day in self.days:
+        day_lower = day.lower()
+        columns.append({
+          "id": day_lower,
+          "title": day,
+          "data_key": day_lower,
+          "width": 100,
+        })
+  
+      # Set the columns property of the DataGrid
+      self.term_availability_grid.columns = columns
+  
+      # Prepare the data structure for the repeating panel
+      rows = []
+      for time in self.time_slots:
+        row = {"time_slot": time}
+        # Set availability based on schedule JSON
+        if existing_term_scheule:
+          for day in self.days:
+            day_lower = day.lower()
+            # Extract availability for this day and time from the JSON
+            row[day_lower] = schedule.get(day_lower, {}).get(time, 'no')
+        else:
+          for day in self.days:
+            row[day.lower()] = 'no' # Default value if no schedule
         rows.append(row)
-      else:
-        pass
-        #enable editing mode automatically
-    
-    # Set the items property of the RepeatingPanel inside the DataGrid
-    self.term_availability_repeating_panel.items = rows
+  
+      # Set the items property of the RepeatingPanel inside the DataGrid
+      self.term_availability_repeating_panel.items = rows
 
 
 
