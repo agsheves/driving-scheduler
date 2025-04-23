@@ -24,10 +24,15 @@ class Instructor_profile(Instructor_profileTemplate):
     # Define days and time slots
     self.time_slots = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"]
     self.days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    
+    self.availability = ["Unavailable", "Drive Only", "Class Only", "Drive or Class"]
+
+    self.term_availability_drop_down_panel.items = [{'time': t, 'availability': self.availability} for t in self.time_slots]
+
+
+
     # Configure the DataGrid with columns for each day
     self.setup_data_grid_term(instructor['email'])
-    #self.setup_data_grid_vacation(instructor['email'])
+    #self.setup_data_grid_vacation(instructor['email']
 
   
   def setup_data_grid_term(self, instructorEmail):
