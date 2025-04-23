@@ -6,7 +6,7 @@ components:
 - event_bindings: {click: schedule_link_click}
   layout_properties: {grid_position: 'OOOZYC,DASNIO'}
   name: schedule_link
-  properties: {icon: 'fa:clock-o', text: Schedule}
+  properties: {icon: 'fa:clock-o', text: Schedule, visible: true}
   type: Link
 - event_bindings: {click: profile_link_click}
   layout_properties: {grid_position: 'OOOZYC,OEISWH'}

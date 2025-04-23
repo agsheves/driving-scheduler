@@ -1,0 +1,33 @@
+components:
+- components:
+  - layout_properties: {grid_position: 'ASIDTL,XEFDXE'}
+    name: label_1
+    properties: {align: center, role: headline, text: File Uploader}
+    type: Label
+  - components:
+    - layout_properties: {grid_position: 'UIFVIQ,OSDYTG'}
+      name: label_2
+      properties: {text: File contents}
+      type: Label
+    - layout_properties: {grid_position: 'UIFVIQ,XRJGAZ CYQFQZ,XLQDYJ'}
+      name: file_conetnts_drop_down
+      properties: {}
+      type: DropDown
+    - layout_properties: {grid_position: 'UIFVIQ,XRJGAZ NMCJYR,RACMJM'}
+      name: file_loader_1
+      properties: {file_types: '', font: '.csv, .xlsx'}
+      type: FileLoader
+    layout_properties: {grid_position: 'DJNHKN,EOBEJK'}
+    name: column_panel_1
+    properties: {col_widths: '{"OSDYTG":25,"XRJGAZ":35}'}
+    type: ColumnPanel
+  - layout_properties: {grid_position: 'YOFGPI,LGWXBJ'}
+    name: close_button
+    properties: {align: right, role: elevated-button, text: Done}
+    type: Button
+  layout_properties: {grid_position: 'OQPNNZ,BEWLFY'}
+  name: outlined_card_1
+  properties: {role: outlined-card}
+  type: ColumnPanel
+container: {type: ColumnPanel}
+is_package: true

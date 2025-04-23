@@ -20,7 +20,7 @@ class instructor_repeating_panel(instructor_repeating_panelTemplate):
   def schedule_link_click(self, **event_args):
     instructorID = self.item['instructorID']
     from ...Scheduler import Scheduler
-    alert(content = Scheduler()(instructorID = instructorID), large=True, dismissible=True)
+    open_form('Scheduler', instructorID)
 
   def profile_link_click(self, **event_args):
     instructorID = self.item['instructorID']

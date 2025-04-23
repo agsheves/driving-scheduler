@@ -1,4 +1,4 @@
-from ._anvil_designer import SchedulerTemplate
+from ._anvil_designer import file_uploadTemplate
 from anvil import *
 import anvil.server
 import anvil.users
@@ -7,8 +7,8 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 
 
-class Scheduler(SchedulerTemplate):
-  def __init__(self, instructorID,**properties):
+class file_upload(file_uploadTemplate):
+  def __init__(self, **properties):
     # Set Form properties and Data Bindings.
     self.init_components(**properties)
 

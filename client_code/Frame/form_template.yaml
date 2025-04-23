@@ -30,8 +30,8 @@ components:
       type: Button
     - event_bindings: {click: sales_page_link_click}
       layout_properties: {grid_position: 'ATKKKJ,DBSYGY'}
-      name: sales_page_link
-      properties: {align: center, background: '', bold: false, border: '', enabled: false, font: '', font_size: 18, foreground: '', icon: 'fa:bar-chart', icon_align: left, italic: false, role: null, spacing_above: small, spacing_below: small, text: ' Sales', tooltip: '', underline: false, visible: false}
+      name: file_upload_link
+      properties: {align: center, background: '', bold: false, border: '', enabled: true, font: '', font_size: 18, foreground: '', icon: 'fa:upload', icon_align: left, italic: false, role: null, spacing_above: small, spacing_below: small, text: ' File Upload', tooltip: '', underline: false, visible: true}
       type: Button
     - event_bindings: {click: reports_page_link_click}
       layout_properties: {grid_position: 'AODCYE,XQMJOX'}
