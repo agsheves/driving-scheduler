@@ -13,4 +13,11 @@ class ItemTemplate1(ItemTemplate1Template):
     self.init_components(**properties)
     self.hour_label.text = self.item['time']
     self.mon_availability.items = self.item['availability']
+    self.tues_availability.items = self.item['availability']
+    self.wed_availability.items = self.item['availability']
+    self.thurs_availability.items = self.item['availability']
+    self.fri_availability.items = self.item['availability']
+    self.sat_availability.items = self.item['availability']
+    self.sun_availability.items = self.item['availability']
+    
 
