@@ -67,15 +67,18 @@ db_schema:
     - admin_ui: {order: 8, width: 200}
       name: is_admin
       type: bool
+    - admin_ui: {order: 9, width: 200}
+      name: instructorID
+      type: string
     server: full
     title: Users
 dependencies:
 - dep_id: dep_nh1j2ue7kdk6d
   resolution_hints: {app_id: C6ZZPAPN4YYF5NVJ, name: Anvil Extras, package_name: anvil_extras}
   version: {version_tag: v3.1.0}
-metadata: {description: A Scheduling App for 1st Learn to Drive, logo_img: 'asset:1stLearnToDriveLogo (1)-logo.png', title: 1st Learn to Drive Dashboard}
-name: 1st Learn to Drive 2
-package_name: _1st_Learn_to_Drive_2
+metadata: {description: A Scheduling App for driving schools, logo_img: 'asset:1stLearnToDriveLogo (1)-logo.png', title: Drive School Dashboard}
+name: Driving Scheduler
+package_name: Driving_Scheduler
 renamed: true
 runtime_options:
   client_version: '3'
@@ -92,5 +95,5 @@ services:
 - client_config: {}
   server_config: {file_table: files}
   source: /runtime/services/anvil/files.yml
-startup: {module: Frame, type: form}
+startup: {module: Instructors.Instructor_profile, type: form}
 startup_form: null

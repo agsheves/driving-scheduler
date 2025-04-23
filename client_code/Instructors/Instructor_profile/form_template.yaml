@@ -38,6 +38,38 @@ components:
       name: label_3
       properties: {bold: true, text: School Term Availability ℹ️, tooltip: 'Hours, days and locations available to work while school is in session'}
       type: Label
+    - layout_properties: {grid_position: 'SFJFSO,TGTJAZ'}
+      name: label_6
+      properties: {bold: true, role: null, text: Driving Session, underline: true}
+      type: Label
+    - components:
+      - name: repeating_panel_1
+        properties: {item_template: Instructors.Instructor_profile.RowTemplate1}
+        type: RepeatingPanel
+      layout_properties: {grid_position: 'NHCXAQ,PJKGRF'}
+      name: term_availability_drive_grid
+      properties:
+        columns:
+        - {data_key: column_1, id: JKSDUP, title: Column 1}
+        - {data_key: column_2, id: VJQQOR, title: Column 2}
+        - {data_key: column_3, id: OJLQEN, title: Column 3}
+      type: DataGrid
+    - layout_properties: {grid_position: 'VXASIY,HYCXJT'}
+      name: label_7
+      properties: {bold: true, text: Classroom Sessions (Remote), underline: true}
+      type: Label
+    - components:
+      - name: repeating_panel_2
+        properties: {item_template: Instructors.Instructor_profile.RowTemplate2}
+        type: RepeatingPanel
+      layout_properties: {grid_position: 'BAGUYW,DNOVLT'}
+      name: term_availability_class_grid
+      properties:
+        columns:
+        - {data_key: column_1, id: JKSDUP, title: Column 1}
+        - {data_key: column_2, id: VJQQOR, title: Column 2}
+        - {data_key: column_3, id: OJLQEN, title: Column 3}
+      type: DataGrid
     - layout_properties: {grid_position: 'FRBPGA,ATLSMB'}
       name: label_4
       properties: {bold: true, text: School Vacation Availability ℹ️, tooltip: 'Hours, days and locations available to work while school is on vacation'}
