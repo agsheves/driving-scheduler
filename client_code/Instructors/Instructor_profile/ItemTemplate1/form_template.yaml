@@ -7,31 +7,31 @@ components:
   - event_bindings: {}
     layout_properties: {grid_position: 'OGSDCM,NFKJUW'}
     name: mon_availability
-    properties: {}
+    properties: {font_size: 10}
     type: DropDown
   - layout_properties: {grid_position: 'OGSDCM,KMFTFI'}
     name: tues_availability
-    properties: {}
+    properties: {font_size: 10}
     type: DropDown
   - layout_properties: {grid_position: 'OGSDCM,QYWWLQ'}
     name: wed_availability
-    properties: {}
+    properties: {font_size: 10}
     type: DropDown
   - layout_properties: {grid_position: 'OGSDCM,HTNVJA'}
     name: thurs_availability
-    properties: {}
+    properties: {font_size: 10}
     type: DropDown
   - layout_properties: {grid_position: 'OGSDCM,JMPJDF'}
     name: fri_availability
-    properties: {}
+    properties: {font_size: 10}
     type: DropDown
   - layout_properties: {grid_position: 'OGSDCM,CYGEZP'}
     name: sat_availability
-    properties: {}
+    properties: {font_size: 10}
     type: DropDown
   - layout_properties: {grid_position: 'OGSDCM,KYPMIS'}
     name: sun_availability
-    properties: {}
+    properties: {font_size: 10}
     type: DropDown
   layout_properties: {grid_position: 'BFVAMO,MTUQBU'}
   name: column_panel_1
