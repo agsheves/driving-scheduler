@@ -4,7 +4,8 @@ components:
     name: hour_label
     properties: {text: ''}
     type: Label
-  - layout_properties: {grid_position: 'OGSDCM,NFKJUW'}
+  - event_bindings: {}
+    layout_properties: {grid_position: 'OGSDCM,NFKJUW'}
     name: mon_availability
     properties: {}
     type: DropDown
