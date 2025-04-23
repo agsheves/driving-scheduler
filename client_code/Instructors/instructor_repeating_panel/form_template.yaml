@@ -3,11 +3,13 @@ components:
   name: name_label
   properties: {}
   type: Label
-- layout_properties: {grid_position: 'OOOZYC,DASNIO'}
+- event_bindings: {click: schedule_link_click}
+  layout_properties: {grid_position: 'OOOZYC,DASNIO'}
   name: schedule_link
   properties: {icon: 'fa:clock-o', text: Schedule}
   type: Link
-- layout_properties: {grid_position: 'OOOZYC,OEISWH'}
+- event_bindings: {click: profile_link_click}
+  layout_properties: {grid_position: 'OOOZYC,OEISWH'}
   name: profile_link
   properties: {icon: 'fa:user', text: Profile}
   type: Link

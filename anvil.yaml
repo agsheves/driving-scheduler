@@ -20,7 +20,7 @@ db_schema:
     server: full
     title: Files
   instructor_schedules:
-    client: none
+    client: search
     columns:
     - admin_ui: {order: 0, width: 200}
       name: instructor
@@ -38,7 +38,7 @@ db_schema:
     server: full
     title: instructor_schedules
   users:
-    client: none
+    client: search
     columns:
     - admin_ui: {order: 0, width: 200}
       name: email
@@ -70,6 +70,12 @@ db_schema:
     - admin_ui: {order: 9, width: 200}
       name: instructorID
       type: string
+    - admin_ui: {order: 7.5, width: 200}
+      name: is_instructor
+      type: bool
+    - admin_ui: {order: 10, width: 200}
+      name: phoneNumber
+      type: string
     server: full
     title: Users
 dependencies:
@@ -95,5 +101,5 @@ services:
 - client_config: {}
   server_config: {file_table: files}
   source: /runtime/services/anvil/files.yml
-startup: {module: Instructors.Instructor_profile, type: form}
+startup: {module: Instructors, type: form}
 startup_form: null

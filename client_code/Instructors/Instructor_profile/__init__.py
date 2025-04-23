@@ -8,9 +8,15 @@ import anvil.users
 
 
 class Instructor_profile(Instructor_profileTemplate):
-  def __init__(self, **properties):
+  def __init__(self, instructorID,**properties):
     # Set Form properties and Data Bindings.
     self.init_components(**properties)
+    instructor = app_tables.users.get(instructorID=instructorID)
+    print(instructor['firstName'])
+    self.card_title.text = f"Instructor: {instructor['firstName']} {instructor['surname'][0]}."
+    self.full_name_label.text = f"Full Name: {instructor['firstName']} {instructor['surname']}"
+    self.phone_number_label.text = f"Cell Phone: {instructor['phoneNumber']}"
+    self.email_label.text = f"Email: {instructor['email']}"
   
     
     # Define days and time slots
@@ -19,23 +25,30 @@ class Instructor_profile(Instructor_profileTemplate):
     self.class_times = ["8:00-10:00", "10:00-12:00", "12:00-14:00", "14:00-16:00", "16:00-18:00"]
     
     # Configure the DataGrid with columns for each day
-    self.setup_data_grid_drive_term()
-    self.setup_data_grid_class_term()
+    self.setup_data_grid_drive_term(instructor['email'])
+    self.setup_data_grid_class_term(instructor['email'])
 
   
-  def setup_data_grid_drive_term(self):
+  def setup_data_grid_drive_term(self, instructorEmail):
     # Configure columns - one for time slot and one for each day
     columns = [
       {"id": "time_slot", "title": "Time Slot", "data_key": "time_slot", "width": 100}
     ]
+    instructor = app_tables.users.get(email=instructorEmail)
+    instructor_availability_row = app_tables.instructor_schedules.get(instructor=instructor)
+    school_term_availability = instructor_availability_row['school_term_availability']
     
-    # Add a column for each day
+    # Extract schedule from the JSON
+    schedule = school_term_availability['schedule']
+    
     for day in self.days:
       columns.append({
         "id": day.lower(),
         "title": day,
         "data_key": day.lower(),
-        "width": 100
+        "width": 100,
+        # Add formatting based on availability
+        "background": lambda value: {'green' if value == 'yes' else 'red'}
       })
     
     # Set the columns property of the DataGrid
@@ -45,15 +58,20 @@ class Instructor_profile(Instructor_profileTemplate):
     rows = []
     for time in self.drive_times:
       row = {"time_slot": time}
-      # Initialize all days as False (not available)
+      # Set availability based on schedule JSON
       for day in self.days:
-        row[day.lower()] = False
+        day_lower = day.lower()
+        # Extract availability for this day and time from the JSON
+        if day_lower in schedule and 'drive_sessions' in schedule[day_lower]:
+          row[day_lower] = schedule[day_lower]['drive_sessions'].get(time, 'no')
+        else:
+          row[day_lower] = 'no'
       rows.append(row)
     
     # Set the items property of the RepeatingPanel inside the DataGrid
-    self.repeating_panel_2.items = rows
+    self.repeating_panel_1.items = rows
 
-  def setup_data_grid_class_term(self):
+  def setup_data_grid_class_term(self, instructorEmail):
     # Configure columns - one for time slot and one for each day
     columns = [
       {"id": "time_slot", "title": "Time Slot", "data_key": "time_slot", "width": 100}
@@ -81,7 +99,7 @@ class Instructor_profile(Instructor_profileTemplate):
       rows.append(row)
     
     # Set the items property of the RepeatingPanel inside the DataGrid
-    self.repeating_panel_1.items = rows
+    self.repeating_panel_2.items = rows
 
 
  
