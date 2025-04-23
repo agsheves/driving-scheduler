@@ -83,7 +83,7 @@ components:
         name: label_6_copy_7
         properties: {text: Sunday}
         type: Label
-      layout_properties: {grid_position: 'LHHCIV,WYRAVM'}
+      layout_properties: {grid_position: 'HWYPFI,ERXYME'}
       name: column_panel_1
       properties: {wrap_on: never}
       type: ColumnPanel
@@ -91,18 +91,6 @@ components:
       name: term_availability_drop_down_panel
       properties: {item_template: Instructors.Instructor_profile.ItemTemplate1}
       type: RepeatingPanel
-    - components:
-      - name: term_availability_repeating_panel
-        properties: {item_template: Instructors.Instructor_profile.RowTemplate1}
-        type: RepeatingPanel
-      layout_properties: {grid_position: 'NHCXAQ,PJKGRF'}
-      name: term_availability_grid
-      properties:
-        columns:
-        - {data_key: column_1, id: JKSDUP, title: Column 1}
-        - {data_key: column_2, id: VJQQOR, title: Column 2}
-        - {data_key: column_3, id: OJLQEN, title: Column 3}
-      type: DataGrid
     - layout_properties: {grid_position: 'HFYXBK,XGAOOG'}
       name: label_4
       properties: {bold: true, text: School Vacation Availability ℹ️, tooltip: 'Hours, days and locations available to work while school is on vacation'}
@@ -115,22 +103,51 @@ components:
       name: save_vacation_availability_button
       properties: {icon: 'fa:check', text: Save}
       type: Button
-    - layout_properties: {grid_position: 'WLCIGD,FJORDX'}
+    - layout_properties: {grid_position: 'GCLZAC,GOAEEC'}
       name: vacation_dates_list
       properties: {}
       type: Label
     - components:
-      - name: repeating_panel_2
-        properties: {item_template: Instructors.Instructor_profile.RowTemplate2}
-        type: RepeatingPanel
-      layout_properties: {grid_position: 'BAGUYW,DNOVLT'}
-      name: vacation_availability_grid
-      properties:
-        columns:
-        - {data_key: column_1, id: JKSDUP, title: Column 1}
-        - {data_key: column_2, id: VJQQOR, title: Column 2}
-        - {data_key: column_3, id: OJLQEN, title: Column 3}
-      type: DataGrid
+      - layout_properties: {grid_position: 'FJNAQN,LSZRTM'}
+        name: label_6_copy_8
+        properties: {text: Time Slot}
+        type: Label
+      - layout_properties: {grid_position: 'FJNAQN,TSDBHA'}
+        name: label_6_copy_copy
+        properties: {text: Monday}
+        type: Label
+      - layout_properties: {grid_position: 'FJNAQN,KALVJV'}
+        name: label_6_copy_2_copy
+        properties: {text: Tuesday}
+        type: Label
+      - layout_properties: {grid_position: 'FJNAQN,KQFVRQ'}
+        name: label_6_copy_3_copy
+        properties: {text: Wednesday}
+        type: Label
+      - layout_properties: {grid_position: 'FJNAQN,XMYWSS'}
+        name: label_6_copy_4_copy
+        properties: {text: Thursday}
+        type: Label
+      - layout_properties: {grid_position: 'FJNAQN,PKHAYS'}
+        name: label_6_copy_5_copy
+        properties: {text: Friday}
+        type: Label
+      - layout_properties: {grid_position: 'FJNAQN,RIHNIO'}
+        name: label_6_copy_6_copy
+        properties: {text: Saturday}
+        type: Label
+      - layout_properties: {grid_position: 'FJNAQN,JOTFEJ'}
+        name: label_6_copy_7_copy
+        properties: {text: Sunday}
+        type: Label
+      layout_properties: {grid_position: 'HTBIPG,LYKNSN'}
+      name: column_panel_1_copy
+      properties: {wrap_on: never}
+      type: ColumnPanel
+    - layout_properties: {grid_position: 'WLCIGD,FJORDX DMXVJR,RFRUVW'}
+      name: vacation_availability_drop_down_panel
+      properties: {item_template: Instructors.Instructor_profile.ItemTemplate1}
+      type: RepeatingPanel
     layout_properties: {grid_position: 'WDDEMC,AUUALI'}
     name: outlined_card_1
     properties: {col_widths: '{"DSJEHP":35,"XGAOOG":45,"NLQBIY":15,"BHEGHY":20,"LCVJAE":35,"KJBPBO":10,"FOUMEU":15}', role: outlined-card}

@@ -31,18 +31,18 @@ class ItemTemplate1(ItemTemplate1Template):
 
   def color_code_dropdown(self, value):
       if value:
-          if 'Drive Only' in value:
+          if 'Drive' in value:
               return 'blue'
-          elif 'Class Only' in value:
+          elif 'Class' in value:
               return 'blue'
-          elif 'Drive or Class' in value:
+          elif 'Any' in value:
               return 'purple'
           elif 'Unavailable' in value:
-              return 'lightgray'
+              return 'darkgray'
           else:
-              return 'white'  # Default color
+              return 'darkgray'  # Default color
       else:
-          return 'white'  # Default if no value
+          return 'darkgray'  # Default if no value
   
   # Universal dropdown change handler
   def universal_dropdown_change(self, **event_args):

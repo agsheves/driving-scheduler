@@ -14,7 +14,8 @@ unique_ids:
     Instructors.instructor_repeating_panel: '1745336468128294769704895.0335'
     Logout: '174533512014315681614900.617147'
     Scheduler: '1745335195760518469966821.50934'
-  modules: {}
+  modules:
+    globals: '1745441019703903915888803.4835'
   scripts: {}
   server_modules:
     scheduling_server: '1745370456602777216252764.5787'
