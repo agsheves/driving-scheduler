@@ -34,58 +34,70 @@ components:
       name: label_2
       properties: {role: title, text: Availability}
       type: Label
-    - layout_properties: {grid_position: 'JOFFMY,ULXSUU'}
-      name: edit_availability_button
-      properties: {align: right, enabled: false, icon: 'fa:edit', text: ' Edit'}
-      type: Button
     - layout_properties: {grid_position: 'ECMKXF,LCVJAE'}
       name: label_3
       properties: {bold: true, text: School Term Availability ℹ️, tooltip: 'Hours, days and locations available to work while school is in session'}
       type: Label
-    - layout_properties: {grid_position: 'SFJFSO,TGTJAZ'}
-      name: label_6
-      properties: {bold: true, role: null, text: Driving Session, underline: true}
+    - layout_properties: {grid_position: 'ECMKXF,KJBPBO'}
+      name: edit_term_availability_button
+      properties: {align: right, enabled: true, icon: 'fa:edit', text: Edit}
+      type: Button
+    - layout_properties: {grid_position: 'ECMKXF,FOUMEU'}
+      name: save_term_availability_button
+      properties: {icon: 'fa:check', text: Save}
+      type: Button
+    - layout_properties: {grid_position: 'SSRMCC,FMJFOH'}
+      name: term_dates_list
+      properties: {}
       type: Label
     - components:
-      - name: repeating_panel_1
+      - name: term_availability_repeating_panel
         properties: {item_template: Instructors.Instructor_profile.RowTemplate1}
         type: RepeatingPanel
       layout_properties: {grid_position: 'NHCXAQ,PJKGRF'}
-      name: term_availability_drive_grid
+      name: term_availability_grid
       properties:
         columns:
         - {data_key: column_1, id: JKSDUP, title: Column 1}
         - {data_key: column_2, id: VJQQOR, title: Column 2}
         - {data_key: column_3, id: OJLQEN, title: Column 3}
       type: DataGrid
-    - layout_properties: {grid_position: 'VXASIY,HYCXJT'}
-      name: label_7
-      properties: {bold: true, text: Classroom Sessions (Remote), underline: true}
+    - layout_properties: {grid_position: 'HFYXBK,XGAOOG'}
+      name: label_4
+      properties: {bold: true, text: School Vacation Availability ℹ️, tooltip: 'Hours, days and locations available to work while school is on vacation'}
+      type: Label
+    - layout_properties: {grid_position: 'HFYXBK,NLQBIY'}
+      name: edit_vacation_availability_button
+      properties: {align: right, enabled: true, icon: 'fa:edit', text: Edit}
+      type: Button
+    - layout_properties: {grid_position: 'HFYXBK,BHEGHY'}
+      name: save_vacation_availability_button
+      properties: {icon: 'fa:check', text: Save}
+      type: Button
+    - layout_properties: {grid_position: 'WLCIGD,FJORDX'}
+      name: vacation_dates_list
+      properties: {}
       type: Label
     - components:
       - name: repeating_panel_2
         properties: {item_template: Instructors.Instructor_profile.RowTemplate2}
         type: RepeatingPanel
       layout_properties: {grid_position: 'BAGUYW,DNOVLT'}
-      name: term_availability_class_grid
+      name: vacation_availability_grid
       properties:
         columns:
         - {data_key: column_1, id: JKSDUP, title: Column 1}
         - {data_key: column_2, id: VJQQOR, title: Column 2}
         - {data_key: column_3, id: OJLQEN, title: Column 3}
       type: DataGrid
-    - layout_properties: {grid_position: 'FRBPGA,ATLSMB'}
-      name: label_4
-      properties: {bold: true, text: School Vacation Availability ℹ️, tooltip: 'Hours, days and locations available to work while school is on vacation'}
-      type: Label
     layout_properties: {grid_position: 'WDDEMC,AUUALI'}
     name: outlined_card_1
-    properties: {col_widths: '{"DSJEHP":50,"ULXSUU":10}', role: outlined-card}
+    properties: {col_widths: '{"DSJEHP":35,"XGAOOG":45,"NLQBIY":15,"BHEGHY":20,"LCVJAE":35,"KJBPBO":10,"FOUMEU":15}', role: outlined-card}
     type: ColumnPanel
   - components:
     - layout_properties: {grid_position: 'YAIHHJ,LZTHGG'}
       name: label_5
-      properties: {role: title, text: Vacation / Scheduled Time Off}
+      properties: {role: title, text: Personal Vacation / Scheduled Time Off}
       type: Label
     - layout_properties: {grid_position: 'YAIHHJ,IERZNL'}
       name: edit_vacation_button
