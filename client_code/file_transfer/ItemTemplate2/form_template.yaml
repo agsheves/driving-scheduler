@@ -3,14 +3,16 @@ components:
   name: file_name
   properties: {}
   type: Label
-- layout_properties: {grid_position: 'OBKQIL,CFIMRR EWTAKQ,KHFYPH'}
+- layout_properties: {grid_position: 'OBKQIL,CFIMRR'}
   name: contents_label
   properties: {}
   type: Label
-- event_bindings: {change: file_downloader_change}
-  layout_properties: {grid_position: 'OBKQIL,CFIMRR EWTAKQ,VSNLKJ'}
-  name: file_downloader
-  properties: {icon: 'fa:download', text: Download}
-  type: FileLoader
-container: {type: ColumnPanel}
+- event_bindings: {click: download_link_click}
+  layout_properties: {grid_position: 'OBKQIL,SPSWCJ'}
+  name: download_link
+  properties: {text: ' Download'}
+  type: Link
+container:
+  properties: {col_widths: '{"LRRRLV":25,"CFIMRR":20,"SPSWCJ":15}'}
+  type: ColumnPanel
 is_package: true

@@ -5,6 +5,7 @@ import anvil.users
 import anvil.tables as tables
 import anvil.tables.query as q
 from anvil.tables import app_tables
+import anvil.media
 
 
 class ItemTemplate2(ItemTemplate2Template):
@@ -13,10 +14,10 @@ class ItemTemplate2(ItemTemplate2Template):
     self.init_components(**properties)
     self.file_name.text = self.item['filename']
     self.contents_label.text = self.item['file_type']
+
+
+  def download_link_click(self, **event_args):
+    file = self.item['file']
+    anvil.media.download(file)
     
 
-    # Any code you write here will run before the form opens.
-
-  def file_downloader_change(self, file, **event_args):
-    # save file
-    pass
