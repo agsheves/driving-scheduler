@@ -1,15 +1,28 @@
 components:
-- components: []
+- components:
+  - layout_properties: {grid_position: 'OHKNYY,PVMWCA'}
+    name: label_2
+    properties: {text: Main Scheduling Workspace}
+    type: Label
+  - layout_properties: {full_width_row: true, grid_position: 'OQPCCX,MDSYCW'}
+    name: dynamic_panel_1
+    properties: {wrap_on: never}
+    type: ColumnPanel
   layout_properties: {slot: default}
   name: content_panel
   properties: {col_widths: '{}'}
   type: ColumnPanel
-- layout_properties: {slot: nav-right}
+- components:
+  - event_bindings: {click: signout_link_click}
+    name: signout_link
+    properties: {align: center, background: '', bold: false, border: '', enabled: true, font: '', font_size: 18, foreground: '', icon: 'fa:sign-out', icon_align: left, italic: false, role: null, spacing_above: small, spacing_below: small, text: Sign out, tooltip: '', underline: false, visible: true}
+    type: Button
+  layout_properties: {slot: nav-right}
   name: navbar_links
   properties: {}
   type: FlowPanel
 - components:
-  - layout_properties: {grid_position: 'OSVYZN,PPKKTC'}
+  - layout_properties: {grid_position: 'IZHWWJ,AZGHRW'}
     name: image_1
     properties: {height: 78.46875, source: _/theme/1stLearnToDriveLogo (1).png}
     type: Image
@@ -37,11 +50,6 @@ components:
       name: label_1
       properties: {align: left, background: '', bold: false, border: '', font: '', font_size: null, foreground: '', icon: '', icon_align: left, italic: false, role: null, spacing_above: small, spacing_below: small, text: '                                                                                 ', tooltip: '', underline: false, visible: true}
       type: Label
-    - event_bindings: {click: signout_link_click}
-      layout_properties: {grid_position: 'QDWBQK,DOAOHZ'}
-      name: signout_link
-      properties: {align: center, background: '', bold: false, border: '', enabled: true, font: '', font_size: 18, foreground: '', icon: 'fa:sign-out', icon_align: left, italic: false, role: null, spacing_above: small, spacing_below: small, text: Sign out, tooltip: '', underline: false, visible: true}
-      type: Button
     layout_properties: {grid_position: 'ECNABY,VMQDYR'}
     name: column_panel_2
     properties: {col_widths: '{}'}

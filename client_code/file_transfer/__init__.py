@@ -32,5 +32,7 @@ class file_transfer(file_transferTemplate):
       self.upload_file_name.text = ""
 
   def close_button_click(self, **event_args):
+    from ..Frame import Frame
+    open_form('Frame')
     
 
