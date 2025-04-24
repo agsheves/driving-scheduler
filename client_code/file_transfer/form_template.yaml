@@ -1,0 +1,65 @@
+components:
+- components:
+  - components:
+    - layout_properties: {grid_position: 'UMLIQQ,BTBPZE'}
+      name: label_1
+      properties: {align: left, role: title, text: File Uploader}
+      type: Label
+    - layout_properties: {grid_position: 'PEKOWF,QPAUEG'}
+      name: label_2
+      properties: {text: File contents}
+      type: Label
+    - layout_properties: {grid_position: 'PEKOWF,HRMJUE'}
+      name: file_contents_drop_down
+      properties: {}
+      type: DropDown
+    - event_bindings: {change: file_uploader_change}
+      layout_properties: {grid_position: 'PEKOWF,ZHWUGD'}
+      name: file_uploader
+      properties: {align: center, file_types: '', font: '.csv, .xlsx', icon: 'fa:search', text: Select File}
+      type: FileLoader
+    - layout_properties: {grid_position: 'OLOVLF,XTMPNK'}
+      name: label_2_copy
+      properties: {text: File name}
+      type: Label
+    - layout_properties: {grid_position: 'OLOVLF,VBQQXI'}
+      name: file_name
+      properties: {}
+      type: Label
+    - event_bindings: {click: upload_file_button_click}
+      layout_properties: {grid_position: 'GELFOV,BBZEKA'}
+      name: upload_file_button
+      properties: {icon: 'fa:upload', role: outlined-button, text: ' Upload'}
+      type: Button
+    layout_properties: {grid_position: 'VOVZYK,UAMLWD'}
+    name: upload_card
+    properties: {col_widths: '{"QPAUEG":10,"HRMJUE":30,"ZHWUGD":20,"XTMPNK":10,"VBQQXI":50}', role: outlined-card}
+    type: ColumnPanel
+  - components:
+    - layout_properties: {grid_position: 'UMLIQQ,BTBPZE'}
+      name: label_1_copy
+      properties: {align: left, role: title, text: File Download}
+      type: Label
+    - layout_properties: {grid_position: 'GVMLUW,RVJADK'}
+      name: file_repeating_panel
+      properties: {item_template: file_transfer.ItemTemplate2}
+      type: RepeatingPanel
+    layout_properties: {grid_position: 'TRMGLN,HKQPTV'}
+    name: download_card
+    properties: {col_widths: '{}', role: outlined-card}
+    type: ColumnPanel
+  - components: []
+    layout_properties: {grid_position: 'DJNHKN,EOBEJK'}
+    name: column_panel_1
+    properties: {col_widths: '{}'}
+    type: ColumnPanel
+  - layout_properties: {grid_position: 'YOFGPI,LGWXBJ'}
+    name: close_button
+    properties: {align: right, role: null, text: Done}
+    type: Button
+  layout_properties: {grid_position: 'OQPNNZ,BEWLFY'}
+  name: outlined_card_1
+  properties: {role: outlined-card}
+  type: ColumnPanel
+container: {type: ColumnPanel}
+is_package: true

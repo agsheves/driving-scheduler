@@ -22,11 +22,11 @@ class Instructor_profile(Instructor_profileTemplate):
 
     # Check instructor profile
     print(instructor['firstName'])
-    existing_term_scheule = False # Initialize to False
-    existing_term_scheule_data = instructor_availability_row['school_term_availability']
-    if existing_term_scheule_data != 'null':
-      existing_term_scheule = True
-      #print(existing_term_scheule_data)
+    existing_term_schedule = False # Initialize to False
+    existing_term_schedule_data = instructor_availability_row['school_term_availability']
+    if existing_term_schedule_data != 'null':
+      existing_term_schedule = True
+      #print(existing_term_schedule_data)
     existing_vacation_schedule = False # Initialize to False
     school_vacation_availability_data = instructor_availability_row['vacation_days']
     if school_vacation_availability_data != 'null':
@@ -40,9 +40,11 @@ class Instructor_profile(Instructor_profileTemplate):
     self.term_dates_list.text = "**Example** This applies to Fall 2025 (dates 9/1-12/23), Winter 2026 (dates 1/3 - 4/1) and Spring 2026 (4/10 - 7/10)."
     self.vacation_dates_list.text = "**Example** This applies to school vacation. Christmas Break 25-26 (dates 12/23 - 1/2), Spring 22026 (dates 4/1 - 4/9) and Summer vacation 2026 (7/10 - 08/31)"
 
-    if existing_term_scheule is True:
-      print(existing_term_scheule_data)
-      self.term_availability_drop_down_panel.items = existing_term_scheule_data
+    # For testing - remove later
+    existing_term_schedule = False
+    if existing_term_schedule is True:
+      print(existing_term_schedule_data)
+      self.term_availability_drop_down_panel.items = existing_term_schedule_data
     else:
       self.term_availability_drop_down_panel.items = [{'time': t, 'availability': self.availability_codes} for t in self.time_slots]
 

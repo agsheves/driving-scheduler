@@ -1,0 +1,16 @@
+components:
+- layout_properties: {grid_position: 'OBKQIL,LRRRLV'}
+  name: file_name
+  properties: {}
+  type: Label
+- layout_properties: {grid_position: 'OBKQIL,CFIMRR EWTAKQ,KHFYPH'}
+  name: contents_label
+  properties: {}
+  type: Label
+- event_bindings: {change: file_downloader_change}
+  layout_properties: {grid_position: 'OBKQIL,CFIMRR EWTAKQ,VSNLKJ'}
+  name: file_downloader
+  properties: {icon: 'fa:download', text: Download}
+  type: FileLoader
+container: {type: ColumnPanel}
+is_package: true
