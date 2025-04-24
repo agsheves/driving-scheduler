@@ -25,4 +25,4 @@ class instructor_repeating_panel(instructor_repeating_panelTemplate):
   def profile_link_click(self, **event_args):
     instructorID = self.item['instructorID']
     from ..Instructor_profile import Instructor_profile
-    open_form('Instructors.Instructor_profile', instructorID)
+    alert(content = Instructor_profile(instructorID), dismissible=True, large=True)

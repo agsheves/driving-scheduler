@@ -53,7 +53,8 @@ components:
     name: column_panel_1
     properties: {col_widths: '{}'}
     type: ColumnPanel
-  - layout_properties: {grid_position: 'YOFGPI,LGWXBJ'}
+  - event_bindings: {click: close_button_click}
+    layout_properties: {grid_position: 'YOFGPI,LGWXBJ'}
     name: close_button
     properties: {align: right, role: null, text: Done}
     type: Button
