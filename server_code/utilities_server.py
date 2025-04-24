@@ -53,34 +53,86 @@ def print_json(json_data):
 ###########################################################
 # Data export function to take JSON data and convert to CSV
 
+def flatten_json(data, parent_key='', sep='_'):
+    """
+    Recursively flatten a nested JSON dictionary
+    
+    :param data: Nested dictionary to flatten
+    :param parent_key: Key from parent level (for recursion)
+    :param sep: Separator for nested keys
+    :return: Flattened dictionary
+    """
+    items = []
+    
+    if isinstance(data, dict):
+        for k, v in data.items():
+            new_key = f"{parent_key}{sep}{k}" if parent_key else k
+            
+            # If value is a dictionary, recurse
+            if isinstance(v, dict):
+                items.extend(flatten_json(v, new_key, sep=sep).items())
+            # If value is a list, convert each item
+            elif isinstance(v, list):
+                for i, item in enumerate(v):
+                    items.extend(flatten_json({str(i): item}, new_key, sep=sep).items())
+            # If simple value, add to items
+            else:
+                items.append((new_key, v))
+    else:
+        # If input is not a dictionary, return it as is
+        return {parent_key: data}
+    
+    return dict(items)
+
 def json_to_csv(json_data, filename='converted_data.csv'):
     """
-    Convert a structured JSON to CSV and add to app files table
+    Convert JSON to CSV with flexible nested structure
     
-    :param json_data: Structured JSON dictionary
-    :param filename: Desired filename for the CSV
-    :return: Media object of the created CSV
+    :param json_data: JSON data (dict or string)
+    :param filename: Desired filename for CSV
+    :return: Media object of created CSV
     """
+    # If json_data is a string, parse it
+    if isinstance(json_data, str):
+        json_data = json.loads(json_data)
+    
+    # Flatten the JSON
+    flattened_data = flatten_json(json_data)
+    
     # Create a string buffer to write CSV
     output = io.StringIO()
     
-    # If JSON is empty, return None
-    if not json_data:
+    # If no data, return None
+    if not flattened_data:
         return None
     
-    # Get column headers from the first item's keys
-    first_row_data = list(json_data.values())[0]
-    headers = ['Time'] + list(first_row_data.keys())
-    
-    # Create CSV writer
+    # Prepare CSV writer
     writer = csv.writer(output)
     
-    # Write headers
-    writer.writerow(headers)
+    # Extract headers and rows
+    headers = sorted(set(key.split('_')[-1] for key in flattened_data.keys()))
+    writer.writerow(['Attribute'] + headers)
     
-    # Write data rows
-    for time, row_data in json_data.items():
-        row = [time] + [row_data.get(header, '') for header in headers[1:]]
+    # Group flattened data by first-level key
+    grouped_data = {}
+    for full_key, value in flattened_data.items():
+        # Split the key and get the meaningful parts
+        key_parts = full_key.split('_')
+        
+        # If key has multiple parts, use all but the last
+        if len(key_parts) > 1:
+            primary_key = '_'.join(key_parts[:-1])
+            last_key = key_parts[-1]
+            
+            if primary_key not in grouped_data:
+                grouped_data[primary_key] = {}
+            
+            grouped_data[primary_key][last_key] = value
+    
+    # Write rows
+    for primary_key, values in grouped_data.items():
+        row = [primary_key]
+        row.extend([values.get(header, '') for header in headers])
         writer.writerow(row)
     
     # Create media object
@@ -96,6 +148,17 @@ def json_to_csv(json_data, filename='converted_data.csv'):
     )
     
     return csv_media
+
+# Convenience wrapper
+def convert_and_save_csv(json_data, filename='converted_data.csv'):
+    """
+    Wrapper function to convert JSON to CSV and add to files
+    
+    :param json_data: JSON data
+    :param filename: Desired filename for the CSV
+    :return: Media object of the created CSV
+    """
+    return json_to_csv(json_data, filename)
 
 
 @anvil.server.callable
