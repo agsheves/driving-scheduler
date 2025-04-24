@@ -23,7 +23,7 @@ components:
       properties: {text: File name}
       type: Label
     - layout_properties: {grid_position: 'OLOVLF,VBQQXI'}
-      name: file_name
+      name: upload_file_name
       properties: {}
       type: Label
     - event_bindings: {click: upload_file_button_click}
