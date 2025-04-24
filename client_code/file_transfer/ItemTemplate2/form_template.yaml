@@ -10,7 +10,12 @@ components:
 - event_bindings: {click: download_link_click}
   layout_properties: {grid_position: 'OBKQIL,SPSWCJ'}
   name: download_link
-  properties: {text: ' Download', tooltip: 'Some popup blockers can interfere with file download. If you have an issue, try turning these off to resolve the issue.'}
+  properties: {icon: 'fa:download', text: ' Download', tooltip: 'Some popup blockers can interfere with file download. If you have an issue, try turning these off to resolve the issue.'}
+  type: Link
+- event_bindings: {click: convert_link_click}
+  layout_properties: {grid_position: 'OBKQIL,HHNYYB'}
+  name: convert_link
+  properties: {icon: 'fa:arrows-h', text: To JSON}
   type: Link
 container:
   properties: {col_widths: '{"LRRRLV":25,"CFIMRR":20,"SPSWCJ":15}'}

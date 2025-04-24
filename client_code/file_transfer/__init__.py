@@ -30,3 +30,4 @@ class file_transfer(file_transferTemplate):
       )
       self.upload_file = None
       self.upload_file_name.text = ""
+

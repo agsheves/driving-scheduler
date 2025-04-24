@@ -19,5 +19,10 @@ class ItemTemplate2(ItemTemplate2Template):
   def download_link_click(self, **event_args):
     file = self.item['file']
     anvil.media.download(file)
+
+  def convert_link_click(self, **event_args):
+    print(self.item['filename'])
+    anvil.server.call('convert_file_to_json', self.item['file'])
+    
     
 
