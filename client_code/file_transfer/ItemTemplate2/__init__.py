@@ -22,7 +22,7 @@ class ItemTemplate2(ItemTemplate2Template):
 
   def convert_link_click(self, **event_args):
     print(self.item['filename'])
-    anvil.server.call('convert_file_to_json', self.item['file'])
+    anvil.server.call('convert_csv_to_json', self.item['file'])
     
     
 

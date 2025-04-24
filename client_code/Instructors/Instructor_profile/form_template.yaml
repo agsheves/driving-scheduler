@@ -47,6 +47,11 @@ components:
         name: save_term_availability_button
         properties: {icon: 'fa:check', text: Save}
         type: Button
+      - event_bindings: {click: download_term_availability_button_click}
+        layout_properties: {grid_position: 'IEVQQC,ZPGEFF'}
+        name: download_term_availability_button
+        properties: {align: center, icon: 'fa:download', text: Download as CSV}
+        type: Button
       - layout_properties: {grid_position: 'MTMCPM,RSQYTU'}
         name: term_dates_list
         properties: {}
