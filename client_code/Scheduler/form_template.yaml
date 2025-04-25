@@ -1,12 +1,17 @@
 components:
 - layout_properties: {grid_position: 'IGJCBD,QIIFKD'}
   name: label_1
-  properties: {align: center, role: headline, text: Scheduler page}
+  properties: {align: center, role: headline, text: Schedule page}
   type: Label
 - layout_properties: {grid_position: 'LPPIYF,JCSABL'}
   name: spacer_1
   properties: {height: 32}
   type: Spacer
+- event_bindings: {change: upload_new_schedule_button_change}
+  layout_properties: {grid_position: 'JURZXD,ADTINO'}
+  name: upload_new_schedule_button
+  properties: {role: elevated-button, text: Upload a New Schedule}
+  type: FileLoader
 - event_bindings: {click: export_schedule_button_click}
   layout_properties: {grid_position: 'JURZXD,JKWQMS'}
   name: export_schedule_button

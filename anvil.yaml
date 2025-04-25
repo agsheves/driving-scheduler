@@ -35,10 +35,10 @@ db_schema:
       name: instructor_availability_codes
       type: simpleObject
     - admin_ui: {order: 4, width: 200}
-      name: current_teen_driving_schedul
+      name: current_teen_driving_schedule
       type: simpleObject
     - admin_ui: {order: 5, width: 200}
-      name: previous_teen_driving_schedul
+      name: previous_teen_driving_schedule
       type: simpleObject
     - admin_ui: {order: -1, width: 200}
       name: version
