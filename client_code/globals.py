@@ -18,57 +18,79 @@ teen_driving_schedule = {
         {
             "title": "Drive 1",
             "start_time": "08:00",
-            "end_time": "10:00"
+            "end_time": "10:00",
+            "seasonal": "no",
+            "days": "all"
         },
         {
             "title": "Drive 2",
             "start_time": "10:15",
-            "end_time": "12:15"
+            "end_time": "12:15",
+            "seasonal": "no",
+            "days": "all"
         },
         {
             "title": "Drive 3",
             "start_time": "13:15",
-            "end_time": "15:15"
+            "end_time": "15:15",
+            "seasonal": "no",
+            "days": "all"
         },
         {
             "title": "Drive 4",
             "start_time": "15:45",
-            "end_time": "17:45"
+            "end_time": "17:45",
+            "seasonal": "no",
+            "days": "all"
         },
         {
             "title": "Drive 5",
             "start_time": "18:00",
-            "end_time": "20:00"
+            "end_time": "20:00",
+            "seasonal": "no",
+            "days": "all"
         },
         {
             "title": "Class 1",
             "start_time": "10:00",
-            "end_time": "12:00"
+            "end_time": "12:00",
+            "seasonal": "no",
+            "days": "all"
         },
         {
             "title": "Class 2",
             "start_time": "16:00",
-            "end_time": "18:00"
+            "end_time": "18:00",
+            "seasonal": "no",
+            "days": "all"
         },
         {
             "title": "Class 3",
             "start_time": "18:30",
-            "end_time": "20:30"
+            "end_time": "20:30",
+            "seasonal": "no",
+            "days": "all"
         },
         {
             "title": "Break - am",
             "start_time": "10:00",
-            "end_time": "10:15"
+            "end_time": "10:15",
+            "seasonal": "no",
+            "days": "all"
         },
         {
             "title": "Break - Lunch",
             "start_time": "12:15",
-            "end_time": "13:15"
+            "end_time": "13:15",
+            "seasonal": "no",
+            "days": "all"
         },
         {
             "title": "Break - pm",
             "start_time": "15:15",
-            "end_time": "15:45"
+            "end_time": "15:45",
+            "seasonal": "no",
+            "days": "all"
         }
     ]
 }

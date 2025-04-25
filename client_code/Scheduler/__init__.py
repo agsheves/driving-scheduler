@@ -38,15 +38,17 @@ class Scheduler(SchedulerTemplate):
       title = event["title"]
       start_time = event["start_time"]
       end_time = event["end_time"]
+      seasonal = event["seasonal"]
+      days = event["days"]
       if 'Drive' in title:
         drive_list_dict.append(event)
-        drive_list_print += f"{title}. Start - {start_time} / end - {end_time}\n"
+        drive_list_print += f"{title} -- Start - {start_time} / end - {end_time} | Seasonal restrictions - {seasonal} | Days available - {days}\n"
       if 'Class' in title:
         class_list_dict.append(event)
-        class_list_print += f"{title}. Start - {start_time} / end - {end_time}\n"
+        class_list_print += f"{title} -- Start - {start_time} / end - {end_time} | Seasonal restrictions - {seasonal} | Days available - {days}\n"
       if 'Break' in title:
         break_list_dict.append(event)
-        break_list_print += f"{title}. Start - {start_time} / end - {end_time}\n"
+        break_list_print += f"{title} -- Start - {start_time} / end - {end_time} | Seasonal restrictions - {seasonal} | Days available - {days}\n"
 
     self.drive_time_list_label.text = drive_list_print
     self.class_time_list_label.text = class_list_print
