@@ -7,9 +7,63 @@ components:
   name: spacer_1
   properties: {height: 32}
   type: Spacer
+- layout_properties: {grid_position: 'CBAUEM,RCGLVU'}
+  name: label_3
+  properties:
+    text: |
+      Lessons and Events available for scheduling are shown below
+
+      (This is for demo only but this shows the event types that are available to the scheduling function, sourced from the main 'teen schedule' list.
+
+      For the final schedule, these events will be allocated to an instructor and drives will also be matched to a school.)
+  type: Label
+- components:
+  - components:
+    - layout_properties: {grid_position: 'SXSNRW,SAMFMT'}
+      name: label_4
+      properties: {align: center, bold: true, text: Drive Sessions}
+      type: Label
+    - layout_properties: {grid_position: 'MEHZAY,DZOCNM'}
+      name: drive_time_list_label
+      properties: {}
+      type: Label
+    layout_properties: {grid_position: 'OYNQYD,GFWPIM'}
+    name: drive_card
+    properties: {role: outlined-card}
+    type: ColumnPanel
+  - components:
+    - layout_properties: {grid_position: 'RMEJVR,UVHTPY'}
+      name: label_5
+      properties: {align: center, bold: true, text: Classes}
+      type: Label
+    - layout_properties: {grid_position: 'ILDXHW,ITPZJR'}
+      name: class_time_list_label
+      properties: {}
+      type: Label
+    layout_properties: {grid_position: 'OYNQYD,TJDRSY'}
+    name: class_card
+    properties: {role: outlined-card}
+    type: ColumnPanel
+  - components:
+    - layout_properties: {grid_position: 'XPTYNW,NJMXXG'}
+      name: label_6
+      properties: {align: center, bold: true, text: Breaks}
+      type: Label
+    - layout_properties: {grid_position: 'ROVGFT,QRCGIM'}
+      name: break_time_list_label
+      properties: {}
+      type: Label
+    layout_properties: {grid_position: 'OYNQYD,OTVCYL'}
+    name: break_card
+    properties: {role: outlined-card}
+    type: ColumnPanel
+  layout_properties: {grid_position: 'GYYNEF,XXVWIP'}
+  name: column_panel_1
+  properties: {}
+  type: ColumnPanel
 - layout_properties: {grid_position: 'JHCAXC,WQVHFW'}
   name: label_2
-  properties: {align: center, italic: true, text: The instructor's schedule will appear here.}
+  properties: {align: center, italic: true, text: Scheduling grids will appear here}
   type: Label
 container: {type: ColumnPanel}
 is_package: true
