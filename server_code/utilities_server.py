@@ -9,9 +9,10 @@ import csv
 import json
 import io
 import anvil.media
+from collections import OrderedDict
 
 ###########################################################
-# Data import function to take CSV data and convert to JSON.
+# General data import function to take CSV data and convert to JSON.
 
 @anvil.server.callable
 def csv_to_structured_json(csv_file):
@@ -50,50 +51,65 @@ def convert_csv_to_json(file):
 def print_json(json_data):
     print(json.dumps(json_data, indent=2))
 
+# Drive schedule spoecifc import function
+
+@anvil.server.callable
+def convert_schedule_csv_to_json(csv_file):
+    if isinstance(csv_file, str):
+        with open(csv_file, 'r') as f:
+            reader = csv.DictReader(f)
+            data = list(reader)
+    else:
+        content = csv_file.get_bytes().decode('utf-8')
+        reader = csv.DictReader(content.splitlines())
+        data = list(reader)
+    
+    structured_data = {}
+    
+    for row in data:
+        # Use the "Title" field as the main key
+        title = row.pop('Title', None)
+        if title:
+            # Add all other columns as properties
+            structured_data[title] = {k: v for k, v in row.items() if k}
+    
+    return structured_data
+
+@anvil.server.callable
+def update_teen_drive_schedule(file):
+    json_payload = convert_schedule_csv_to_json(file)
+    current_variables = app_tables.global_variables_edit_with_care.get(version='latest')
+    
+    if current_variables:
+        current_schedule = current_variables['current_teen_driving_schedule']
+        current_variables.update(
+            previous_teen_driving_schedule=current_schedule,
+            current_teen_driving_schedule=json_payload
+        )
+        return True
+    else:
+        app_tables.global_variables_edit_with_care.add_row(
+            version='latest',
+            current_teen_driving_schedule=json_payload
+        )
+        return True
+  
+
 ###########################################################
 # Data export function to take JSON data and convert to CSV
 
-def flatten_json(data, parent_key='', sep='_'):
-    """
-    Recursively flatten a nested JSON dictionary
-    
-    :param data: Nested dictionary to flatten
-    :param parent_key: Key from parent level (for recursion)
-    :param sep: Separator for nested keys
-    :return: Flattened dictionary
-    """
-    items = []
-    
-    if isinstance(data, dict):
-        for k, v in data.items():
-            new_key = f"{parent_key}{sep}{k}" if parent_key else k
-            
-            # If value is a dictionary, recurse
-            if isinstance(v, dict):
-                items.extend(flatten_json(v, new_key, sep=sep).items())
-            # If value is a list, convert each item
-            elif isinstance(v, list):
-                for i, item in enumerate(v):
-                    items.extend(flatten_json({str(i): item}, new_key, sep=sep).items())
-            # If simple value, add to items
-            else:
-                items.append((new_key, v))
-    else:
-        # If input is not a dictionary, return it as is
-        return {parent_key: data}
-    
-    return dict(items)
-
 def export_json_to_csv(json_data, filename='schedule.csv'):
-
     output = io.StringIO()
     writer = csv.writer(output)
+    
+    # Convert JSON to OrderedDict to preserve order
+    json_data = OrderedDict(json_data)
     
     # Get all unique column headers
     all_headers = set()
     for _, event_data in json_data.items():
         all_headers.update(event_data.keys())
-    
+    all_headers = sorted(all_headers)
     # Write the header row
     writer.writerow(["Title"] + list(all_headers))
     
@@ -108,10 +124,10 @@ def export_json_to_csv(json_data, filename='schedule.csv'):
         writer.writerow(row)
     
     # Create media object
-    csv_media = anvil.media.BlobMedia('text/csv', 
+    csv_media = anvil.BlobMedia('text/csv', 
                                  output.getvalue().encode('utf-8'), 
                                  name=filename)
-    
+
     app_tables.files.add_row(
         filename=filename,
         file=csv_media,
@@ -121,4 +137,5 @@ def export_json_to_csv(json_data, filename='schedule.csv'):
 
 @anvil.server.callable
 def convert_JSON_to_csv_and_save(json_data, filename):
-    return export_json_to_csv(json_data, filename)
+    return export_json_to_csv(json_data, filename) 
+

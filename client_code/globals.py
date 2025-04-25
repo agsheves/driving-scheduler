@@ -13,7 +13,7 @@ days_full = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
 days_short = ["mon", "tues", "wed", "thurs", "fri", "sat", "sun"]
 availability_codes = ["Unavailable", "Yes - Drive", "Yes - Class", "Yes - Any"]
 
-teen_driving_schedule = {
+current_teen_driving_schedule = {
   "Drive 1": {
     "start_time": "08:00",
     "end_time": "10:00",
@@ -92,3 +92,5 @@ teen_driving_schedule = {
     "vacation": "all"
   }
 }
+
+old_teen_driving_schedule = ""

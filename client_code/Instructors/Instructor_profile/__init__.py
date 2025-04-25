@@ -5,7 +5,7 @@ import anvil.tables as tables
 import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.users
-from ...globals import availability_codes, availability_time_slots, days_full
+
 
 
 class Instructor_profile(Instructor_profileTemplate):
@@ -17,9 +17,9 @@ class Instructor_profile(Instructor_profileTemplate):
     self.instructor_availability_row = app_tables.instructor_schedules.get(instructor=self.instructor)
 
     # Define these from globals so all actions are using the same variables.
-    self.time_slots = availability_time_slots
-    self.availability_codes = availability_codes
-    self.days_formatted = days_full
+    self.time_slots = app_tables.global_variables_edit_with_care.get(version='latest')['availability_time_slots']
+    self.availability_codes = app_tables.global_variables_edit_with_care.get(version='latest')['instructor_availability_codes']
+    self.days_formatted = app_tables.global_variables_edit_with_care.get(version='latest')['days_full']
 
     # Check instructor profile
     print(self.instructor['firstName'])

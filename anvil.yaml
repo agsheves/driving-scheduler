@@ -19,6 +19,32 @@ db_schema:
       type: string
     server: full
     title: Files
+  global_variables_edit_with_care:
+    client: search
+    columns:
+    - admin_ui: {order: 0, width: 200}
+      name: availability_time_slots
+      type: simpleObject
+    - admin_ui: {order: 1, width: 200}
+      name: days_full
+      type: simpleObject
+    - admin_ui: {order: 2, width: 200}
+      name: days_short
+      type: simpleObject
+    - admin_ui: {order: 3, width: 200}
+      name: instructor_availability_codes
+      type: simpleObject
+    - admin_ui: {order: 4, width: 200}
+      name: current_teen_driving_schedul
+      type: simpleObject
+    - admin_ui: {order: 5, width: 200}
+      name: previous_teen_driving_schedul
+      type: simpleObject
+    - admin_ui: {order: -1, width: 200}
+      name: version
+      type: string
+    server: full
+    title: global_variables_EDIT_WITH_CARE
   instructor_schedules:
     client: search
     columns:

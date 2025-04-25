@@ -6,22 +6,22 @@ import anvil.tables as tables
 import anvil.tables.query as q
 from anvil.tables import app_tables
 import json
-from ..globals import availability_codes, availability_time_slots, days_short,days_full, teen_driving_schedule
 from datetime import date, time, datetime
 
 class Scheduler(SchedulerTemplate):
   def __init__(self, **properties):
     # Set Form properties and Data Bindings.
     self.init_components(**properties)
+    current_teen_driving_schedule = app_tables.global_variables_edit_with_care.get(version='latest')['current_teen_driving_schedul']
 
     # Better error handling approach
     try:
         # Check if it's a string first
-        if isinstance(teen_driving_schedule, str):
-            self.teen_schedule = json.loads(teen_driving_schedule)
+        if isinstance(current_teen_driving_schedule, str):
+            self.teen_schedule = json.loads(current_teen_driving_schedule)
         else:
             # It's already a dictionary
-            self.teen_schedule = teen_driving_schedule
+            self.teen_schedule = current_teen_driving_schedule
     except json.JSONDecodeError:
         # Handle the case where it's a string but not valid JSON
         print("Invalid JSON format")
@@ -56,11 +56,5 @@ class Scheduler(SchedulerTemplate):
     self.break_time_list_label.text = break_list_print
 
   def export_schedule_button_click(self, **event_args):
-    filename = f"Teen Schedule - version {date.today()}"
+    filename = f"Teen Schedule - version {date.today()}.csv"
     csv_file = anvil.server.call('convert_JSON_to_csv_and_save', self.teen_schedule, filename)
-
-    anvil.media.download(csv_file)
-
-    self.export_status_label.text = f"Schedule exported successfully!"
-# Convenience wrapper
-    
