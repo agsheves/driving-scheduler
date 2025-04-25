@@ -7,17 +7,19 @@ components:
   name: spacer_1
   properties: {height: 32}
   type: Spacer
-- layout_properties: {grid_position: 'CBAUEM,RCGLVU'}
-  name: label_3
-  properties:
-    text: |
-      Lessons and Events available for scheduling are shown below
-
-      (This is for demo only but this shows the event types that are available to the scheduling function, sourced from the main 'teen schedule' list.
-
-      For the final schedule, these events will be allocated to an instructor and drives will also be matched to a school.)
-  type: Label
 - components:
+  - layout_properties: {grid_position: 'TWOCTZ,INDBJS'}
+    name: label_3
+    properties:
+      text: |
+        Lessons and Events available for scheduling are shown below
+
+        This is for demo only but this shows the event types that are available to the scheduling function, sourced from the main 'teen schedule' list.
+
+        Seasonal and day availability is included as a setting to help include / omit sessions that only take place at certain times of year (e.g. Summer vacation) or on certain days. This allows the winter / summer / term time / vacation schedule display to be a dynamic display that uses a single main schedule for reference but shows the required view. This eliminates the difficulty of maintaining multiple schedule lists.
+
+        For the final schedule, these events will be allocated to an instructor and drives will also be matched to a school.
+    type: Label
   - components:
     - layout_properties: {grid_position: 'SXSNRW,SAMFMT'}
       name: label_4
@@ -27,7 +29,7 @@ components:
       name: drive_time_list_label
       properties: {}
       type: Label
-    layout_properties: {grid_position: 'FUIKWU,ITODPC'}
+    layout_properties: {grid_position: 'UGBUHA,IFJVUF'}
     name: drive_card
     properties: {role: outlined-card}
     type: ColumnPanel
@@ -40,7 +42,7 @@ components:
       name: class_time_list_label
       properties: {}
       type: Label
-    layout_properties: {grid_position: 'JDOCAX,NCQRLD'}
+    layout_properties: {grid_position: 'EBOYZC,PNGYVA'}
     name: class_card
     properties: {role: outlined-card}
     type: ColumnPanel
@@ -53,10 +55,15 @@ components:
       name: break_time_list_label
       properties: {}
       type: Label
-    layout_properties: {grid_position: 'UHAXTV,POYSJM'}
+    layout_properties: {grid_position: 'XXNEUI,BGKYEF'}
     name: break_card
     properties: {role: outlined-card}
     type: ColumnPanel
+  layout_properties: {grid_position: 'PRKSGI,TWXUAV'}
+  name: outlined_card_1
+  properties: {role: tonal-card}
+  type: ColumnPanel
+- components: []
   layout_properties: {grid_position: 'GYYNEF,XXVWIP'}
   name: column_panel_1
   properties: {}
