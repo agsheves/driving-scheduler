@@ -34,30 +34,33 @@ class Scheduler(SchedulerTemplate):
     class_list_print = ""
     break_list_print = ""
     
-    for event in self.teen_schedule['lesson_schedule']:
-      title = event["title"]
-      start_time = event["start_time"]
-      end_time = event["end_time"]
-      seasonal = event["seasonal"]
-      days_term = event['days_term']
-      days_vacation = event['days_vacation']
-      if 'Drive' in title:
-        drive_list_dict.append(event)
-        drive_list_print += f"{title} -- Start - {start_time} / end - {end_time} | Seasonal restrictions - {seasonal} | Days available (term) - {days_term} | Days available (vacation) - {days_vacation}\n"
-      if 'Class' in title:
-        class_list_dict.append(event)
-        class_list_print += f"{title} -- Start - {start_time} / end - {end_time} | Seasonal restrictions - {seasonal} | Days available (term) - {days_term} | Days available (vacation) - {days_vacation}\n"
-      if 'Break' in title:
-        break_list_dict.append(event)
-        break_list_print += f"{title} -- Start - {start_time} / end - {end_time}\n"
+    # New code for flattened structure:
+    for title, event in self.teen_schedule.items():
+        start_time = event["start_time"]
+        end_time = event["end_time"]
+        seasonal = event["seasonal"]
+        term = event['term']  # Note: renamed from days_term
+        vacation = event['vacation']  # Note: renamed from days_vacation
+        if 'Drive' in title:
+          drive_list_dict.append(event)
+          drive_list_print += f"{title} -- Start - {start_time} / end - {end_time} | Seasonal restrictions - {seasonal} | Days available (term) - {term} | Days available (vacation) - {vacation}\n"
+        if 'Class' in title:
+          class_list_dict.append(event)
+          class_list_print += f"{title} -- Start - {start_time} / end - {end_time} | Seasonal restrictions - {seasonal} | Days available (term) - {term} | Days available (vacation) - {vacation}\n"
+        if 'Break' in title:
+          break_list_dict.append(event)
+          break_list_print += f"{title} -- Start - {start_time} / end - {end_time}\n"
 
     self.drive_time_list_label.text = drive_list_print
     self.class_time_list_label.text = class_list_print
     self.break_time_list_label.text = break_list_print
 
   def export_schedule_button_click(self, **event_args):
-    today = date.today()
-    file_name = f"Main Schedule {today}.csv"
-    json_schedule = json.dumps(self.teen_schedule)
-    anvil.server.call('convert_JSON_to_csv_and_save', json_schedule, file_name)
+    filename = f"Teen Schedule - version {date.today()}"
+    csv_file = anvil.server.call('convert_JSON_to_csv_and_save', self.teen_schedule, filename)
+
+    anvil.media.download(csv_file)
+
+    self.export_status_label.text = f"Schedule exported successfully!"
+# Convenience wrapper
     

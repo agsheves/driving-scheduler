@@ -84,83 +84,41 @@ def flatten_json(data, parent_key='', sep='_'):
     
     return dict(items)
 
-def json_to_csv(json_data, filename='converted_data.csv'):
-    """
-    Convert JSON to CSV with flexible nested structure
-    
-    :param json_data: JSON data (dict or string)
-    :param filename: Desired filename for CSV
-    :return: Media object of created CSV
-    """
-    # If json_data is a string, parse it
-    if isinstance(json_data, str):
-        json_data = json.loads(json_data)
-    
-    # Flatten the JSON
-    flattened_data = flatten_json(json_data)
-    
-    # Create a string buffer to write CSV
+def export_json_to_csv(json_data, filename='schedule.csv'):
+
     output = io.StringIO()
-    
-    # If no data, return None
-    if not flattened_data:
-        return None
-    
-    # Prepare CSV writer
     writer = csv.writer(output)
     
-    # Extract headers and rows
-    headers = sorted(set(key.split('_')[-1] for key in flattened_data.keys()))
-    writer.writerow(['Attribute'] + headers)
+    # Get all unique column headers
+    all_headers = set()
+    for _, event_data in json_data.items():
+        all_headers.update(event_data.keys())
     
-    # Group flattened data by first-level key
-    grouped_data = {}
-    for full_key, value in flattened_data.items():
-        # Split the key and get the meaningful parts
-        key_parts = full_key.split('_')
+    # Write the header row
+    writer.writerow(["Title"] + list(all_headers))
+    
+    # Write each item as a row
+    for event_id, event_data in json_data.items():
+        row = [event_id]  # Event ID (e.g., "Drive 1") as first column
         
-        # If key has multiple parts, use all but the last
-        if len(key_parts) > 1:
-            primary_key = '_'.join(key_parts[:-1])
-            last_key = key_parts[-1]
-            
-            if primary_key not in grouped_data:
-                grouped_data[primary_key] = {}
-            
-            grouped_data[primary_key][last_key] = value
-    
-    # Write rows
-    for primary_key, values in grouped_data.items():
-        row = [primary_key]
-        row.extend([values.get(header, '') for header in headers])
+        # Add data for each header
+        for header in all_headers:
+            row.append(event_data.get(header, ''))
+        
         writer.writerow(row)
     
     # Create media object
-    csv_media = anvil.BlobMedia('text/csv', 
-                                output.getvalue().encode('utf-8'), 
-                                name=filename)
+    csv_media = anvil.media.BlobMedia('text/csv', 
+                                 output.getvalue().encode('utf-8'), 
+                                 name=filename)
     
-    # Add to files table
     app_tables.files.add_row(
         filename=filename,
         file=csv_media,
         file_type='CSV'
     )
-    
-    return csv_media
-
-# Convenience wrapper
-def convert_and_save_csv(json_data, filename='converted_data.csv'):
-    """
-    Wrapper function to convert JSON to CSV and add to files
-    
-    :param json_data: JSON data
-    :param filename: Desired filename for the CSV
-    :return: Media object of the created CSV
-    """
-    return json_to_csv(json_data, filename)
-
+  
 
 @anvil.server.callable
 def convert_JSON_to_csv_and_save(json_data, filename):
-    return json_to_csv(json_data, filename)
+    return export_json_to_csv(json_data, filename)
