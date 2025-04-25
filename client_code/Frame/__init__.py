@@ -16,7 +16,7 @@ class Frame(FrameTemplate):
     # ⚠️  Enable this for testing
     #anvil.users.login_with_form()
     if display_form is None:
-      self.dynamic_panel_1.add_component(Scheduler())
+      self.dynamic_panel_1.add_component(Instructors())
     else:
       self.dynamic_panel_1.add_component(display_form())
 
