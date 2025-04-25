@@ -7,7 +7,7 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import json
 from ..globals import availability_codes, availability_time_slots, days_short,days_full, teen_driving_schedule
-
+from datetime import date, time, datetime
 
 class Scheduler(SchedulerTemplate):
   def __init__(self, **properties):
@@ -18,10 +18,10 @@ class Scheduler(SchedulerTemplate):
     try:
         # Check if it's a string first
         if isinstance(teen_driving_schedule, str):
-            teen_schedule = json.loads(teen_driving_schedule)
+            self.teen_schedule = json.loads(teen_driving_schedule)
         else:
             # It's already a dictionary
-            teen_schedule = teen_driving_schedule
+            self.teen_schedule = teen_driving_schedule
     except json.JSONDecodeError:
         # Handle the case where it's a string but not valid JSON
         print("Invalid JSON format")
@@ -34,7 +34,7 @@ class Scheduler(SchedulerTemplate):
     class_list_print = ""
     break_list_print = ""
     
-    for event in teen_schedule['lesson_schedule']:
+    for event in self.teen_schedule['lesson_schedule']:
       title = event["title"]
       start_time = event["start_time"]
       end_time = event["end_time"]
@@ -54,3 +54,10 @@ class Scheduler(SchedulerTemplate):
     self.drive_time_list_label.text = drive_list_print
     self.class_time_list_label.text = class_list_print
     self.break_time_list_label.text = break_list_print
+
+  def export_schedule_button_click(self, **event_args):
+    today = date.today()
+    file_name = f"Main Schedule {today}.csv"
+    json_schedule = json.dumps(self.teen_schedule)
+    anvil.server.call('convert_JSON_to_csv_and_save', json_schedule, file_name)
+    
