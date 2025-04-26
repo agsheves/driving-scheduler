@@ -121,8 +121,15 @@ class Scheduler(SchedulerTemplate):
       self.schedule_plot_complete.visible = False
       print("no data to show")
       return
-    
+    # data format: 'z_values': availability code (1 - 4)
+      #'Unavailable': 0,
+      #'Yes - Any': 1,
+      # 'Yes - Drive': 2,
+      # 'Yes - Class': 3,
+      # 'Booked': 4
+    # 'x_labels': Days,'y_labels': hours, 'instructors': [i['firstName'] for i in instructors]
     # Create a simple heatmap
+
     fig = go.Figure(data=go.Heatmap(
         z=data['z_values'],
         x=data['x_labels'],

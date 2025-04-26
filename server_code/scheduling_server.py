@@ -45,7 +45,7 @@ def process_instuctor_availability(instructors, start_date=None):
         
         days_of_week = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
         
-        # Process each day directly from weekly_data
+        business_hours = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00']
         for day_index, day_name in enumerate(days_of_week):
             try:
                 day_availability = weekly_data['weekly_availability'][day_name]
@@ -55,6 +55,7 @@ def process_instuctor_availability(instructors, start_date=None):
                 continue
                 
             for hour_str, status in day_availability.items():
+              if hour_str in business_hours:
                 try:
                     value = availability_mapping.get(status, -1)
                     
@@ -90,13 +91,20 @@ def process_instuctor_availability(instructors, start_date=None):
     pivot_df = df.pivot_table(
         values='value',
         index='hour_24',
-        columns='day_name',
+        columns=['day_name', 'instructor'],
         aggfunc='first'
     )
-    print(pivot_df)
+    pivot_df = pivot_df.sort_index(ascending=False)
+
+    flat_columns = []
+    for col in pivot_df.columns:
+        day, instructor = col
+        flat_columns.append(f"{day.capitalize()} - {instructor}")
+    
+    # Return the flat structure
     return {
         'z_values': pivot_df.values.tolist(),
-        'x_labels': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        'x_labels': flat_columns,
         'y_labels': [f"{h}:00" for h in pivot_df.index.tolist()],
         'instructors': [i['firstName'] for i in instructors]
     }
