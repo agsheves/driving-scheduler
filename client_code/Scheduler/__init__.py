@@ -7,8 +7,6 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import json
 from datetime import date, time, datetime
-import pandas as pd
-import numpy as np
 import plotly.graph_objects as go
 
 class Scheduler(SchedulerTemplate):
@@ -57,6 +55,8 @@ class Scheduler(SchedulerTemplate):
     self.drive_time_list_label.text = drive_list_print
     self.class_time_list_label.text = class_list_print
     self.break_time_list_label.text = break_list_print
+    self.filter_instructors = False
+    self.populate_instructor_filter_drop_down()
 
   def export_schedule_button_click(self, **event_args):
     filename = f"Teen Schedule - version {date.today()}.csv"
@@ -78,3 +78,86 @@ class Scheduler(SchedulerTemplate):
             pass
       from ..Frame import Frame
       open_form('Frame', Scheduler)
+
+# ##############################################
+# Schedule preparation and display
+
+    
+  def populate_instructor_filter_drop_down(self):
+    """Populate the dropdown with available instructors"""
+    # Get all instructors from the database
+    instructors = app_tables.users.search(is_instructor=True)
+    
+    # Populate dropdown with instructor names
+    self.instructor_filter_drop_down.items = [(i['firstName'] + ' ' + i['surname'], i) for i in instructors]
+    
+    # Select first instructor as default if available
+    if self.instructor_filter_drop_down.items:
+      self.instructor_filter_drop_down.selected_value = self.instructor_filter_drop_down.items[0][1]
+    
+    # Initially hide the dropdown since filtering is off by default
+    self.instructor_filter_drop_down.visible = False
+      
+  def refresh_schedule_display(self):
+
+    # Get selected instructors based on filter status
+    if self.filter_instructors:
+      # When filter is on, use the selected instructor
+      if self.instructor_filter_drop_down.selected_value:
+        selected_instructors = [self.instructor_filter_drop_down.selected_value]
+      else:
+  
+        return
+    else:
+      # When filter is off, get all instructors
+      selected_instructors = list(app_tables.users.search(is_instructor=True))
+    
+    # Get data from server
+    print("Getting data:\n")
+    data = anvil.server.call('process_instuctor_availability', selected_instructors)
+    print(data)
+    
+    if not data:
+      self.schedule_plot_complete.visible = False
+      print("no data to show")
+      return
+    
+    # Create a simple heatmap
+    fig = go.Figure(data=go.Heatmap(
+        z=data['z_values'],
+        x=data['x_labels'],
+        y=data['y_labels'],
+        colorscale=[
+            [0, 'lightgrey'],     # Unavailable
+            [0.25, 'lightgreen'], # Yes - Any
+            [0.5, 'lightblue'],   # Yes - Drive
+            [0.75, 'yellow'],     # Yes - Class
+            [1, 'red']            # Booked
+        ]
+    ))
+    
+    # Update layout - keeping it very minimal
+    title_text = "Weekly Availability"
+    if data['instructors']:
+      title_text += f": {', '.join(data['instructors'])}"
+    
+    fig.update_layout(
+        title=title_text,
+        height=500
+    )
+    
+    # Set the plot's figure
+    self.schedule_plot_complete.figure = fig
+    self.schedule_plot_complete.visible = True
+
+    
+  def show_schedule_button_click(self, **event_args):
+    """Handle the view button click"""
+    self.refresh_schedule_display()
+  
+  def filter_schedule_switch_change(self, **event_args):
+    """Handle the filter toggle switch"""
+    self.filter_instructors = self.filter_schedule_switch.checked
+    self.instructor_filter_drop_down.visible = self.filter_instructors
+    self.refresh_schedule_display()
+

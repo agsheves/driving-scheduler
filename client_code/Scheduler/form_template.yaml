@@ -80,7 +80,8 @@ components:
   type: ColumnPanel
 - components:
   - components:
-    - layout_properties: {grid_position: 'VZFNKB,SVDCRK'}
+    - event_bindings: {change: filter_schedule_switch_change}
+      layout_properties: {grid_position: 'VZFNKB,SVDCRK'}
       name: filter_schedule_switch
       properties: {text_post: Filter By Instructor, text_pre: Full Schedule}
       type: form:dep_nh1j2ue7kdk6d:Switch
@@ -88,12 +89,17 @@ components:
       name: instructor_filter_drop_down
       properties: {visible: false}
       type: DropDown
+    - event_bindings: {click: show_schedule_button_click}
+      layout_properties: {grid_position: 'ALHZIE,KQTDQG'}
+      name: show_schedule_button
+      properties: {role: filled-button, text: Show Schedule}
+      type: Button
     layout_properties: {grid_position: 'ZBGTPJ,EMSISF'}
     name: schedule_control_column
     properties: {}
     type: ColumnPanel
   - layout_properties: {grid_position: 'ZGNTYQ,SUERLH'}
-    name: full_schedule_grid
+    name: schedule_plot_complete
     properties: {}
     type: Plot
   layout_properties: {full_width_row: true, grid_position: 'NEDZDU,SPKYRK'}

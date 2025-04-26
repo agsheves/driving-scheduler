@@ -56,10 +56,7 @@ db_schema:
       name: vacation_days
       type: simpleObject
     - admin_ui: {order: 2, width: 200}
-      name: school_term_availability
-      type: simpleObject
-    - admin_ui: {order: 3, width: 200}
-      name: school_vacation_availability
+      name: weekly_availability
       type: simpleObject
     server: full
     title: instructor_schedules
