@@ -14,7 +14,6 @@ class Scheduler(SchedulerTemplate):
     # Set Form properties and Data Bindings.
     self.init_components(**properties)
     current_teen_driving_schedule = app_tables.global_variables_edit_with_care.get(version='latest')['current_teen_driving_schedule']
-
     # Better error handling approach
     try:
         # Check if it's a string first
@@ -57,6 +56,7 @@ class Scheduler(SchedulerTemplate):
     self.break_time_list_label.text = break_list_print
     self.filter_instructors = False
     self.populate_instructor_filter_drop_down()
+    self.refresh_schedule_display()
 
   def export_schedule_button_click(self, **event_args):
     filename = f"Teen Schedule - version {date.today()}.csv"
@@ -129,18 +129,41 @@ class Scheduler(SchedulerTemplate):
       # 'Booked': 4
     # 'x_labels': Days,'y_labels': hours, 'instructors': [i['firstName'] for i in instructors]
     # Create a simple heatmap
+    text_matrix = []
+    for row in data['z_values']:
+        text_row = []
+        for val in row:
+            if val == 0:
+                text_row.append('Unavailable')
+            elif val == 1:
+                text_row.append('Yes - Any')
+            elif val == 2:
+                text_row.append('Yes - Drive')
+            elif val == 3:
+                text_row.append('Yes - Class')
+            elif val == 4:
+                text_row.append('Booked')
+            else:
+                text_row.append('')
+        text_matrix.append(text_row)
 
     fig = go.Figure(data=go.Heatmap(
         z=data['z_values'],
         x=data['x_labels'],
         y=data['y_labels'],
         colorscale=[
-            [0, 'lightgrey'],     # Unavailable
-            [0.25, 'lightgreen'], # Yes - Any
-            [0.5, 'lightblue'],   # Yes - Drive
-            [0.75, 'yellow'],     # Yes - Class
-            [1, 'red']            # Booked
-        ]
+            [0/4, 'DimGrey'],
+            [1/4, 'RebeccaPurple'],
+            [2/4, 'DeepSkyBlue'],
+            [3/4, 'Blue'],
+            [4/4, 'Green']
+        ],
+        text=text_matrix,
+        texttemplate="%{text}",
+        showscale=False,
+        bgcolor='white',
+        zmin=0,
+        zmax=4
     ))
     
     # Update layout - keeping it very minimal
@@ -149,8 +172,18 @@ class Scheduler(SchedulerTemplate):
       title_text += f": {', '.join(data['instructors'])}"
     
     fig.update_layout(
-        title=title_text,
-        height=500
+        title=None,  # Remove title
+        paper_bgcolor='white',
+        plot_bgcolor='white',
+        margin=dict(l=20, r=20, t=30, b=20),
+        xaxis=dict(
+            side='top',
+            tickangle=-45,
+            tickfont=dict(color='black')
+        ),
+        yaxis=dict(
+            tickfont=dict(color='black')
+        )
     )
     
     # Set the plot's figure
@@ -158,13 +191,17 @@ class Scheduler(SchedulerTemplate):
     self.schedule_plot_complete.visible = True
 
     
-  def show_schedule_button_click(self, **event_args):
-    """Handle the view button click"""
+  def refresh_schedule_button_click(self, **event_args):
+    # Used for testing
     self.refresh_schedule_display()
   
   def filter_schedule_switch_change(self, **event_args):
-    """Handle the filter toggle switch"""
     self.filter_instructors = self.filter_schedule_switch.checked
     self.instructor_filter_drop_down.visible = self.filter_instructors
     self.refresh_schedule_display()
+
+  def instructor_filter_drop_down_change(self, **event_args):
+    self.filter_instructors = True
+    self.refresh_schedule_display()
+    
 

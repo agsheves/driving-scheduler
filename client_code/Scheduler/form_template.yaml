@@ -23,12 +23,7 @@ components:
     properties:
       text: |
         Lessons and Events available for scheduling are shown below
-
-        This is for demo only but this shows the event types that are available to the scheduling function, sourced from the main 'teen schedule' list.
-
-        Seasonal and day availability is included as a setting to help include / omit sessions that only take place at certain times of year (e.g. Summer vacation) or on certain days. This allows the winter / summer / term time / vacation schedule display to be a dynamic display that uses a single main schedule for reference but shows the required view. This eliminates the difficulty of maintaining multiple schedule lists.
-
-        For the final schedule, these events will be allocated to an instructor and drives will also be matched to a school.
+      visible: false
     type: Label
   - components:
     - layout_properties: {grid_position: 'SXSNRW,SAMFMT'}
@@ -70,8 +65,8 @@ components:
     properties: {role: outlined-card}
     type: ColumnPanel
   layout_properties: {grid_position: 'PRKSGI,TWXUAV'}
-  name: outlined_card_1
-  properties: {role: tonal-card}
+  name: schedule_card_1
+  properties: {role: tonal-card, visible: false}
   type: ColumnPanel
 - components: []
   layout_properties: {grid_position: 'GYYNEF,XXVWIP'}
@@ -80,25 +75,39 @@ components:
   type: ColumnPanel
 - components:
   - components:
+    - layout_properties: {grid_position: 'PNWRFV,CHLYDZ'}
+      name: label_2
+      properties: {role: title, text: Availability Schedule}
+      type: Label
+    - layout_properties: {grid_position: 'ZAHNZW,FEIECD'}
+      name: rich_text_1
+      properties:
+        align: center
+        content: |-
+          <p>This shows instructor availability as follows:</p>
+          <p><span style="color:DimGrey;">■</span> Unavailable | <span style="color:RebeccaPurple;">■</span> Available - Any Session Type | <span style="color:DeepSkyBlue;">■</span> Available - Drive Sessions Only | <span style="color:Blue;">■</span> Available - Class Sessions Only | <span style="color:Green;">■</span> Booked</p>
+        format: restricted_html
+      type: RichText
     - event_bindings: {change: filter_schedule_switch_change}
       layout_properties: {grid_position: 'VZFNKB,SVDCRK'}
       name: filter_schedule_switch
       properties: {text_post: Filter By Instructor, text_pre: Full Schedule}
       type: form:dep_nh1j2ue7kdk6d:Switch
-    - layout_properties: {grid_position: 'VZFNKB,GDQFQH'}
+    - event_bindings: {change: instructor_filter_drop_down_change}
+      layout_properties: {grid_position: 'VZFNKB,GDQFQH'}
       name: instructor_filter_drop_down
       properties: {visible: false}
       type: DropDown
-    - event_bindings: {click: show_schedule_button_click}
+    - event_bindings: {click: refresh_schedule_button_click}
       layout_properties: {grid_position: 'ALHZIE,KQTDQG'}
-      name: show_schedule_button
-      properties: {role: filled-button, text: Show Schedule}
+      name: refresh_schedule_button
+      properties: {role: filled-button, text: Refresh Schedule, visible: false}
       type: Button
     layout_properties: {grid_position: 'ZBGTPJ,EMSISF'}
     name: schedule_control_column
     properties: {}
     type: ColumnPanel
-  - layout_properties: {grid_position: 'ZGNTYQ,SUERLH'}
+  - layout_properties: {grid_position: 'ZGNTYQ,SUERLH', row_background: ''}
     name: schedule_plot_complete
     properties: {}
     type: Plot
