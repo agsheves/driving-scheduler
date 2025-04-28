@@ -138,5 +138,5 @@ services:
 - client_config: {}
   server_config: {file_table: files}
   source: /runtime/services/anvil/files.yml
-startup: {module: Scheduler, type: form}
+startup: {module: Frame, type: form}
 startup_form: null
