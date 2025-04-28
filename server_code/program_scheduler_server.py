@@ -26,35 +26,36 @@ def calculate_program_schedule(start_date):
     Returns a schedule with class and drive slots, and max cohort size.
     """
     try:
+        print(f"\nStarting schedule calculation for {start_date}")
+
         # Calculate available drive slots for each week
         weekly_drive_slots = []
 
         # Week 1 - orientation and classes
         week1_start = start_date
         weekly_drive_slots.append(0)  # No drives in week 1
+        print(f"Week 1 start: {week1_start}")
 
         # Weeks 2-6 - classes and drives
         for week_num in range(1, 6):
             week_start = start_date + timedelta(weeks=week_num)
+            print(f"Week {week_num + 1} start: {week_start}")
             drive_slots = anvil.server.call("get_max_drive_slots", week_start)
             weekly_drive_slots.append(drive_slots)
 
-        print(f"Weekly drive slots: {weekly_drive_slots}")  # Debug print
+        print(f"Weekly drive slots: {weekly_drive_slots}")
 
         # Calculate max students based on drive capacity
-        # Each drive slot can handle 2 students
         students_per_slot = 2
         if len(weekly_drive_slots) < 2:
             raise ValueError("Not enough weeks with drive slots available")
 
-        max_students = (
-            min(weekly_drive_slots[1:]) * students_per_slot
-        )  # Use minimum weekly capacity
-        print(f"Max students: {max_students}")  # Debug print
+        max_students = min(weekly_drive_slots[1:]) * students_per_slot
+        print(f"Max students: {max_students}")
 
         # Create drive pairs (A, B, C, etc.)
         drive_pairs = list(string.ascii_uppercase[: max_students // 2])
-        print(f"Drive pairs: {drive_pairs}")  # Debug print
+        print(f"Drive pairs: {drive_pairs}")
 
         # Generate schedule
         schedule = {
@@ -71,6 +72,10 @@ def calculate_program_schedule(start_date):
 
         for week_num in range(6):
             week_start = start_date + timedelta(weeks=week_num)
+            print(
+                f"\nGenerating schedule for week {week_num + 1} starting {week_start}"
+            )
+
             week_schedule = {
                 "week_number": week_num + 1,
                 "start_date": week_start,
@@ -80,17 +85,18 @@ def calculate_program_schedule(start_date):
 
             # Add orientation on first day of week 1
             if week_num == 0:
+                print("Adding orientation and first 3 classes")
                 week_schedule["class_slots"].append("Orientation")
-                # Add first 3 classes starting from day 2
                 for i in range(3):
                     week_schedule["class_slots"].append(f"Class {current_class_number}")
                     current_class_number += 1
             else:
                 # Add 3 classes per week for weeks 2-6
+                print(
+                    f"Adding classes {current_class_number} to {current_class_number + 2}"
+                )
                 for i in range(3):
-                    if (
-                        current_class_number <= 15
-                    ):  # Only add if we haven't completed all classes
+                    if current_class_number <= 15:
                         week_schedule["class_slots"].append(
                             f"Class {current_class_number}"
                         )
@@ -98,11 +104,8 @@ def calculate_program_schedule(start_date):
 
             # Add drive slots (weeks 2-6 only)
             if week_num > 0:
-                # Get the drive slots for this week (index 1-5 for weeks 2-6)
                 week_drive_slots = weekly_drive_slots[week_num]
-                print(
-                    f"Week {week_num + 1} drive slots: {week_drive_slots}"
-                )  # Debug print
+                print(f"Adding {week_drive_slots} drive slots for week {week_num + 1}")
 
                 for slot_num in range(week_drive_slots):
                     for pair in drive_pairs:
@@ -112,12 +115,14 @@ def calculate_program_schedule(start_date):
                     current_drive_number += 1
 
             schedule["weekly_schedule"].append(week_schedule)
+            print(f"Week {week_num + 1} schedule: {week_schedule}")
 
+        print("\nFinal schedule:", schedule)
         return schedule
 
     except Exception as e:
-        print(f"Error in calculate_program_schedule: {str(e)}")  # Debug print
-        raise  # Re-raise the exception to be caught by the test function
+        print(f"Error in calculate_program_schedule: {str(e)}")
+        raise
 
 
 @anvil.server.callable
