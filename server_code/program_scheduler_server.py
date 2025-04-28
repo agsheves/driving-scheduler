@@ -5,7 +5,6 @@ This module handles the creation and management of driving school program schedu
 It coordinates class scheduling, drive scheduling, and instructor availability.
 """
 
-
 import anvil.files
 from anvil.files import data_files
 import anvil.users
@@ -17,94 +16,195 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
-
-# ===== Lesson Slot Management =====
-
-
-@anvil.server.callable
-def get_available_lesson_slots(date, is_vacation_period=False):
-    """Get all available lesson slots for a given date based on:
-    - Standard lesson slots (from globals)
-    - Instructor availability
-    - Term vs vacation rules
-    Returns: List of available lesson slots"""
-    pass
+import string
 
 
 @anvil.server.callable
-def get_instructor_available_slots(instructor_id, date):
-    """Get which lesson slots an instructor is available for on a given date.
-    Returns: List of available lesson slots"""
-    pass
+def calculate_program_schedule(start_date):
+    """
+    Calculate the ideal program schedule based on instructor availability.
+    Returns a schedule with class and drive slots, and max cohort size.
+    """
+    # Calculate total drive slots over 7 weeks
+    total_drive_slots = 0
+    total_class_slots = 0
+    weekly_capacity = []
 
+    # Calculate capacity for each week
+    for week_num in range(7):
+        week_start = start_date + timedelta(weeks=week_num)
+        drive_slots = instructor_availability_server.get_max_drive_slots(week_start)
+        class_slots = instructor_availability_server.get_max_class_slots(week_start)
 
-# ===== Class Scheduling =====
+        weekly_capacity.append(
+            {
+                "week_number": week_num + 1,
+                "start_date": week_start,
+                "drive_slots": drive_slots,
+                "class_slots": class_slots,
+            }
+        )
+
+        total_drive_slots += drive_slots
+        total_class_slots += class_slots
+
+    # Calculate max cohort size
+    # Each student needs 5 drive slots (10 drives in pairs)
+    max_students = int(total_drive_slots / 5)
+
+    # Create drive pairs (A, B, C, etc.)
+    drive_pairs = list(string.ascii_uppercase[: max_students // 2])
+
+    # Generate schedule
+    schedule = {
+        "start_date": start_date,
+        "end_date": start_date + timedelta(weeks=7),
+        "max_students": max_students,
+        "total_drive_slots": total_drive_slots,
+        "total_class_slots": total_class_slots,
+        "weekly_schedule": [],
+    }
+
+    # Generate weekly schedule
+    current_drive_number = 1
+    for week in weekly_capacity:
+        week_schedule = {
+            "week_number": week["week_number"],
+            "start_date": week["start_date"],
+            "class_slots": [],
+            "drive_slots": [],
+        }
+
+        # Add class slots (first 3 weeks only)
+        if week["week_number"] <= 3:
+            for class_num in range(1, 4):
+                week_schedule["class_slots"].append(f"Class {class_num}")
+
+        # Add drive slots (after first week)
+        if week["week_number"] > 1:
+            for _ in range(week["drive_slots"]):
+                for pair in drive_pairs:
+                    week_schedule["drive_slots"].append(
+                        f"Drive {current_drive_number}-Pair{pair}"
+                    )
+                current_drive_number += 1
+
+        schedule["weekly_schedule"].append(week_schedule)
+
+    return schedule
 
 
 @anvil.server.callable
-def schedule_class_slots(start_date, is_vacation_period=False):
-    """Schedule all required classes using available lesson slots.
-    Returns: Dict of {date: [class_slots]}"""
-    pass
+def format_schedule_output(schedule):
+    """
+    Format the schedule as a text output for easy verification.
+    """
+    output = []
+    output.append(
+        f"Program Schedule from {schedule['start_date']} to {schedule['end_date']}"
+    )
+    output.append(f"Max Cohort Size: {schedule['max_students']} students")
+    output.append(f"Total Drive Slots: {schedule['total_drive_slots']}")
+    output.append(f"Total Class Slots: {schedule['total_class_slots']}")
+    output.append("\nWeekly Schedule:")
+
+    for week in schedule["weekly_schedule"]:
+        output.append(f"\nWeek {week['week_number']} ({week['start_date']}):")
+        if week["class_slots"]:
+            output.append("  Classes:")
+            for class_slot in week["class_slots"]:
+                output.append(f"    {class_slot}")
+        if week["drive_slots"]:
+            output.append("  Drives:")
+            for drive_slot in week["drive_slots"]:
+                output.append(f"    {drive_slot}")
+
+    return "\n".join(output)
 
 
 @anvil.server.callable
-def validate_class_slots(class_schedule):
-    """Validate that class schedule meets all requirements.
-    Returns: (is_valid, validation_errors)"""
-    pass
+def test_program_schedule(start_date=None):
+    """
+    Test function to create and validate a program schedule.
+    Args:
+        start_date (date): Optional start date (defaults to next Monday)
+    Returns:
+        dict: Test results including schedule and validation
+    """
+    try:
+        # If no start date provided, default to next Monday
+        if start_date is None:
+            today = datetime.now().date()
+            days_until_monday = (7 - today.weekday()) % 7
+            start_date = today + timedelta(days=days_until_monday)
+
+        print(f"\nCreating schedule starting from {start_date}")
+
+        # Calculate the schedule
+        schedule = calculate_program_schedule(start_date)
+
+        # Validate the schedule
+        validation = validate_schedule(schedule)
+
+        # Format the output
+        schedule_text = format_schedule_output(schedule)
+
+        return {
+            "success": True,
+            "start_date": start_date,
+            "schedule": schedule,
+            "validation": validation,
+            "formatted_output": schedule_text,
+        }
+
+    except Exception as e:
+        return {"success": False, "error": str(e), "start_date": start_date}
 
 
-# ===== Drive Scheduling =====
+def validate_schedule(schedule):
+    """
+    Validate that the schedule meets all requirements.
+    Returns a dictionary of validation results.
+    """
+    validation = {
+        "total_drives_per_student": 0,
+        "total_classes_per_student": 0,
+        "drive_pairs_complete": True,
+        "class_sequence_valid": True,
+        "errors": [],
+    }
 
+    # Count total drives per student
+    drive_counts = {}
+    for week in schedule["weekly_schedule"]:
+        for drive_slot in week["drive_slots"]:
+            pair = drive_slot.split("-Pair")[1]
+            if pair not in drive_counts:
+                drive_counts[pair] = 0
+            drive_counts[pair] += 1
 
-@anvil.server.callable
-def calculate_required_drive_slots(cohort_size):
-    """Calculate total drive slots needed for cohort.
-    Returns: Dict of drive requirements by lesson slot"""
-    pass
+    # Check if each pair has exactly 5 drive slots
+    for pair, count in drive_counts.items():
+        if count != 5:
+            validation["errors"].append(f"Pair {pair} has {count} drives instead of 5")
+            validation["drive_pairs_complete"] = False
 
+    # Count total classes
+    class_count = sum(len(week["class_slots"]) for week in schedule["weekly_schedule"])
+    validation["total_classes_per_student"] = class_count
 
-@anvil.server.callable
-def schedule_drive_slots(class_completion_dates, available_slots):
-    """Schedule drive slots based on class completion and available slots.
-    Returns: Dict of {date: [drive_slots]}"""
-    pass
+    # Check class sequence
+    expected_classes = set(range(1, 16))  # Classes 1-15
+    scheduled_classes = set()
+    for week in schedule["weekly_schedule"]:
+        for class_slot in week["class_slots"]:
+            class_num = int(class_slot.split(" ")[1])
+            scheduled_classes.add(class_num)
 
+    if scheduled_classes != expected_classes:
+        validation["errors"].append(
+            f"Missing classes: {expected_classes - scheduled_classes}"
+        )
+        validation["class_sequence_valid"] = False
 
-# ===== Program Generation =====
-
-
-@anvil.server.callable
-def generate_program_schedule(start_date, cohort_size, is_vacation_period=False):
-    """Generate complete program schedule using lesson slots.
-    Returns: Dict of complete program schedule"""
-    pass
-
-
-@anvil.server.callable
-def validate_program_schedule(program_schedule):
-    """Validate complete program schedule meets all requirements.
-    Returns: (is_valid, validation_errors)"""
-    pass
-
-
-# ===== Helper Functions =====
-
-
-def _map_lesson_slots_to_times(slots):
-    """Convert lesson slots to actual times using globals configuration.
-    Returns: Dict of {slot: (start_time, end_time)}"""
-    pass
-
-
-def _check_slot_availability(slot, date, is_vacation_period=False):
-    """Check if a specific lesson slot is available on a given date.
-    Returns: Boolean"""
-    pass
-
-
-def _get_available_instructors_for_slot(slot, date):
-    """Get list of instructors available for a specific lesson slot.
-    Returns: List of instructor IDs"""
-    pass
+    return validation
