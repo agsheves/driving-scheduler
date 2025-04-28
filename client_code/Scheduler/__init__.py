@@ -119,19 +119,18 @@ class Scheduler(SchedulerTemplate):
     
     # Get data from server
     print("Getting data:\n")
-    data = anvil.server.call('process_instuctor_availability', selected_instructors)
+    data = anvil.server.call('process_instructor_availability', selected_instructors)
     print(data)
     
     if not data:
       self.schedule_plot_complete.visible = False
       print("no data to show")
       return
-    # data format: 'z_values': availability code (1 - 4)
-      #'Unavailable': 0,
-      #'Yes - Any': 1,
-      # 'Yes - Drive': 2,
-      # 'Yes - Class': 3,
-      # 'Booked': 4
+    # data format: 'z_values': availability code (0-1)
+        # availability_mapping = 
+           #  "No": 0,
+            # "Yes": 1,
+
     # 'x_labels': Days,'y_labels': hours, 'instructors': [i['firstName'] for i in instructors]
     # Create a simple heatmap
     text_matrix = []
@@ -141,13 +140,7 @@ class Scheduler(SchedulerTemplate):
             if val == 0:
                 text_row.append('Unavailable')
             elif val == 1:
-                text_row.append('Yes - Any')
-            elif val == 2:
-                text_row.append('Yes - Drive')
-            elif val == 3:
-                text_row.append('Yes - Class')
-            elif val == 4:
-                text_row.append('Booked')
+                text_row.append('Available')
             else:
                 text_row.append('')
         text_matrix.append(text_row)
@@ -157,18 +150,15 @@ class Scheduler(SchedulerTemplate):
         x=data['x_labels'],
         y=data['y_labels'],
         colorscale=[
-            [0/4, 'DimGrey'],
-            [1/4, 'RebeccaPurple'],
-            [2/4, 'DeepSkyBlue'],
-            [3/4, 'Blue'],
-            [4/4, 'Green']
+            [0/1, 'DimGrey'],
+            [1/1, 'RebeccaPurple']
         ],
         text=text_matrix,
         texttemplate="%{text}",
         showscale=False,
         bgcolor='white',
         zmin=0,
-        zmax=4
+        zmax=1
     ))
     
     # Update layout - keeping it very minimal

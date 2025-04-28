@@ -5,10 +5,18 @@ This module handles the creation and management of driving school program schedu
 It coordinates class scheduling, drive scheduling, and instructor availability.
 """
 
+
+import anvil.files
+from anvil.files import data_files
+import anvil.users
+import anvil.tables as tables
+import anvil.tables.query as q
+from anvil.tables import app_tables
 import anvil.server
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
 from datetime import datetime, timedelta
-from .course_rules_server import COURSE_STRUCTURE, CONCURRENCY_RULES
-from .utilization_calculation_server import get_instructor_availability
 
 # ===== Lesson Slot Management =====
 

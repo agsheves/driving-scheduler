@@ -60,11 +60,8 @@ def process_instructor_availability(instructors, start_date=None):
             continue
 
         availability_mapping = {
-            "Unavailable": 0,
-            "Yes - Any": 1,
-            "Yes - Drive": 2,
-            "Yes - Class": 3,
-            "Booked": 4,
+            "No": 0,
+            "Yes": 1,
         }
 
         days_of_week = [
@@ -125,7 +122,7 @@ def process_instructor_availability(instructors, start_date=None):
     # Create a pivot table for the heatmap: slots vs days
     pivot_df = df.pivot_table(
         values="value",
-        index=["slot", "start_time"],
+        index=["slot", "start_time", "end_time"],
         columns=["day_name", "instructor"],
         aggfunc="first",
     )
@@ -170,6 +167,6 @@ def process_instructor_availability(instructors, start_date=None):
     return {
         "z_values": z_values_ordered,
         "x_labels": flat_labels,
-        "y_labels": [f"{slot} ({start}-{end})" for slot, start in pivot_df.index],
+        "y_labels": [f"{slot} ({start_time}-{end_time})" for slot, start_time, end_time in pivot_df.index],
         "instructors": [i["firstName"] for i in instructors],
     }
