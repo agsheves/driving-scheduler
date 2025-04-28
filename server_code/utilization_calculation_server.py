@@ -48,24 +48,25 @@ def is_holiday(date):
 
 
 def is_vacation_day(date, vacation_days):
-    """Check if a date falls within any vacation period"""
+    """Check if a date falls within any vacation period and return the day of week if it does"""
     if not vacation_days or "vacation_days" not in vacation_days:
-        return False
+        return False, None
 
     for vacation in vacation_days["vacation_days"]:
         try:
             start_date = datetime.strptime(vacation["start_date"], "%Y-%m-%d").date()
             end_date = datetime.strptime(vacation["end_date"], "%Y-%m-%d").date()
             if start_date <= date <= end_date:
-                return True
+                # Return both True and the day of week
+                return True, date.strftime("%A").lower()
         except (KeyError, ValueError) as e:
             print(f"Error processing vacation date: {e}")
             continue
-    return False
+    return False, None
 
 
 @anvil.server.callable
-def calculate_instructor_availability_hours(
+def calculate_instructor_availability_slots(
     instructors, start_date=None, end_date=None
 ):
     """
@@ -116,15 +117,17 @@ def calculate_instructor_availability_hours(
             # Process each day in the date range
             current_date = start_date
             while current_date <= end_date:
-                # Skip if it's a company holiday
+                # Check for company holiday
                 if is_holiday(current_date):
-                    print(f"Skipping holiday: {current_date}")
+                    day_of_week = current_date.strftime("%A").lower()
+                    print(f"Skipping holiday: {current_date} ({day_of_week})")
                     current_date += timedelta(days=1)
                     continue
 
-                # Skip if it's a vacation day
-                if is_vacation_day(current_date, vacation_data):
-                    print(f"Skipping vacation day: {current_date}")
+                # Check for vacation day
+                is_vacation, day_of_week = is_vacation_day(current_date, vacation_data)
+                if is_vacation:
+                    print(f"Skipping vacation day: {current_date} ({day_of_week})")
                     current_date += timedelta(days=1)
                     continue
 
@@ -185,7 +188,7 @@ def test_availability_calculation():
         print(f"Testing date range: {start_date} to {end_date}")
 
         # Calculate availability
-        results = calculate_instructor_availability_hours(
+        results = calculate_instructor_availability_slots(
             instructors, start_date, end_date
         )
 
