@@ -67,8 +67,14 @@ def calculate_program_schedule(start_date):
         }
 
         # Generate weekly schedule
-        current_drive_number = 1
         current_class_number = 1
+        drive_pairs_sequence = [
+            (1, 2),
+            (3, 4),
+            (5, 6),
+            (7, 8),
+            (9, 10),
+        ]  # From COURSE_STRUCTURE
 
         for week_num in range(6):
             week_start = start_date + timedelta(weeks=week_num)
@@ -105,14 +111,19 @@ def calculate_program_schedule(start_date):
             # Add drive slots (weeks 2-6 only)
             if week_num > 0:
                 week_drive_slots = weekly_drive_slots[week_num]
-                print(f"Adding {week_drive_slots} drive slots for week {week_num + 1}")
+                print(
+                    f"Adding {week_drive_slots} drive sessions for week {week_num + 1}"
+                )
 
-                for slot_num in range(week_drive_slots):
-                    for pair in drive_pairs:
-                        week_schedule["drive_slots"].append(
-                            f"Drive {current_drive_number}-Pair{pair}"
-                        )
-                    current_drive_number += 1
+                # Each drive session is a pair of lessons (e.g., 1-2, 3-4, etc.)
+                for pair_index, (lesson1, lesson2) in enumerate(drive_pairs_sequence):
+                    if (
+                        pair_index < week_drive_slots
+                    ):  # Only add if we have slots available
+                        for pair in drive_pairs:
+                            week_schedule["drive_slots"].append(
+                                f"Drive {lesson1}-{lesson2}-Pair{pair}"
+                            )
 
             schedule["weekly_schedule"].append(week_schedule)
             print(f"Week {week_num + 1} schedule: {week_schedule}")

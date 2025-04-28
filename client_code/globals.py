@@ -138,8 +138,8 @@ COURSE_STRUCTURE = {
         "type": "drive",
     },
     "class_sessions": {
-        "total_sessions": 3,  # Total number of class sessions
-        "max_students": 12,  # Maximum students per class
+        "total_sessions": 15,  # Total number of class sessions
+        "max_students": 30,  # Maximum students per class
         "duration": 2,  # Hours per class
         "type": "class",
     },
