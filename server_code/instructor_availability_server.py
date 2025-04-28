@@ -128,7 +128,7 @@ def process_instructor_availability(instructors, start_date=None):
     )
 
     # Sort by start time
-    pivot_df = pivot_df.sort_index(level="start_time", ascending=True)
+    pivot_df = pivot_df.sort_values(by=['start_time'], ascending=False)
 
     # Create flattened day-instructor labels
     flat_columns = []
