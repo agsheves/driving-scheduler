@@ -25,45 +25,25 @@ def calculate_program_schedule(start_date):
     Calculate the ideal program schedule based on instructor availability.
     Returns a schedule with class and drive slots, and max cohort size.
     """
-    # Get course structure from globals
-    from .globals import COURSE_STRUCTURE
+    # Calculate available drive slots for each week
+    weekly_drive_slots = []
 
-    # Calculate total drive slots over 7 weeks
-    total_drive_slots = 0
-    total_class_slots = 0
-    weekly_capacity = []
+    # Week 1 - orientation and classes
+    week1_start = start_date
+    weekly_drive_slots.append(0)  # No drives in week 1
 
-    # Calculate capacity for each week
-    for week_num in range(7):
+    # Weeks 2-6 - classes and drives
+    for week_num in range(1, 6):
         week_start = start_date + timedelta(weeks=week_num)
         drive_slots = anvil.server.call("get_max_drive_slots", week_start)
-        class_slots = anvil.server.call("get_max_class_slots", week_start)
-
-        weekly_capacity.append(
-            {
-                "week_number": week_num + 1,
-                "start_date": week_start,
-                "drive_slots": drive_slots,
-                "class_slots": class_slots,
-            }
-        )
-
-        total_drive_slots += drive_slots
-        total_class_slots += class_slots
+        weekly_drive_slots.append(drive_slots)
 
     # Calculate max students based on drive capacity
-    # Each drive session can handle 2 students × 2 drives = 4 drives total
-    drives_per_session = 4  # 2 students × 2 drives
-    max_students_from_drives = (
-        total_drive_slots * drives_per_session
-    ) // 10  # Each student needs 10 drives
-
-    # Calculate max students based on class capacity
-    # Each student needs 3 classes
-    max_students_from_classes = total_class_slots // 3
-
-    # The final max students is the minimum of the two calculations
-    max_students = min(max_students_from_drives, max_students_from_classes)
+    # Each drive slot can handle 2 students
+    students_per_slot = 2
+    max_students = (
+        min(weekly_drive_slots[1:]) * students_per_slot
+    )  # Use minimum weekly capacity
 
     # Create drive pairs (A, B, C, etc.)
     drive_pairs = list(string.ascii_uppercase[: max_students // 2])
@@ -71,33 +51,44 @@ def calculate_program_schedule(start_date):
     # Generate schedule
     schedule = {
         "start_date": start_date,
-        "end_date": start_date + timedelta(weeks=7),
+        "end_date": start_date + timedelta(weeks=6),
         "max_students": max_students,
-        "total_drive_slots": total_drive_slots,
-        "total_class_slots": total_class_slots,
+        "weekly_drive_slots": weekly_drive_slots,
         "weekly_schedule": [],
     }
 
     # Generate weekly schedule
     current_drive_number = 1
-    for week in weekly_capacity:
+    current_class_number = 1
+
+    for week_num in range(6):
+        week_start = start_date + timedelta(weeks=week_num)
         week_schedule = {
-            "week_number": week["week_number"],
-            "start_date": week["start_date"],
+            "week_number": week_num + 1,
+            "start_date": week_start,
             "class_slots": [],
             "drive_slots": [],
         }
 
-        # Add class slots (first 3 weeks only)
-        if week["week_number"] <= 3:
-            for class_num in range(
-                1, COURSE_STRUCTURE["class_sessions"]["total_sessions"] + 1
-            ):
-                week_schedule["class_slots"].append(f"Class {class_num}")
+        # Add orientation on first day of week 1
+        if week_num == 0:
+            week_schedule["class_slots"].append("Orientation")
+            # Add first 3 classes starting from day 2
+            for i in range(3):
+                week_schedule["class_slots"].append(f"Class {current_class_number}")
+                current_class_number += 1
+        else:
+            # Add 3 classes per week for weeks 2-6
+            for i in range(3):
+                if (
+                    current_class_number <= 15
+                ):  # Only add if we haven't completed all classes
+                    week_schedule["class_slots"].append(f"Class {current_class_number}")
+                    current_class_number += 1
 
-        # Add drive slots (after first week)
-        if week["week_number"] > 1:
-            for _ in range(week["drive_slots"]):
+        # Add drive slots (weeks 2-6 only)
+        if week_num > 0:
+            for slot_num in range(weekly_drive_slots[week_num]):
                 for pair in drive_pairs:
                     week_schedule["drive_slots"].append(
                         f"Drive {current_drive_number}-Pair{pair}"
@@ -122,8 +113,7 @@ def format_schedule_output(schedule):
     output.append(f"Start Date: {schedule['start_date']}")
     output.append(f"End Date: {schedule['end_date']}")
     output.append(f"Max Cohort Size: {schedule['max_students']} students")
-    output.append(f"Total Drive Slots: {schedule['total_drive_slots']}")
-    output.append(f"Total Class Slots: {schedule['total_class_slots']}")
+    output.append(f"Total Drive Slots: {sum(schedule['weekly_drive_slots'])}")
     output.append("\n")
 
     # Weekly Schedule
