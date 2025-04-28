@@ -205,9 +205,9 @@ class Scheduler(SchedulerTemplate):
     if schedule['success']:
         formatted_schedule = schedule['formatted_output']
         # Set this to your rich text box
-        self.rich_text_box.content = formatted_schedule
+        self.schedule_print_box.content = formatted_schedule
     else:
         # Handle error
-        self.rich_text_box.content = f"Error: {schedule['error']}"
+        self.schedule_print_box.content = f"Error: {schedule['error']}"
     
 
