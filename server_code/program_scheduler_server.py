@@ -25,6 +25,9 @@ def calculate_program_schedule(start_date):
     Calculate the ideal program schedule based on instructor availability.
     Returns a schedule with class and drive slots, and max cohort size.
     """
+    # Get course structure from globals
+    from .globals import COURSE_STRUCTURE
+
     # Calculate total drive slots over 7 weeks
     total_drive_slots = 0
     total_class_slots = 0
@@ -48,9 +51,19 @@ def calculate_program_schedule(start_date):
         total_drive_slots += drive_slots
         total_class_slots += class_slots
 
-    # Calculate max cohort size
-    # Each student needs 5 drive slots (10 drives in pairs)
-    max_students = int(total_drive_slots / 5)
+    # Calculate max students based on drive capacity
+    # Each drive session can handle 2 students × 2 drives = 4 drives total
+    drives_per_session = 4  # 2 students × 2 drives
+    max_students_from_drives = (
+        total_drive_slots * drives_per_session
+    ) // 10  # Each student needs 10 drives
+
+    # Calculate max students based on class capacity
+    # Each student needs 3 classes
+    max_students_from_classes = total_class_slots // 3
+
+    # The final max students is the minimum of the two calculations
+    max_students = min(max_students_from_drives, max_students_from_classes)
 
     # Create drive pairs (A, B, C, etc.)
     drive_pairs = list(string.ascii_uppercase[: max_students // 2])
@@ -77,7 +90,9 @@ def calculate_program_schedule(start_date):
 
         # Add class slots (first 3 weeks only)
         if week["week_number"] <= 3:
-            for class_num in range(1, 4):
+            for class_num in range(
+                1, COURSE_STRUCTURE["class_sessions"]["total_sessions"] + 1
+            ):
                 week_schedule["class_slots"].append(f"Class {class_num}")
 
         # Add drive slots (after first week)

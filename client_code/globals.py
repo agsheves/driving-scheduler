@@ -119,7 +119,7 @@ old_teen_driving_schedule = ""
 # Course structure defining lesson pairs and sequence
 COURSE_STRUCTURE = {
     "orientation": {
-        "max_students": 12,  # Maximum students per orientation session
+        "max_students": 30,  # Maximum students per orientation session
         "duration": 2,  # Hours
         "type": "class",
     },
