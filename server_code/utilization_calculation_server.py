@@ -110,9 +110,8 @@ def calculate_instructor_availability_hours(
 
             # Initialize counters
             total_available = 0
-            driving_hours = 0
-            class_hours = 0
-            booked_hours = 0
+            driving_slots = 0
+            class_slots = 0
 
             # Process each day in the date range
             current_date = start_date
@@ -132,29 +131,24 @@ def calculate_instructor_availability_hours(
                 # Get day of week (lowercase for matching with availability data)
                 day_of_week = current_date.strftime("%A").lower()
 
-                # Process hours for this day
+                # Process slots for this day
                 if day_of_week in weekly_data.get("weekly_availability", {}):
-                    for hour, status in weekly_data["weekly_availability"][
+                    for slot_name, status in weekly_data["weekly_availability"][
                         day_of_week
                     ].items():
-                        if status == "Yes - Any":
+                        if status == "Yes":
                             total_available += 1
-                        elif status == "Yes - Drive":
-                            total_available += 1
-                            driving_hours += 1
-                        elif status == "Yes - Class":
-                            total_available += 1
-                            class_hours += 1
-                        elif status == "Booked":
-                            booked_hours += 1
+                            if "Drive" in slot_name:
+                                driving_slots += 1
+                            elif "Class" in slot_name:
+                                class_slots += 1
 
                 current_date += timedelta(days=1)
 
             results[instructor["firstName"]] = {
-                "total_available_hours": total_available,
-                "driving_hours_available": driving_hours,
-                "class_hours_available": class_hours,
-                "booked_hours": booked_hours,
+                "total_available_slots": total_available,
+                "driving_slots_available": driving_slots,
+                "class_slots_available": class_slots,
             }
 
             print(
@@ -162,9 +156,13 @@ def calculate_instructor_availability_hours(
             )
 
         except Exception as e:
-            print(f"Error processing instructor {instructor['firstName']}: {str(e)}")
-            print(f"Error type: {type(e)}")
-            continue
+            print(f"Error processing {instructor['firstName']}: {str(e)}")
+            results[instructor["firstName"]] = {
+                "error": str(e),
+                "total_available_slots": 0,
+                "driving_slots_available": 0,
+                "class_slots_available": 0,
+            }
 
     return results
 
