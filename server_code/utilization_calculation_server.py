@@ -22,14 +22,18 @@ no_class_days_test = {
 }
 
 # Get no_class_days from database or use test data
-no_class_days_db = app_tables.no_class_dates.search()
+no_class_days_db = list(app_tables.no_class_dates.search())
 print("No class days from DB:", no_class_days_db)
 no_class_days = {}
 if no_class_days_db:
     print("Processing DB no_class_days")
     for day in no_class_days_db:
-        date_str = day["date"].strftime("%Y-%m-%d")
-        no_class_days[date_str] = day["description"]
+        try:
+            date_str = day["date"].strftime("%Y-%m-%d")
+            no_class_days[date_str] = day["description"]
+        except (KeyError, AttributeError) as e:
+            print(f"Error processing no_class_day: {e}")
+            continue
 else:
     print("Using test no_class_days")
     no_class_days = no_class_days_test
@@ -45,14 +49,18 @@ def is_holiday(date):
 
 def is_vacation_day(date, vacation_days):
     """Check if a date falls within any vacation period"""
-    if not vacation_days:
+    if not vacation_days or "vacation_days" not in vacation_days:
         return False
 
-    for vacation in vacation_days:
-        start_date = datetime.strptime(vacation["start_date"], "%Y-%m-%d").date()
-        end_date = datetime.strptime(vacation["end_date"], "%Y-%m-%d").date()
-        if start_date <= date <= end_date:
-            return True
+    for vacation in vacation_days["vacation_days"]:
+        try:
+            start_date = datetime.strptime(vacation["start_date"], "%Y-%m-%d").date()
+            end_date = datetime.strptime(vacation["end_date"], "%Y-%m-%d").date()
+            if start_date <= date <= end_date:
+                return True
+        except (KeyError, ValueError) as e:
+            print(f"Error processing vacation date: {e}")
+            continue
     return False
 
 
