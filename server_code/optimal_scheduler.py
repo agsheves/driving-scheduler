@@ -40,7 +40,9 @@ class OptimalScheduler:
         schedules = {}
         for instructor in self.instructors:
             try:
-                schedule = app_tables.instructor_schedules.get(instructor=instructor)
+                schedule = app_tables.instructor_schedules.get(instructor=instructor)[
+                    "weekly_availability"
+                ]
                 if schedule and schedule["weekly_availability"]:
                     schedules[instructor] = schedule["weekly_availability"]
             except Exception as e:
