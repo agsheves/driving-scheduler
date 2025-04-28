@@ -25,79 +25,93 @@ def calculate_program_schedule(start_date):
     Calculate the ideal program schedule based on instructor availability.
     Returns a schedule with class and drive slots, and max cohort size.
     """
-    # Calculate available drive slots for each week
-    weekly_drive_slots = []
+    try:
+        # Calculate available drive slots for each week
+        weekly_drive_slots = []
 
-    # Week 1 - orientation and classes
-    week1_start = start_date
-    weekly_drive_slots.append(0)  # No drives in week 1
+        # Week 1 - orientation and classes
+        week1_start = start_date
+        weekly_drive_slots.append(0)  # No drives in week 1
 
-    # Weeks 2-6 - classes and drives
-    for week_num in range(1, 6):
-        week_start = start_date + timedelta(weeks=week_num)
-        drive_slots = anvil.server.call("get_max_drive_slots", week_start)
-        weekly_drive_slots.append(drive_slots)
+        # Weeks 2-6 - classes and drives
+        for week_num in range(1, 6):
+            week_start = start_date + timedelta(weeks=week_num)
+            drive_slots = anvil.server.call("get_max_drive_slots", week_start)
+            weekly_drive_slots.append(drive_slots)
 
-    # Calculate max students based on drive capacity
-    # Each drive slot can handle 2 students
-    students_per_slot = 2
-    max_students = (
-        min(weekly_drive_slots[1:]) * students_per_slot
-    )  # Use minimum weekly capacity
+        print(f"Weekly drive slots: {weekly_drive_slots}")  # Debug print
 
-    # Create drive pairs (A, B, C, etc.)
-    drive_pairs = list(string.ascii_uppercase[: max_students // 2])
+        # Calculate max students based on drive capacity
+        # Each drive slot can handle 2 students
+        students_per_slot = 2
+        if len(weekly_drive_slots) < 2:
+            raise ValueError("Not enough weeks with drive slots available")
 
-    # Generate schedule
-    schedule = {
-        "start_date": start_date,
-        "end_date": start_date + timedelta(weeks=6),
-        "max_students": max_students,
-        "weekly_drive_slots": weekly_drive_slots,
-        "weekly_schedule": [],
-    }
+        max_students = (
+            min(weekly_drive_slots[1:]) * students_per_slot
+        )  # Use minimum weekly capacity
+        print(f"Max students: {max_students}")  # Debug print
 
-    # Generate weekly schedule
-    current_drive_number = 1
-    current_class_number = 1
+        # Create drive pairs (A, B, C, etc.)
+        drive_pairs = list(string.ascii_uppercase[: max_students // 2])
+        print(f"Drive pairs: {drive_pairs}")  # Debug print
 
-    for week_num in range(6):
-        week_start = start_date + timedelta(weeks=week_num)
-        week_schedule = {
-            "week_number": week_num + 1,
-            "start_date": week_start,
-            "class_slots": [],
-            "drive_slots": [],
+        # Generate schedule
+        schedule = {
+            "start_date": start_date,
+            "end_date": start_date + timedelta(weeks=6),
+            "max_students": max_students,
+            "weekly_drive_slots": weekly_drive_slots,
+            "weekly_schedule": [],
         }
 
-        # Add orientation on first day of week 1
-        if week_num == 0:
-            week_schedule["class_slots"].append("Orientation")
-            # Add first 3 classes starting from day 2
-            for i in range(3):
-                week_schedule["class_slots"].append(f"Class {current_class_number}")
-                current_class_number += 1
-        else:
-            # Add 3 classes per week for weeks 2-6
-            for i in range(3):
-                if (
-                    current_class_number <= 15
-                ):  # Only add if we haven't completed all classes
+        # Generate weekly schedule
+        current_drive_number = 1
+        current_class_number = 1
+
+        for week_num in range(6):
+            week_start = start_date + timedelta(weeks=week_num)
+            week_schedule = {
+                "week_number": week_num + 1,
+                "start_date": week_start,
+                "class_slots": [],
+                "drive_slots": [],
+            }
+
+            # Add orientation on first day of week 1
+            if week_num == 0:
+                week_schedule["class_slots"].append("Orientation")
+                # Add first 3 classes starting from day 2
+                for i in range(3):
                     week_schedule["class_slots"].append(f"Class {current_class_number}")
                     current_class_number += 1
+            else:
+                # Add 3 classes per week for weeks 2-6
+                for i in range(3):
+                    if (
+                        current_class_number <= 15
+                    ):  # Only add if we haven't completed all classes
+                        week_schedule["class_slots"].append(
+                            f"Class {current_class_number}"
+                        )
+                        current_class_number += 1
 
-        # Add drive slots (weeks 2-6 only)
-        if week_num > 0:
-            for slot_num in range(weekly_drive_slots[week_num]):
-                for pair in drive_pairs:
-                    week_schedule["drive_slots"].append(
-                        f"Drive {current_drive_number}-Pair{pair}"
-                    )
-                current_drive_number += 1
+            # Add drive slots (weeks 2-6 only)
+            if week_num > 0:
+                for slot_num in range(weekly_drive_slots[week_num]):
+                    for pair in drive_pairs:
+                        week_schedule["drive_slots"].append(
+                            f"Drive {current_drive_number}-Pair{pair}"
+                        )
+                    current_drive_number += 1
 
-        schedule["weekly_schedule"].append(week_schedule)
+            schedule["weekly_schedule"].append(week_schedule)
 
-    return schedule
+        return schedule
+
+    except Exception as e:
+        print(f"Error in calculate_program_schedule: {str(e)}")  # Debug print
+        raise  # Re-raise the exception to be caught by the test function
 
 
 @anvil.server.callable
@@ -180,7 +194,7 @@ def test_program_schedule(start_date=None):
             "start_date": start_date,
             "schedule": schedule,
             "validation": validation,
-            "formatted_output": schedule_text,
+            "formatted_output": schedule_text,  # This is now a string, not a key in schedule
         }
 
     except Exception as e:
