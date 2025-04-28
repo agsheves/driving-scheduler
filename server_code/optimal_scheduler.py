@@ -29,10 +29,14 @@ class OptimalScheduler:
             self.instructors = instructors
         else:
             self.instructors = app_tables.users.search(is_instructor=True)
+
+        # Initialize instructor schedules first
+        self.instructor_schedules = self._load_instructor_schedules()
+
+        # Then initialize other attributes that depend on instructor schedules
         self.schedule = {}
         self.available_slots = self._initialize_available_slots()
         self.class_groups = []
-        self.instructor_schedules = self._load_instructor_schedules()
         self.student_capacity = 0
 
     def _load_instructor_schedules(self):
@@ -40,9 +44,7 @@ class OptimalScheduler:
         schedules = {}
         for instructor in self.instructors:
             try:
-                schedule = app_tables.instructor_schedules.get(instructor=instructor)[
-                    "weekly_availability"
-                ]
+                schedule = app_tables.instructor_schedules.get(instructor=instructor)
                 if schedule and schedule["weekly_availability"]:
                     schedules[instructor] = schedule["weekly_availability"]
             except Exception as e:
@@ -76,6 +78,8 @@ class OptimalScheduler:
 
         for instructor, schedule in self.instructor_schedules.items():
             try:
+                if not schedule:
+                    continue
                 day_schedule = schedule.get(day_name, {})
                 if day_schedule.get(slot_name) == "Yes":
                     return True
@@ -94,6 +98,8 @@ class OptimalScheduler:
         for instructor in self.instructors:
             try:
                 schedule = self.instructor_schedules.get(instructor, {})
+                if not schedule:
+                    continue
                 day_schedule = schedule.get(day_name, {})
                 if day_schedule.get(slot_name) == "Yes":
                     available_instructors.append(instructor)
