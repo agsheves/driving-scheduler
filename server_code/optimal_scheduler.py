@@ -9,10 +9,9 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-from .globals import current_teen_driving_schedule
+from .globals import current_teen_driving_schedule, COURSE_STRUCTURE
 
 # Import from globals
-COURSE_STRUCTURE = anvil.server.globals.COURSE_STRUCTURE
 LESSON_SLOTS = current_teen_driving_schedule
 
 
@@ -43,7 +42,7 @@ class OptimalScheduler:
             try:
                 schedule = app_tables.instructor_schedules.get(instructor=instructor)
                 if schedule and schedule["weekly_availability"]:
-                    schedules[instructor["firstName"]] = schedule["weekly_availability"]
+                    schedules[instructor] = schedule["weekly_availability"]
             except Exception as e:
                 print(f"Error loading schedule for {instructor['firstName']}: {e}")
         return schedules
@@ -73,14 +72,14 @@ class OptimalScheduler:
         """Check if a slot is available on a given date"""
         day_name = date.strftime("%A").lower()
 
-        for instructor_name, schedule in self.instructor_schedules.items():
+        for instructor, schedule in self.instructor_schedules.items():
             try:
                 day_schedule = schedule.get(day_name, {})
                 if day_schedule.get(slot_name) == "Yes":
                     return True
             except Exception as e:
                 print(
-                    f"Error checking availability for {instructor_name} on {day_name}: {e}"
+                    f"Error checking availability for {instructor['firstName']} on {day_name}: {e}"
                 )
 
         return False
@@ -92,7 +91,7 @@ class OptimalScheduler:
 
         for instructor in self.instructors:
             try:
-                schedule = self.instructor_schedules.get(instructor["firstName"], {})
+                schedule = self.instructor_schedules.get(instructor, {})
                 day_schedule = schedule.get(day_name, {})
                 if day_schedule.get(slot_name) == "Yes":
                     available_instructors.append(instructor)
