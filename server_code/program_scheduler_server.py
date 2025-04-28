@@ -225,37 +225,50 @@ def validate_schedule(schedule):
         "errors": [],
     }
 
-    # Count total drives per student
-    drive_counts = {}
-    for week in schedule["weekly_schedule"]:
-        for drive_slot in week["drive_slots"]:
-            pair = drive_slot.split("-Pair")[1]
-            if pair not in drive_counts:
-                drive_counts[pair] = 0
-            drive_counts[pair] += 1
+    try:
+        # Count total drives per student
+        drive_counts = {}
+        for week in schedule["weekly_schedule"]:
+            for drive_slot in week["drive_slots"]:
+                pair = drive_slot.split("-Pair")[1]
+                if pair not in drive_counts:
+                    drive_counts[pair] = 0
+                drive_counts[pair] += 1
 
-    # Check if each pair has exactly 5 drive slots
-    for pair, count in drive_counts.items():
-        if count != 5:
-            validation["errors"].append(f"Pair {pair} has {count} drives instead of 5")
-            validation["drive_pairs_complete"] = False
+        # Check if each pair has exactly 5 drive slots
+        for pair, count in drive_counts.items():
+            if count != 5:
+                validation["errors"].append(
+                    f"Pair {pair} has {count} drives instead of 5"
+                )
+                validation["drive_pairs_complete"] = False
 
-    # Count total classes
-    class_count = sum(len(week["class_slots"]) for week in schedule["weekly_schedule"])
-    validation["total_classes_per_student"] = class_count
-
-    # Check class sequence
-    expected_classes = set(range(1, 16))  # Classes 1-15
-    scheduled_classes = set()
-    for week in schedule["weekly_schedule"]:
-        for class_slot in week["class_slots"]:
-            class_num = int(class_slot.split(" ")[1])
-            scheduled_classes.add(class_num)
-
-    if scheduled_classes != expected_classes:
-        validation["errors"].append(
-            f"Missing classes: {expected_classes - scheduled_classes}"
+        # Count total classes
+        class_count = sum(
+            len(week["class_slots"]) for week in schedule["weekly_schedule"]
         )
-        validation["class_sequence_valid"] = False
+        validation["total_classes_per_student"] = class_count
 
-    return validation
+        # Check class sequence
+        expected_classes = set(range(1, 16))  # Classes 1-15
+        scheduled_classes = set()
+        for week in schedule["weekly_schedule"]:
+            for class_slot in week["class_slots"]:
+                if class_slot != "Orientation":  # Skip orientation
+                    class_num = int(class_slot.split(" ")[1])
+                    scheduled_classes.add(class_num)
+
+        if scheduled_classes != expected_classes:
+            validation["errors"].append(
+                f"Missing classes: {expected_classes - scheduled_classes}"
+            )
+            validation["class_sequence_valid"] = False
+
+        return validation
+
+    except Exception as e:
+        print(f"Error in validate_schedule: {str(e)}")
+        validation["errors"].append(f"Validation error: {str(e)}")
+        validation["drive_pairs_complete"] = False
+        validation["class_sequence_valid"] = False
+        return validation
