@@ -200,13 +200,11 @@ class Scheduler(SchedulerTemplate):
     self.refresh_schedule_display()
 
   def test_schedule_builder_button_click(self, **event_args):
-    schedule = anvil.server.call('test_program_schedule')
-    # Get the formatted output
-    if schedule:
-        formatted_schedule = schedule['formatted_output']
-        # Set this to your rich text box
+    result = anvil.server.call('test_program_schedule')
+    if result["success"]:
+        formatted_schedule = result["formatted_output"]
         self.schedule_print_box.content = formatted_schedule
     else:
-        self.schedule_print_box.content ="Error"
+        self.schedule_print_box.content = result
     
 
