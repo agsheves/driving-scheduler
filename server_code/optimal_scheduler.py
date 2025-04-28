@@ -9,11 +9,11 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-gtom globals import globals
+from .globals import current_teen_driving_schedule
 
 # Import from globals
 COURSE_STRUCTURE = anvil.server.globals.COURSE_STRUCTURE
-LESSON_SLOTS = anvil.server.globals.LESSON_SLOTS
+LESSON_SLOTS = current_teen_driving_schedule
 
 
 class OptimalScheduler:
