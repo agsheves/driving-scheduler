@@ -10,7 +10,7 @@ import numpy as np
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
 
-# Company holidays for testing - format: "YYYY-MM-DD"
+# Test data for no_class_days if table is empty
 no_class_days_test = {
     "2024-01-01": "New Year's Day",
     "2024-05-01": "May Day Test",
@@ -21,10 +21,20 @@ no_class_days_test = {
     "2024-12-25": "Christmas Day",
 }
 
-# I added a table for no_class_days which will include all holidays and overwrites HOLIDAYS
-no_class_days = app_tables.no_class_dates.search()
-if no_class_days is None or no_class_days is "":
-  no_class_days = no_class_days_test
+# Get no_class_days from database or use test data
+no_class_days_db = app_tables.no_class_dates.search()
+print("No class days from DB:", no_class_days_db)
+no_class_days = {}
+if no_class_days_db:
+    print("Processing DB no_class_days")
+    for day in no_class_days_db:
+        date_str = day["date"].strftime("%Y-%m-%d")
+        no_class_days[date_str] = day["description"]
+else:
+    print("Using test no_class_days")
+    no_class_days = no_class_days_test
+
+print("No class days loaded:", no_class_days)
 
 
 def is_holiday(date):
@@ -70,16 +80,24 @@ def calculate_instructor_availability_hours(
 
     for instructor in instructors:
         try:
+            print(f"\nProcessing instructor: {instructor['firstName']}")
+
             # Get instructor's schedule data
             instructor_schedule = app_tables.instructor_schedules.get(
                 instructor=instructor
             )
-            print(f"Checking schedule for {instructor['firstName']}")
+            if not instructor_schedule:
+                print(f"No schedule found for {instructor['firstName']}")
+                continue
+
             weekly_data = instructor_schedule["weekly_availability"]
-            print(weekly_data)
             vacation_data = instructor_schedule["vacation_days"]
 
+            print(f"Weekly data type: {type(weekly_data)}")
+            print(f"Vacation data: {vacation_data}")
+
             if not weekly_data:
+                print(f"No weekly data for {instructor['firstName']}")
                 continue
 
             # Initialize counters
@@ -93,11 +111,13 @@ def calculate_instructor_availability_hours(
             while current_date <= end_date:
                 # Skip if it's a company holiday
                 if is_holiday(current_date):
+                    print(f"Skipping holiday: {current_date}")
                     current_date += timedelta(days=1)
                     continue
 
                 # Skip if it's a vacation day
                 if is_vacation_day(current_date, vacation_data):
+                    print(f"Skipping vacation day: {current_date}")
                     current_date += timedelta(days=1)
                     continue
 
@@ -129,8 +149,13 @@ def calculate_instructor_availability_hours(
                 "booked_hours": booked_hours,
             }
 
+            print(
+                f"Results for {instructor['firstName']}: {results[instructor['firstName']]}"
+            )
+
         except Exception as e:
-            print(f"Error processing instructor {instructor['firstName']}: {e}")
+            print(f"Error processing instructor {instructor['firstName']}: {str(e)}")
+            print(f"Error type: {type(e)}")
             continue
 
     return results
@@ -145,9 +170,13 @@ def test_availability_calculation():
     try:
         # Get all instructors
         instructors = app_tables.users.search(is_instructor=True)
+        print(f"Found {len(instructors)} instructors")
+
         # Set test date range (next 30 days)
         start_date = datetime.now().date()
         end_date = start_date + timedelta(days=30)
+
+        print(f"Testing date range: {start_date} to {end_date}")
 
         # Calculate availability
         results = calculate_instructor_availability_hours(
@@ -162,8 +191,8 @@ def test_availability_calculation():
                 "total_days": (end_date - start_date).days + 1,
             },
             "no_class_days_in_range": [
-                holiday
-                for date, holiday in no_class_days.items()
+                {"date": date, "description": desc}
+                for date, desc in no_class_days.items()
                 if start_date <= datetime.strptime(date, "%Y-%m-%d").date() <= end_date
             ],
             "results": results,
