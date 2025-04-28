@@ -128,7 +128,7 @@ def process_instructor_availability(instructors, start_date=None):
     )
 
     # Sort by start time
-    pivot_df = pivot_df.sort_values(by=['start_time'], ascending=False)
+    pivot_df = pivot_df.sort_values(by=["start_time"], ascending=False)
 
     # Create flattened day-instructor labels
     flat_columns = []
@@ -167,6 +167,67 @@ def process_instructor_availability(instructors, start_date=None):
     return {
         "z_values": z_values_ordered,
         "x_labels": flat_labels,
-        "y_labels": [f"{slot} ({start_time}-{end_time})" for slot, start_time, end_time in pivot_df.index],
+        "y_labels": [
+            f"{slot} ({start_time}-{end_time})"
+            for slot, start_time, end_time in pivot_df.index
+        ],
         "instructors": [i["firstName"] for i in instructors],
     }
+
+
+@anvil.server.callable
+def get_max_drive_slots(date):
+    """
+    Calculate maximum available drive slots for a given date.
+    Uses the existing process_instructor_availability function to get availability data.
+    """
+    # Get all instructors
+    instructors = app_tables.users.search(is_instructor=True)
+
+    # Get availability data for the week containing the date
+    availability_data = process_instructor_availability(instructors, date)
+
+    if not availability_data:
+        return 0
+
+    # Count available drive slots
+    drive_slots = 0
+    for slot_info in availability_data["y_labels"]:
+        if "Drive" in slot_info:
+            # Check if any instructor is available for this slot
+            slot_index = availability_data["y_labels"].index(slot_info)
+            for instructor_availability in availability_data["z_values"][slot_index]:
+                if instructor_availability == 1:  # 1 means "Yes" in our mapping
+                    drive_slots += 1
+                    break  # Count each slot only once if at least one instructor is available
+
+    return drive_slots
+
+
+@anvil.server.callable
+def get_max_class_slots(date):
+    """
+    Calculate maximum available class slots for a given date.
+    Uses the existing process_instructor_availability function to get availability data.
+    """
+    # Get all instructors
+    instructors = app_tables.users.search(is_instructor=True)
+
+    # Get availability data for the week containing the date
+    availability_data = process_instructor_availability(instructors, date)
+
+    if not availability_data:
+        return 0
+
+    # Count available class slots
+    class_slots = 0
+    for slot_info in availability_data["y_labels"]:
+        if "Class" in slot_info:
+            # Check if any instructor is available for this slot
+            slot_index = availability_data["y_labels"].index(slot_info)
+            for instructor_availability in availability_data["z_values"][slot_index]:
+                if instructor_availability == 1:  # 1 means "Yes" in our mapping
+                    class_slots += 1
+                    break  # Count each slot only once if at least one instructor is available
+
+    return class_slots
