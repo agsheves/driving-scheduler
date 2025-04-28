@@ -2,3 +2,5 @@
 *.pyo
 __pycache__
 .anvil-data
+instructor_availability_data_example_2.csv
+
