@@ -1,0 +1,189 @@
+=== PROGRAM SCHEDULE ===
+Start Date: 2025-04-28
+End Date: 2025-06-16
+Max Cohort Size: 7 students
+Total Drive Slots: 35
+Total Class Slots: 21
+
+
+=== WEEKLY SCHEDULE ===
+
+Week 1 (2025-04-28)
+----------------------------------------
+
+Classes:
+  • Class 1
+  • Class 2
+  • Class 3
+
+
+
+Week 2 (2025-05-05)
+----------------------------------------
+
+Classes:
+  • Class 1
+  • Class 2
+  • Class 3
+
+Drives:
+  • Drive 1:
+    - Drive 1-PairA
+    - Drive 1-PairB
+    - Drive 1-PairC
+  • Drive 2:
+    - Drive 2-PairA
+    - Drive 2-PairB
+    - Drive 2-PairC
+  • Drive 3:
+    - Drive 3-PairA
+    - Drive 3-PairB
+    - Drive 3-PairC
+  • Drive 4:
+    - Drive 4-PairA
+    - Drive 4-PairB
+    - Drive 4-PairC
+  • Drive 5:
+    - Drive 5-PairA
+    - Drive 5-PairB
+    - Drive 5-PairC
+
+
+
+Week 3 (2025-05-12)
+----------------------------------------
+
+Classes:
+  • Class 1
+  • Class 2
+  • Class 3
+
+Drives:
+  • Drive 10:
+    - Drive 10-PairA
+    - Drive 10-PairB
+    - Drive 10-PairC
+  • Drive 6:
+    - Drive 6-PairA
+    - Drive 6-PairB
+    - Drive 6-PairC
+  • Drive 7:
+    - Drive 7-PairA
+    - Drive 7-PairB
+    - Drive 7-PairC
+  • Drive 8:
+    - Drive 8-PairA
+    - Drive 8-PairB
+    - Drive 8-PairC
+  • Drive 9:
+    - Drive 9-PairA
+    - Drive 9-PairB
+    - Drive 9-PairC
+
+
+
+Week 4 (2025-05-19)
+----------------------------------------
+
+Drives:
+  • Drive 11:
+    - Drive 11-PairA
+    - Drive 11-PairB
+    - Drive 11-PairC
+  • Drive 12:
+    - Drive 12-PairA
+    - Drive 12-PairB
+    - Drive 12-PairC
+  • Drive 13:
+    - Drive 13-PairA
+    - Drive 13-PairB
+    - Drive 13-PairC
+  • Drive 14:
+    - Drive 14-PairA
+    - Drive 14-PairB
+    - Drive 14-PairC
+  • Drive 15:
+    - Drive 15-PairA
+    - Drive 15-PairB
+    - Drive 15-PairC
+
+
+
+Week 5 (2025-05-26)
+----------------------------------------
+
+Drives:
+  • Drive 16:
+    - Drive 16-PairA
+    - Drive 16-PairB
+    - Drive 16-PairC
+  • Drive 17:
+    - Drive 17-PairA
+    - Drive 17-PairB
+    - Drive 17-PairC
+  • Drive 18:
+    - Drive 18-PairA
+    - Drive 18-PairB
+    - Drive 18-PairC
+  • Drive 19:
+    - Drive 19-PairA
+    - Drive 19-PairB
+    - Drive 19-PairC
+  • Drive 20:
+    - Drive 20-PairA
+    - Drive 20-PairB
+    - Drive 20-PairC
+
+
+
+Week 6 (2025-06-02)
+----------------------------------------
+
+Drives:
+  • Drive 21:
+    - Drive 21-PairA
+    - Drive 21-PairB
+    - Drive 21-PairC
+  • Drive 22:
+    - Drive 22-PairA
+    - Drive 22-PairB
+    - Drive 22-PairC
+  • Drive 23:
+    - Drive 23-PairA
+    - Drive 23-PairB
+    - Drive 23-PairC
+  • Drive 24:
+    - Drive 24-PairA
+    - Drive 24-PairB
+    - Drive 24-PairC
+  • Drive 25:
+    - Drive 25-PairA
+    - Drive 25-PairB
+    - Drive 25-PairC
+
+
+
+Week 7 (2025-06-09)
+----------------------------------------
+
+Drives:
+  • Drive 26:
+    - Drive 26-PairA
+    - Drive 26-PairB
+    - Drive 26-PairC
+  • Drive 27:
+    - Drive 27-PairA
+    - Drive 27-PairB
+    - Drive 27-PairC
+  • Drive 28:
+    - Drive 28-PairA
+    - Drive 28-PairB
+    - Drive 28-PairC
+  • Drive 29:
+    - Drive 29-PairA
+    - Drive 29-PairB
+    - Drive 29-PairC
+  • Drive 30:
+    - Drive 30-PairA
+    - Drive 30-PairB
+    - Drive 30-PairC
