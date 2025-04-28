@@ -11,7 +11,7 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 
 # Company holidays for testing - format: "YYYY-MM-DD"
-COMPANY_HOLIDAYS = {
+no_class_days_test = {
     "2024-01-01": "New Year's Day",
     "2024-05-01": "May Day Test",
     "2024-05-27": "Memorial Day",
@@ -21,11 +21,16 @@ COMPANY_HOLIDAYS = {
     "2024-12-25": "Christmas Day",
 }
 
+# I added a table for no_class_days which will include all holidays and overwrites HOLIDAYS
+no_class_days = app_tables.no_class_dates.search()
+if no_class_days is None or no_class_days is "":
+  no_class_days = no_class_days_test
+
 
 def is_holiday(date):
     """Check if a date is a company holiday"""
     date_str = date.strftime("%Y-%m-%d")
-    return date_str in COMPANY_HOLIDAYS
+    return date_str in no_class_days
 
 
 def is_vacation_day(date, vacation_days):
@@ -69,7 +74,9 @@ def calculate_instructor_availability_hours(
             instructor_schedule = app_tables.instructor_schedules.get(
                 instructor=instructor
             )
+            print(f"Checking schedule for {instructor['firstName']}")
             weekly_data = instructor_schedule["weekly_availability"]
+            print(weekly_data)
             vacation_data = instructor_schedule["vacation_days"]
 
             if not weekly_data:
@@ -137,8 +144,7 @@ def test_availability_calculation():
     """
     try:
         # Get all instructors
-        instructors = app_tables.instructors.search()
-
+        instructors = app_tables.users.search(is_instructor=True)
         # Set test date range (next 30 days)
         start_date = datetime.now().date()
         end_date = start_date + timedelta(days=30)
@@ -155,9 +161,9 @@ def test_availability_calculation():
                 "end_date": end_date.isoformat(),
                 "total_days": (end_date - start_date).days + 1,
             },
-            "company_holidays_in_range": [
+            "no_class_days_in_range": [
                 holiday
-                for date, holiday in COMPANY_HOLIDAYS.items()
+                for date, holiday in no_class_days.items()
                 if start_date <= datetime.strptime(date, "%Y-%m-%d").date() <= end_date
             ],
             "results": results,
