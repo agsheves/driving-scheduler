@@ -12,13 +12,13 @@ from datetime import datetime, timedelta
 
 # Test data for no_class_days if table is empty
 no_class_days_test = {
-    "2024-01-01": "New Year's Day",
-    "2024-05-01": "May Day Test",
-    "2024-05-27": "Memorial Day",
-    "2024-07-04": "Independence Day",
-    "2024-09-02": "Labor Day",
-    "2024-11-28": "Thanksgiving",
-    "2024-12-25": "Christmas Day",
+    "2025-01-01": "New Year's Day",
+    "2025-05-01": "May Day Test",
+    "2025-05-27": "Memorial Day",
+    "2025-07-04": "Independence Day",
+    "2025-09-02": "Labor Day",
+    "2025-11-28": "Thanksgiving",
+    "2025-12-25": "Christmas Day",
 }
 
 # Get no_class_days from database or use test data
