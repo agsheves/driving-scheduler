@@ -171,7 +171,7 @@ def format_schedule_output(schedule):
             for drive_slot in week["drive_slots"]:
                 # Extract the drive numbers (e.g., "1-2" from "Drive 1-2-PairA")
                 drive_nums = drive_slot.split("-")[1:3]
-                session_key = f"Drive Session {week['week_number'] - 1}"  # Week 2 = Session 1, etc.
+                session_key = f"Drive Block {week['week_number'] - 1}"  # Week 2 = Session 1, etc.
                 if session_key not in drive_groups:
                     drive_groups[session_key] = []
                 drive_groups[session_key].append(drive_slot)
