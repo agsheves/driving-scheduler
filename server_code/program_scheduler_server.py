@@ -98,7 +98,13 @@ def calculate_program_schedule(start_date):
 
             # Add drive slots (weeks 2-6 only)
             if week_num > 0:
-                for slot_num in range(weekly_drive_slots[week_num]):
+                # Get the drive slots for this week (index 1-5 for weeks 2-6)
+                week_drive_slots = weekly_drive_slots[week_num]
+                print(
+                    f"Week {week_num + 1} drive slots: {week_drive_slots}"
+                )  # Debug print
+
+                for slot_num in range(week_drive_slots):
                     for pair in drive_pairs:
                         week_schedule["drive_slots"].append(
                             f"Drive {current_drive_number}-Pair{pair}"
@@ -194,7 +200,7 @@ def test_program_schedule(start_date=None):
             "start_date": start_date,
             "schedule": schedule,
             "validation": validation,
-            "formatted_output": schedule_text
+            "formatted_output": schedule_text,
         }
 
     except Exception as e:
