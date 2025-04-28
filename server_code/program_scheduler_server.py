@@ -33,8 +33,8 @@ def calculate_program_schedule(start_date):
     # Calculate capacity for each week
     for week_num in range(7):
         week_start = start_date + timedelta(weeks=week_num)
-        drive_slots = instructor_availability_server.get_max_drive_slots(week_start)
-        class_slots = instructor_availability_server.get_max_class_slots(week_start)
+        drive_slots = anvil.server.call('get_max_drive_slots', week_start)
+        class_slots = anvil.server.call('get_max_class_slots', week_start)
 
         weekly_capacity.append(
             {

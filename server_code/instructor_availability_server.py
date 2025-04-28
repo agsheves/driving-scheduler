@@ -106,15 +106,15 @@ def process_instructor_availability(instructors, start_date=None):
                         print(f"Error with slot {slot_name}: {e}")
                         continue
 
-        print(f"Added {instructor['firstName']}")
+        #print(f"Added {instructor['firstName']}")
 
     # Process the data with pandas
     df = pd.DataFrame(all_records)
 
     # Debug print to see sample of the dataframe in terminal
-    print(f"Total records: {len(df)}")
-    print("Sample of DataFrame (first 20 records):")
-    print(df.head(20))
+    #print(f"Total records: {len(df)}")
+    #print("Sample of DataFrame (first 20 records):")
+    #print(df.head(20))
 
     if df.empty:
         return None
