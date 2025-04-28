@@ -198,5 +198,9 @@ class Scheduler(SchedulerTemplate):
   def instructor_filter_drop_down_change(self, **event_args):
     self.filter_instructors = True
     self.refresh_schedule_display()
+
+  def test_schedule_builder_button_click(self, **event_args):
+    schedule = anvil.server.call('test_program_schedule')
+    self.schedule_print_box.content = schedule
     
 

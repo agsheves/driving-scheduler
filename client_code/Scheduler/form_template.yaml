@@ -120,6 +120,15 @@ components:
     name: schedule_plot_complete
     properties: {}
     type: Plot
+  - event_bindings: {click: test_schedule_builder_button_click}
+    layout_properties: {grid_position: 'JEPTLO,WFKVPD'}
+    name: test_schedule_builder_button
+    properties: {role: outlined-button, text: Test Schedule Builder}
+    type: Button
+  - layout_properties: {grid_position: 'JGSOVU,ZMGQSY'}
+    name: schedule_print_box
+    properties: {format: plain_text}
+    type: RichText
   layout_properties: {full_width_row: true, grid_position: 'NEDZDU,SPKYRK'}
   name: schedule_panel
   properties: {wrap_on: never}
