@@ -3,4 +3,5 @@
 __pycache__
 .anvil-data
 instructor_availability_data_example_2.csv
+test_results.txt
 
