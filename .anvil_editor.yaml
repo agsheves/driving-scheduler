@@ -23,6 +23,7 @@ unique_ids:
     course_rules_server: G7A3B4IOTVLOC26ROLPU7KQTQJIV2GR2
     data_model_server: YYQSRIQPDBJ3ZSMCMARFVHKMTOP6CKWM
     instructor_availability_server: N7VY63G3LRCL3K7BTQIF2MRUDKZM3SQ6
+    optimal_scheduler: E7SKMFI4MSWKO7L5U2DH32DHUIG6CQSW
     program_scheduler_server: U73WRZYS3H3GT6RLS5BI3P2T4SQCAHMJ
     utilities_server: '1745370443217982111491553.8365'
     utilization_calculation_server: MVEYM2VHHWR4AMOQLGR7SAWKVSS2UOM4

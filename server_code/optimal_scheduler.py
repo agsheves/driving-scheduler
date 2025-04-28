@@ -2,8 +2,13 @@ import anvil.server
 from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
-from .course_rules_server import COURSE_STRUCTURE, CONCURRENCY_RULES, TIME_LIMITS
-from .instructor_availability_server import LESSON_SLOTS
+import anvil.files
+from anvil.files import data_files
+import anvil.users
+import anvil.tables as tables
+import anvil.tables.query as q
+from anvil.tables import app_tables
+import plotly.graph_objects as go
 
 
 class OptimalScheduler:
