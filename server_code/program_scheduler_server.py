@@ -115,15 +115,15 @@ def calculate_program_schedule(start_date):
                     f"Adding {week_drive_slots} drive sessions for week {week_num + 1}"
                 )
 
-                # Each drive session is a pair of lessons (e.g., 1-2, 3-4, etc.)
-                for pair_index, (lesson1, lesson2) in enumerate(drive_pairs_sequence):
-                    if (
-                        pair_index < week_drive_slots
-                    ):  # Only add if we have slots available
-                        for pair in drive_pairs:
-                            week_schedule["drive_slots"].append(
-                                f"Drive {lesson1}-{lesson2}-Pair{pair}"
-                            )
+                # Each week gets one drive pair for each student pair
+                # Week 2: 1-2, Week 3: 3-4, Week 4: 5-6, Week 5: 7-8, Week 6: 9-10
+                current_pair = drive_pairs_sequence[
+                    week_num - 1
+                ]  # week_num - 1 because we start from week 2
+                for pair in drive_pairs:
+                    week_schedule["drive_slots"].append(
+                        f"Drive {current_pair[0]}-{current_pair[1]}-Pair{pair}"
+                    )
 
             schedule["weekly_schedule"].append(week_schedule)
             print(f"Week {week_num + 1} schedule: {week_schedule}")
