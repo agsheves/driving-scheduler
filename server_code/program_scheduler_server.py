@@ -194,7 +194,7 @@ def test_program_schedule(start_date=None):
             "start_date": start_date,
             "schedule": schedule,
             "validation": validation,
-            "formatted_output": schedule_text,  # This is now a string, not a key in schedule
+            "formatted_output": schedule_text,
         }
 
     except Exception as e:
