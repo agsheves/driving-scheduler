@@ -9,10 +9,10 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-from .globals import current_teen_driving_schedule
+from .globals import current_teen_driving_schedule, COURSE_STRUCTURE
 
 # Import from globals
-COURSE_STRUCTURE = anvil.server.globals.COURSE_STRUCTURE
+COURSE_STRUCTURE = COURSE_STRUCTURE
 LESSON_SLOTS = current_teen_driving_schedule
 
 
@@ -41,7 +41,7 @@ class OptimalScheduler:
         schedules = {}
         for instructor in self.instructors:
             try:
-                schedule = app_tables.instructor_schedules.get(instructor=instructor)
+                schedule = app_tables.instructor_schedules.get(instructor=instructor)['weekly_availability']
                 if schedule and schedule["weekly_availability"]:
                     schedules[instructor["firstName"]] = schedule["weekly_availability"]
             except Exception as e:
