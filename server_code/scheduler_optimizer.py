@@ -542,5 +542,6 @@ def test_allocation_breakdown(start_date, duration_weeks=6, school_list=None):
         return "\n".join(output)
 
     except Exception as e:
+        print(e)
         anvil.server.error(f"Error in test_allocation_breakdown: {str(e)}")
         raise
