@@ -5,7 +5,9 @@ Built in an [anvil.works](anvil.works) framework running python in the backgroun
 
 # Set up
 
-## Availability
+# Availability
+
+## Time Slots
 
 All scheduling -- availability, 'ghost lessons', and booked lessons -- is based on fixed 'time_slots'. These are top-level fixed two-hour blocks of time as below (current as of April 29, 2025). Breaks are also defined for clarity.
 
@@ -86,6 +88,20 @@ availability_time_slots = {
 }
 ```
 
-## Time Slot References
+### Time Slot References
 
 Time slots have a day reference as above and are then referenced by year-week_number-time slot. That means that each ```time_slot``` has a unique, non repeatable ```time_slot_id```
+
+## Instructor availability
+
+Instructor daily availability is shown by time_slot using the following codes: ```no``` unavailable. ```yes``` available for any activity, ```Drive Only``` can only provide an in-vehicle lesson, ```Class only``` can only proivide an online lesson. For example:
+
+```
+    "saturday": {
+      "time_slot_1": "Yes",
+      "time_slot_2": "Class Only",
+      "time_slot_3": "Yes",
+      "time_slot_4": "Drive Only",
+      "time_slot_5": "No",
+      "time_slot_6": "No"
+```
