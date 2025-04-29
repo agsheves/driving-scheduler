@@ -58,6 +58,9 @@ db_schema:
     - admin_ui: {order: 2, width: 200}
       name: weekly_availability
       type: simpleObject
+    - admin_ui: {width: 200}
+      name: school_preferences
+      type: simpleObject
     server: full
     title: instructor_schedules
   no_class_dates:
@@ -138,5 +141,5 @@ services:
 - client_config: {}
   server_config: {file_table: files}
   source: /runtime/services/anvil/files.yml
-startup: {module: Scheduler, type: form}
+startup: {module: Frame, type: form}
 startup_form: null

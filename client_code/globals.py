@@ -8,20 +8,85 @@ from anvil.tables import app_tables
 # Changing these will change all referneces to time slots, lessons, etc.
 #
 
-availability_time_slots = [
-    "08:00",
-    "09:00",
-    "10:00",
-    "11:00",
-    "12:00",
-    "13:00",
-    "14:00",
-    "15:00",
-    "16:00",
-    "17:00",
-    "18:00",
-    "19:00",
-]
+# These are the time slots when a lesson could be booked. This is used to show availability
+# and for schedule building. Start / end times will be converted to time objects for calendars, etc
+availability_time_slots = {
+    "time_slot_1": {
+        "start_time": "08:00",
+        "end_time": "10:00",
+        "seasonal": "no",
+        "term_days": ["Saturday", "Sunday"],
+        "vacation": "all",
+        "is_break": False
+    },
+    "time_slot_2": {
+        "start_time": "10:15",
+        "end_time": "12:15",
+        "seasonal": "no",
+        "term_days": "all",
+        "vacation": "all",
+        "is_break": False
+    },
+    "time_slot_3": {
+        "start_time": "13:15",
+        "end_time": "15:15",
+        "seasonal": "no",
+        "term_days": "all",
+        "vacation": "all",
+        "is_break": False
+    },
+    "time_slot_4": {
+        "start_time": "15:45",
+        "end_time": "17:45",
+        "seasonal": "no",
+        "term_days": "all",
+        "vacation": "all",
+        "is_break": False
+    },
+    "time_slot_5": {
+        "start_time": "18:00",
+        "end_time": "20:00",
+        "seasonal": ["spring", "summer"],
+        "term_days": "all",
+        "vacation": "all",
+        "is_break": False
+    },
+    "time_slot_6": {
+        "start_time": "18:30",
+        "end_time": "20:30",
+        "seasonal": "no",
+        "term_days": "all",
+        "vacation": "all",
+        "is_break": False
+    },
+    "time_slot_break_am": {
+        "start_time": "10:00",
+        "end_time": "10:15",
+        "seasonal": "no",
+        "term_days": "all",
+        "vacation": "all",
+        "is_break": True
+    },
+    "time_slot_break_lunch": {
+        "start_time": "12:15",
+        "end_time": "13:15",
+        "seasonal": "no",
+        "term_days": "all",
+        "vacation": "all",
+        "is_break": True
+    },
+    "time_slot_break_pm": {
+        "start_time": "15:15",
+        "end_time": "15:45",
+        "seasonal": "no",
+        "term_days": "all",
+        "vacation": "all",
+        "is_break": True
+    }
+}
+
+
+
 days_full = [
     "Monday",
     "Tuesday",
