@@ -1,4 +1,3 @@
-from ortools.sat.python import cp_model
 from datetime import datetime, timedelta
 import pandas as pd
 from typing import Dict, List, Tuple, Optional
@@ -53,12 +52,10 @@ class TimeSlot:
 
 class SchedulerOptimizer:
     def __init__(self):
-        self.model = cp_model.CpModel()
-        self.solver = cp_model.CpSolver()
         self.instructors: List[Instructor] = []
         self.time_slots: List[TimeSlot] = []
-        self.assignments = {}  # Will store the model variables
         self.schools: Dict[str, School] = {}
+        self.assignments = {}  # Will store the assignments
 
     def add_instructor(self, instructor: Instructor):
         """Add an instructor to the optimization problem."""
@@ -68,59 +65,139 @@ class SchedulerOptimizer:
         """Add a time slot to the optimization problem."""
         self.time_slots.append(time_slot)
 
-    def create_model(self):
-        """Create the constraint programming model."""
-        # Create assignment variables
-        for instructor in self.instructors:
-            for slot in self.time_slots:
-                # Only create variables for slots where instructor is available
-                if self._is_instructor_available(instructor, slot):
-                    var_name = f"{instructor.id}_{slot.start_time.isoformat()}"
-                    self.assignments[var_name] = self.model.NewBoolVar(var_name)
+    def optimize(self) -> Dict:
+        """
+        Optimize the schedule using rule-based approach.
+        Returns the optimized schedule.
+        """
+        try:
+            # Initialize assignments
+            self.assignments = {}
 
-        # Add constraints
-        self._add_basic_constraints()
+            # Sort time slots by start time
+            sorted_slots = sorted(self.time_slots, key=lambda x: x.start_time)
+
+            # Process each time slot
+            for slot in sorted_slots:
+                # Get available instructors for this slot
+                available_instructors = [
+                    instr
+                    for instr in self.instructors
+                    if self._is_instructor_available(instr, slot)
+                ]
+
+                if not available_instructors:
+                    continue
+
+                # Sort instructors by their current load (least loaded first)
+                available_instructors.sort(
+                    key=lambda x: len(
+                        [
+                            a
+                            for a in self.assignments.values()
+                            if a["instructor_id"] == x.id
+                        ]
+                    )
+                )
+
+                # Get the least loaded instructor
+                instructor = available_instructors[0]
+
+                # Check if instructor has reached daily limit
+                if self._has_reached_daily_limit(instructor, slot.start_time):
+                    continue
+
+                # Assign the slot
+                self.assignments[slot.start_time.isoformat()] = {
+                    "instructor_id": instructor.id,
+                    "instructor_name": instructor.name,
+                    "slot_type": slot.type,
+                    "start_time": slot.start_time,
+                    "end_time": slot.end_time,
+                }
+
+            return self._format_schedule()
+
+        except Exception as e:
+            anvil.server.error(f"Error in optimize: {str(e)}")
+            raise
 
     def _is_instructor_available(self, instructor: Instructor, slot: TimeSlot) -> bool:
         """Check if an instructor is available for a given time slot."""
-        date = slot.start_time.date()
-        time_key = slot.start_time.strftime("%H:%M")
+        try:
+            date = slot.start_time.date()
+            time_key = slot.start_time.strftime("%H:%M")
 
-        if date not in instructor.availability:
+            if date not in instructor.availability:
+                return False
+
+            availability = instructor.availability[date].get(
+                time_key, AvailabilityType.NO
+            )
+
+            if availability == AvailabilityType.NO:
+                return False
+            if availability == AvailabilityType.DRIVE_ONLY and slot.type != "Drive":
+                return False
+            if availability == AvailabilityType.CLASS_ONLY and slot.type != "Class":
+                return False
+
+            return True
+
+        except Exception as e:
+            anvil.server.error(f"Error checking availability: {str(e)}")
             return False
 
-        availability = instructor.availability[date].get(time_key, AvailabilityType.NO)
+    def _has_reached_daily_limit(self, instructor: Instructor, date: datetime) -> bool:
+        """Check if an instructor has reached their daily session limit."""
+        try:
+            # Count assignments for this instructor on this date
+            daily_assignments = len(
+                [
+                    a
+                    for a in self.assignments.values()
+                    if a["instructor_id"] == instructor.id
+                    and a["start_time"].date() == date.date()
+                ]
+            )
 
-        if availability == AvailabilityType.NO:
-            return False
-        if availability == AvailabilityType.DRIVE_ONLY and slot.type != "Drive":
-            return False
-        if availability == AvailabilityType.CLASS_ONLY and slot.type != "Class":
-            return False
+            return daily_assignments >= instructor.max_daily_sessions
 
-        return True
+        except Exception as e:
+            anvil.server.error(f"Error checking daily limit: {str(e)}")
+            return True
 
-    def _add_basic_constraints(self):
-        """Add basic constraints to the model."""
-        # TODO: Implement basic constraints:
-        # 1. Max 1 session per time slot per instructor
-        # 2. Min/max drive/class load per instructor
-        # 3. No overlapping assignments
-        pass
+    def _format_schedule(self) -> Dict:
+        """Format the schedule for output."""
+        try:
+            schedule = {
+                "assignments": self.assignments,
+                "summary": {
+                    "total_slots": len(self.assignments),
+                    "instructors": {},
+                    "schools": {},
+                },
+            }
 
-    def solve(self) -> Dict:
-        """Solve the optimization problem and return the schedule."""
-        status = self.solver.Solve(self.model)
+            # Calculate instructor summaries
+            for instructor in self.instructors:
+                instructor_assignments = [
+                    a
+                    for a in self.assignments.values()
+                    if a["instructor_id"] == instructor.id
+                ]
 
-        if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
-            return self._extract_solution()
-        else:
-            raise ValueError("No feasible solution found")
+                schedule["summary"]["instructors"][instructor.id] = {
+                    "name": instructor.name,
+                    "total_slots": len(instructor_assignments),
+                    "daily_average": len(instructor_assignments) / 7,  # Assuming 7 days
+                }
 
-    def _extract_solution(self) -> Dict:
-        """Extract the solution from the solver."""
-        # TODO: Implement solution extraction
-        return {}
+            return schedule
+
+        except Exception as e:
+            anvil.server.error(f"Error formatting schedule: {str(e)}")
+            raise
 
     def calculate_gross_availability(
         self,
