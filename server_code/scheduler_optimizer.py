@@ -1,4 +1,3 @@
-from ortools.sat.python import cp_model
 from datetime import datetime, timedelta
 import pandas as pd
 from typing import Dict, List, Tuple, Optional
@@ -445,9 +444,11 @@ def test_allocation_breakdown(
     try:
         optimizer = SchedulerOptimizer()
         results = optimizer.test_allocation(start_date, duration_weeks, school_list)
+        print(results)
 
         # Format the results for display
         output = []
+        print("formatting output")
         output.append("=== ALLOCATION BREAKDOWN ===")
         output.append(f"Total Available Slots: {results['total_slots']}")
         output.append("\n=== SCHOOLS ===")
