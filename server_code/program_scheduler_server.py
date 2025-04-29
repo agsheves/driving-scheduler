@@ -18,7 +18,7 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import string
 
-
+# reset to old v0.3 to clean again from start of scheduling
 @anvil.server.callable
 def calculate_program_schedule(start_date):
     """
