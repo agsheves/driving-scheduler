@@ -366,150 +366,178 @@ class SchedulerOptimizer:
         Returns:
             Dict containing detailed allocation breakdown
         """
-        # Initialize schools if not provided
-        if school_list is None:
-            school_list = ["A", "B", "C", "D"]
+        try:
+            # Initialize schools if not provided
+            if school_list is None:
+                school_list = ["A", "B", "C", "D"]
 
-        # Initialize school objects
-        self.schools = {
-            school_id: School(id=school_id, name=f"School {school_id}")
-            for school_id in school_list
-        }
-
-        # Get all instructors
-        instructors = app_tables.users.search(is_instructor=True)
-
-        # Initialize results structure
-        results = {
-            "total_slots": 0,
-            "instructors": {},
-            "schools": {
-                school_id: {
-                    "name": f"School {school_id}",
-                    "total_slots": 0,
-                    "preferred_slots": 0,
-                    "possible_slots": 0,
-                    "instructors": {},
-                }
+            # Initialize school objects
+            self.schools = {
+                school_id: School(id=school_id, name=f"School {school_id}")
                 for school_id in school_list
-            },
-        }
+            }
 
-        # Process each week
-        for week in range(duration_weeks):
-            current_date = start_date + timedelta(weeks=week)
+            # Get all instructors
+            try:
+                instructors = app_tables.users.search(is_instructor=True)
+                if not instructors:
+                    raise ValueError("No instructors found in database")
+            except Exception as e:
+                raise ValueError(f"Failed to fetch instructors: {str(e)}")
 
-            # Skip if it's a holiday
-            if self._is_holiday(current_date):
-                continue
-
-            # Process each instructor
-            for instructor in instructors:
-                instructor_id = instructor["id"]
-                instructor_name = f"{instructor['firstName']} {instructor['surname']}"
-
-                # Initialize instructor in results if not present
-                if instructor_id not in results["instructors"]:
-                    results["instructors"][instructor_id] = {
-                        "name": instructor_name,
+            # Initialize results structure
+            results = {
+                "total_slots": 0,
+                "instructors": {},
+                "schools": {
+                    school_id: {
+                        "name": f"School {school_id}",
                         "total_slots": 0,
-                        "max_daily_sessions": instructor.get("max_daily_sessions", 4),
-                        "schools": {
-                            school_id: {
-                                "preferred_slots": 0,
-                                "possible_slots": 0,
-                                "total_slots": 0,
-                            }
-                            for school_id in school_list
-                        },
+                        "preferred_slots": 0,
+                        "possible_slots": 0,
+                        "instructors": {},
                     }
+                    for school_id in school_list
+                },
+            }
 
-                # Skip if instructor is on vacation
-                if self._is_instructor_on_vacation(instructor, current_date):
+            # Process each week
+            for week in range(duration_weeks):
+                current_date = start_date + timedelta(weeks=week)
+
+                # Skip if it's a holiday
+                if self._is_holiday(current_date):
                     continue
 
-                # Get instructor's availability for the day
-                availability = self._get_instructor_availability(
-                    instructor, current_date
-                )
-                results["total_slots"] += len(availability)
-                results["instructors"][instructor_id]["total_slots"] += len(
-                    availability
-                )
-
-                # Process each time slot
-                for slot in availability:
-                    # Skip if instructor is not available
-                    if availability[slot] == AvailabilityType.NO:
-                        continue
-
-                    # Count schools by preference level for this slot
-                    preferred_schools = []
-                    possible_schools = []
-
-                    for school_id, school in self.schools.items():
-                        preference = instructor.school_preferences.get(
-                            school_id, SchoolPreference.NO
-                        )
-                        if preference == SchoolPreference.PREFERRED:
-                            preferred_schools.append(school_id)
-                        elif preference == SchoolPreference.POSSIBLE:
-                            possible_schools.append(school_id)
-
-                    # Calculate slot distribution
-                    total_schools = len(preferred_schools) + len(possible_schools)
-                    if total_schools == 0:
-                        continue
-
-                    # Distribute slots to preferred schools first
-                    slots_per_preferred = 1
-                    if len(preferred_schools) > 0:
-                        slots_per_preferred = max(1, len(preferred_schools))
-
-                    # Distribute remaining slots to possible schools
-                    remaining_slots = len(availability) - (
-                        slots_per_preferred * len(preferred_schools)
-                    )
-                    slots_per_possible = 0
-                    if len(possible_schools) > 0 and remaining_slots > 0:
-                        slots_per_possible = max(
-                            1, remaining_slots // len(possible_schools)
+                # Process each instructor
+                for instructor in instructors:
+                    try:
+                        instructor_id = instructor["id"]
+                        instructor_name = (
+                            f"{instructor['firstName']} {instructor['surname']}"
                         )
 
-                    # Assign slots to schools and track in results
-                    for school_id in preferred_schools:
-                        self.schools[school_id].preferred_slots += slots_per_preferred
-                        self.schools[school_id].total_slots += slots_per_preferred
-                        results["schools"][school_id][
-                            "preferred_slots"
-                        ] += slots_per_preferred
-                        results["schools"][school_id][
-                            "total_slots"
-                        ] += slots_per_preferred
-                        results["instructors"][instructor_id]["schools"][school_id][
-                            "preferred_slots"
-                        ] += slots_per_preferred
-                        results["instructors"][instructor_id]["schools"][school_id][
-                            "total_slots"
-                        ] += slots_per_preferred
+                        # Initialize instructor in results if not present
+                        if instructor_id not in results["instructors"]:
+                            results["instructors"][instructor_id] = {
+                                "name": instructor_name,
+                                "total_slots": 0,
+                                "max_daily_sessions": instructor.get(
+                                    "max_daily_sessions", 4
+                                ),
+                                "schools": {
+                                    school_id: {
+                                        "preferred_slots": 0,
+                                        "possible_slots": 0,
+                                        "total_slots": 0,
+                                    }
+                                    for school_id in school_list
+                                },
+                            }
 
-                    for school_id in possible_schools:
-                        self.schools[school_id].possible_slots += slots_per_possible
-                        self.schools[school_id].total_slots += slots_per_possible
-                        results["schools"][school_id][
-                            "possible_slots"
-                        ] += slots_per_possible
-                        results["schools"][school_id][
-                            "total_slots"
-                        ] += slots_per_possible
-                        results["instructors"][instructor_id]["schools"][school_id][
-                            "possible_slots"
-                        ] += slots_per_possible
-                        results["instructors"][instructor_id]["schools"][school_id][
-                            "total_slots"
-                        ] += slots_per_possible
+                        # Skip if instructor is on vacation
+                        if self._is_instructor_on_vacation(instructor, current_date):
+                            continue
 
-        return results
+                        # Get instructor's availability for the day
+                        availability = self._get_instructor_availability(
+                            instructor, current_date
+                        )
+                        results["total_slots"] += len(availability)
+                        results["instructors"][instructor_id]["total_slots"] += len(
+                            availability
+                        )
+
+                        # Process each time slot
+                        for slot in availability:
+                            # Skip if instructor is not available
+                            if availability[slot] == AvailabilityType.NO:
+                                continue
+
+                            # Count schools by preference level for this slot
+                            preferred_schools = []
+                            possible_schools = []
+
+                            for school_id, school in self.schools.items():
+                                preference = instructor.school_preferences.get(
+                                    school_id, SchoolPreference.NO
+                                )
+                                if preference == SchoolPreference.PREFERRED:
+                                    preferred_schools.append(school_id)
+                                elif preference == SchoolPreference.POSSIBLE:
+                                    possible_schools.append(school_id)
+
+                            # Calculate slot distribution
+                            total_schools = len(preferred_schools) + len(
+                                possible_schools
+                            )
+                            if total_schools == 0:
+                                continue
+
+                            # Distribute slots to preferred schools first
+                            slots_per_preferred = 1
+                            if len(preferred_schools) > 0:
+                                slots_per_preferred = max(1, len(preferred_schools))
+
+                            # Distribute remaining slots to possible schools
+                            remaining_slots = len(availability) - (
+                                slots_per_preferred * len(preferred_schools)
+                            )
+                            slots_per_possible = 0
+                            if len(possible_schools) > 0 and remaining_slots > 0:
+                                slots_per_possible = max(
+                                    1, remaining_slots // len(possible_schools)
+                                )
+
+                            # Assign slots to schools and track in results
+                            for school_id in preferred_schools:
+                                self.schools[
+                                    school_id
+                                ].preferred_slots += slots_per_preferred
+                                self.schools[
+                                    school_id
+                                ].total_slots += slots_per_preferred
+                                results["schools"][school_id][
+                                    "preferred_slots"
+                                ] += slots_per_preferred
+                                results["schools"][school_id][
+                                    "total_slots"
+                                ] += slots_per_preferred
+                                results["instructors"][instructor_id]["schools"][
+                                    school_id
+                                ]["preferred_slots"] += slots_per_preferred
+                                results["instructors"][instructor_id]["schools"][
+                                    school_id
+                                ]["total_slots"] += slots_per_preferred
+
+                            for school_id in possible_schools:
+                                self.schools[
+                                    school_id
+                                ].possible_slots += slots_per_possible
+                                self.schools[
+                                    school_id
+                                ].total_slots += slots_per_possible
+                                results["schools"][school_id][
+                                    "possible_slots"
+                                ] += slots_per_possible
+                                results["schools"][school_id][
+                                    "total_slots"
+                                ] += slots_per_possible
+                                results["instructors"][instructor_id]["schools"][
+                                    school_id
+                                ]["possible_slots"] += slots_per_possible
+                                results["instructors"][instructor_id]["schools"][
+                                    school_id
+                                ]["total_slots"] += slots_per_possible
+                    except Exception as e:
+                        raise ValueError(
+                            f"Error processing instructor {instructor.get('id', 'unknown')}: {str(e)}"
+                        )
+
+            return results
+
+        except Exception as e:
+            raise ValueError(f"Error in test_allocation: {str(e)}")
 
 
 @anvil.server.callable
@@ -533,41 +561,58 @@ def test_allocation_breakdown(
                 f"Invalid date format. Please use MM-DD-YYYY format. Error: {str(e)}"
             )
 
-        optimizer = SchedulerOptimizer()
-        results = optimizer.test_allocation(parsed_date, duration_weeks, school_list)
+        # Initialize optimizer
+        try:
+            optimizer = SchedulerOptimizer()
+        except Exception as e:
+            raise ValueError(f"Failed to initialize optimizer: {str(e)}")
+
+        # Get results
+        try:
+            results = optimizer.test_allocation(
+                parsed_date, duration_weeks, school_list
+            )
+        except Exception as e:
+            raise ValueError(f"Failed to calculate allocation: {str(e)}")
 
         # Format the results for display
-        output = []
-        output.append("=== ALLOCATION BREAKDOWN ===")
-        output.append(f"Total Available Slots: {results['total_slots']}")
-        output.append("\n=== SCHOOLS ===")
+        try:
+            output = []
+            output.append("=== ALLOCATION BREAKDOWN ===")
+            output.append(f"Total Available Slots: {results['total_slots']}")
+            output.append("\n=== SCHOOLS ===")
 
-        for school_id, school_data in results["schools"].items():
-            output.append(f"\nSchool {school_id}:")
-            output.append(f"  Total Slots: {school_data['total_slots']}")
-            output.append(f"  Preferred Slots: {school_data['preferred_slots']}")
-            output.append(f"  Possible Slots: {school_data['possible_slots']}")
+            for school_id, school_data in results["schools"].items():
+                output.append(f"\nSchool {school_id}:")
+                output.append(f"  Total Slots: {school_data['total_slots']}")
+                output.append(f"  Preferred Slots: {school_data['preferred_slots']}")
+                output.append(f"  Possible Slots: {school_data['possible_slots']}")
 
-        output.append("\n=== INSTRUCTORS ===")
-        for instructor_id, instructor_data in results["instructors"].items():
-            output.append(f"\n{instructor_data['name']}:")
-            output.append(f"  Total Slots: {instructor_data['total_slots']}")
-            output.append(
-                f"  Max Daily Sessions: {instructor_data['max_daily_sessions']}"
-            )
-            output.append("  School Allocations:")
-            for school_id, school_data in instructor_data["schools"].items():
-                if school_data["total_slots"] > 0:
-                    output.append(f"    School {school_id}:")
-                    output.append(f"      Total Slots: {school_data['total_slots']}")
-                    output.append(
-                        f"      Preferred Slots: {school_data['preferred_slots']}"
-                    )
-                    output.append(
-                        f"      Possible Slots: {school_data['possible_slots']}"
-                    )
+            output.append("\n=== INSTRUCTORS ===")
+            for instructor_id, instructor_data in results["instructors"].items():
+                output.append(f"\n{instructor_data['name']}:")
+                output.append(f"  Total Slots: {instructor_data['total_slots']}")
+                output.append(
+                    f"  Max Daily Sessions: {instructor_data['max_daily_sessions']}"
+                )
+                output.append("  School Allocations:")
+                for school_id, school_data in instructor_data["schools"].items():
+                    if school_data["total_slots"] > 0:
+                        output.append(f"    School {school_id}:")
+                        output.append(
+                            f"      Total Slots: {school_data['total_slots']}"
+                        )
+                        output.append(
+                            f"      Preferred Slots: {school_data['preferred_slots']}"
+                        )
+                        output.append(
+                            f"      Possible Slots: {school_data['possible_slots']}"
+                        )
 
-        return "\n".join(output)
+            return "\n".join(output)
+
+        except Exception as e:
+            raise ValueError(f"Failed to format results: {str(e)}")
 
     except Exception as e:
         anvil.server.error(f"Error in test_allocation_breakdown: {str(e)}")
