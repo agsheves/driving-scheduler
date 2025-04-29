@@ -58,6 +58,9 @@ db_schema:
     - admin_ui: {order: 2, width: 200}
       name: weekly_availability
       type: simpleObject
+    - admin_ui: {width: 200}
+      name: school_preferences
+      type: simpleObject
     server: full
     title: instructor_schedules
   no_class_dates:
