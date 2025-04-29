@@ -615,5 +615,6 @@ def test_allocation_breakdown(
             raise ValueError(f"Failed to format results: {str(e)}")
 
     except Exception as e:
+        print(e)
         anvil.server.error(f"Error in test_allocation_breakdown: {str(e)}")
         raise
