@@ -514,19 +514,30 @@ class SchedulerOptimizer:
 
 @anvil.server.callable
 def test_allocation_breakdown(
-    start_date: datetime, duration_weeks: int = 6, school_list: List[str] = None
+    start_date: str, duration_weeks: int = 6, school_list: List[str] = None
 ) -> str:
     """
     Server callable function to get a formatted breakdown of the allocation.
+
+    Args:
+        start_date: Date string in format 'MM-DD-YYYY'
+        duration_weeks: Number of weeks to calculate for
+        school_list: Optional list of school IDs
     """
     try:
+        # Parse the date string
+        try:
+            parsed_date = datetime.strptime(start_date, "%m-%d-%Y")
+        except ValueError as e:
+            raise ValueError(
+                f"Invalid date format. Please use MM-DD-YYYY format. Error: {str(e)}"
+            )
+
         optimizer = SchedulerOptimizer()
-        results = optimizer.test_allocation(start_date, duration_weeks, school_list)
-        print(results)
+        results = optimizer.test_allocation(parsed_date, duration_weeks, school_list)
 
         # Format the results for display
         output = []
-        print("formatting output")
         output.append("=== ALLOCATION BREAKDOWN ===")
         output.append(f"Total Available Slots: {results['total_slots']}")
         output.append("\n=== SCHOOLS ===")
