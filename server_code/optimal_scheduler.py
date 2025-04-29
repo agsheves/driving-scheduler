@@ -12,6 +12,7 @@ import plotly.graph_objects as go
 from .globals import current_teen_driving_schedule, COURSE_STRUCTURE
 
 # Import from globals
+# comment for github tracking
 LESSON_SLOTS = current_teen_driving_schedule
 
 
