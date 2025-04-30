@@ -94,7 +94,7 @@ def get_daily_drive_slots(day, school):
 
         # Check school preferences
         school_prefs = instructor_row["school_preferences"]
-        print(school_prefs)
+        #print(school_prefs)
         # print(f"Checking preferences for {instructor['firstName']}: {school_prefs}")
         if school in school_prefs.get("school_preferences", {}).get("no", []):
             #
@@ -183,7 +183,7 @@ def generate_cohort_name(school, start_date):
     """
     year = start_date.year
     # Get next sequence number for this year
-    existing_cohorts = app_tables.cohorts.search(year=year, school=school)
+    existing_cohorts = app_tables.cohorts.search(school=school)
     sequence = len(existing_cohorts) + 1
     full_name = f"{year}-{sequence:02d}-{school}"
 
@@ -201,7 +201,6 @@ def generate_cohort_name(school, start_date):
         end_date=end_date,
         status=status,
         school=school,
-        year=year,
         sequence=sequence,
     )
 
