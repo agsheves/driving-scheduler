@@ -24,6 +24,12 @@ db_schema:
     - admin_ui: {order: 6, width: 200}
       name: student_list
       type: simpleObject
+    - admin_ui: {order: 7, width: 200}
+      name: class_list
+      type: simpleObject
+    - admin_ui: {order: 8, width: 200}
+      name: drive_list
+      type: simpleObject
     server: full
     title: cohorts
   files:

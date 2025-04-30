@@ -316,7 +316,9 @@ def schedule_classes(cohort_name, start_date, num_students):
         current_class += 1
         if current_class % 3 == 1:  # Start new week after every 3 classes
             current_week += 1
-
+    cohort_data_row = app_tables.cohorts.get(cohort_name=cohort_name)
+   # Need to turn this schedule into a simple object for storage in the cohort table
+    #cohort_data_row.update(class_list = class_schedule)
     return class_schedule
 
 
@@ -326,9 +328,14 @@ def schedule_drives(cohort_name, start_date, num_students):
     Schedule drives (1 per week for weeks 2-6)
     Returns list of drive schedules with instructor assignments
     """
+    # this is where we have to identify the available slots and allocate an instructor, time slot and student pair.
+    # These repeat weekly
+    # Need some logic to manage weeks with holidays - maybe keep the Tuesday and Thursday evening slots for these
+  
     drives = []
     current_date = start_date + timedelta(days=7)  # Start week 2
     num_pairs = num_students // 2
+    # pair students by consecutive placeholder student number from the cohort so 1&2, 3&4.
 
     for week in range(5):
         for pair in range(num_pairs):
@@ -342,6 +349,8 @@ def schedule_drives(cohort_name, start_date, num_students):
                 }
             )
         current_date += timedelta(days=7)
+    #cohort_data_row = app_tables.cohorts.get(cohort_name=cohort_name)
+    #cohort_data_row.update(drive_list = drives)
     return drives
 
 
