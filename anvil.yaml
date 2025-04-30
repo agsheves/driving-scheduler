@@ -1,10 +1,5 @@
 allow_embedding: false
 db_schema:
-  company_and_school_schedule:
-    client: none
-    columns: []
-    server: full
-    title: company_and_school_schedule
   files:
     client: full
     columns:
@@ -80,6 +75,25 @@ db_schema:
       type: string
     server: full
     title: no_class_dates
+  no_class_days:
+    client: none
+    columns:
+    - admin_ui: {order: 0, width: 200}
+      name: Event
+      type: string
+    - admin_ui: {order: 1, width: 200}
+      name: date
+      type: date
+    - admin_ui: {order: 2, width: 200}
+      name: applies_all_or_school
+      type: string
+    server: full
+    title: no_class_days
+  table_7:
+    client: none
+    columns: []
+    server: full
+    title: Table 7
   users:
     client: search
     columns:
