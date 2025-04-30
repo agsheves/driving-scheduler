@@ -19,6 +19,8 @@ from datetime import datetime, timedelta, date
 STUDENTS_PER_DRIVE = 2
 MAX_COHORT_SIZE = 30
 BUFFER_PERCENTAGE = 0.9
+MIN_COURSE_LENGTH = 42  # cohorts must run for over 42 calendar days to allow sufficient time to sequence all activities.
+CLASS_DAYS = ["Monday", "Wednedsay", "Friday"]
 
 # Test data for no_class_days if table is empty
 no_class_days_test = {
@@ -51,6 +53,7 @@ def get_available_days(start_date):
 
     Returns:
         list: List of available dates
+    ⚠️ Needs testing with regular availability and a large holiday block
     """
     available_days = []
     current_date = start_date
@@ -63,11 +66,22 @@ def get_available_days(start_date):
 
     holiday_dates = {h["date"] for h in holidays}
 
-    # Check 6 weeks of dates
-    for _ in range(6 * 7):  # 6 weeks * 7 days
+    # Check dates until we have enough available calendar days or hit max search window
+    days_checked = 0
+    max_days_to_check = 90  # Look up to ~3 months ahead
+
+    while len(available_days) < MIN_COURSE_LENGTH and days_checked < max_days_to_check:
         if current_date not in holiday_dates:
             available_days.append(current_date)
         current_date += timedelta(days=1)
+        days_checked += 1
+
+    # Check if we found enough available days
+    if len(available_days) < MIN_COURSE_LENGTH:
+        days_short = MIN_COURSE_LENGTH - len(available_days)
+        raise ValueError(
+            f"Could not find enough available days. Need {days_short} more days to meet minimum course length of {MIN_COURSE_LENGTH} days"
+        )
 
     return available_days
 
@@ -83,6 +97,9 @@ def get_daily_drive_slots(day, school):
 
     Returns:
         int: Total number of available drive slots for the day
+    ✅ This has been tested and function works as expected
+    BUT!
+    ⚠️ Need to do manual comparison to check exact results.
     """
     total_slots = 0
     instructors = app_tables.users.search(is_instructor=True)
@@ -94,10 +111,10 @@ def get_daily_drive_slots(day, school):
 
         # Check school preferences
         school_prefs = instructor_row["school_preferences"]
-        #print(school_prefs)
+        # print(school_prefs)
         # print(f"Checking preferences for {instructor['firstName']}: {school_prefs}")
         if school in school_prefs.get("school_preferences", {}).get("no", []):
-            #
+            # ✅ This is working as expected
             continue
 
         # Check vacations
@@ -134,6 +151,9 @@ def calculate_weekly_capacity(start_date, school):
 
     Returns:
         dict: Contains weekly capacity information
+    ✅ This has been tested and function works as expected
+    BUT!
+    ⚠️ Need to do manual comparison to check exact results.
     """
     available_days = get_available_days(start_date)
 
@@ -180,6 +200,7 @@ def generate_cohort_name(school, start_date):
     Generate cohort name in format YEAR-SEQUENCENUMBER-SCHOOL_ABBREVIATION
     Example: 2025-11-HSS
     Also creates the cohort record in the database
+    ✅ This has been tested and works as designed
     """
     year = start_date.year
     # Get next sequence number for this year
@@ -212,38 +233,91 @@ def create_ghost_students(cohort_name, num_students):
     """
     Create ghost student records for the cohort
     Example IDs: 2025-11-HSS-student01
+    ⚠️ Needs testing
     """
     students = []
     for i in range(1, num_students + 1):
         student_id = f"{cohort_name}-student{i:02d}"
         students.append(student_id)
+    cohort_record = app_tables.cohorts.search(cohort_name=cohort_name)
+    cohort_record(student_list=students)
     return students
 
 
 @anvil.server.callable
 def schedule_classes(cohort_name, start_date, num_students):
     """
-    Schedule 15 classes (3 per week for 5 weeks)
-    Returns list of class schedules with instructor assignments
+    Schedule classes for the cohort.
+    Classes must be on specific days of the week as defined in CLASS_DAYS.
     """
-    classes = []
-    current_date = start_date
-    class_number = 1
+    # Verify start_date is Monday
+    if start_date.weekday() != 0:  # 0 is Monday
+        print(
+            f"Warning: Start date {start_date} is not a Monday. This may cause scheduling issues."
+        )
 
-    for week in range(5):
-        for _ in range(3):  # 3 classes per week
-            if class_number <= 15:
-                classes.append(
-                    {
-                        "cohort": cohort_name,
-                        "class_number": class_number,
-                        "date": current_date,
-                        "instructor": None,  # To be assigned
-                    }
-                )
-                class_number += 1
-        current_date += timedelta(days=7)
-    return classes
+    # Get available days
+    available_days = get_available_days(start_date)
+
+    # Create class schedule
+    class_schedule = []
+    current_week = 1
+    current_class = 1
+
+    # Map of class numbers to their required day of week (0=Monday, 6=Sunday)
+    class_day_map = {
+        1: 0,  # Monday
+        2: 2,  # Wednesday
+        3: 4,  # Friday
+        4: 1,  # Tuesday
+        5: 3,  # Thursday
+        6: 0,  # Monday
+        7: 2,  # Wednesday
+        8: 4,  # Friday
+        9: 1,  # Tuesday
+        10: 3,  # Thursday
+        11: 0,  # Monday
+        12: 2,  # Wednesday
+        13: 4,  # Friday
+        14: 1,  # Tuesday
+        15: 3,  # Thursday
+    }
+
+    # Schedule each class
+    while current_class <= 15:
+        # Calculate the target date based on week and required day
+        required_day = class_day_map[current_class]
+        week_offset = (current_week - 1) * 7
+        target_date = start_date + timedelta(days=week_offset + required_day)
+
+        # Find the next available date that matches the required day of week
+        class_date = None
+        for day in available_days:
+            if day >= target_date and day.weekday() == required_day:
+                class_date = day
+                break
+
+        if class_date is None:
+            print(f"Warning: Could not find available date for Class {current_class}")
+            break
+
+        # Create class slot
+        class_slot = {
+            "cohort_name": cohort_name,
+            "class_number": current_class,
+            "date": class_date,
+            "week": current_week,
+            "day_of_week": class_date.strftime("%A"),
+            "status": "scheduled",
+        }
+        class_schedule.append(class_slot)
+
+        # Move to next class
+        current_class += 1
+        if current_class % 3 == 1:  # Start new week after every 3 classes
+            current_week += 1
+
+    return class_schedule
 
 
 @anvil.server.callable
