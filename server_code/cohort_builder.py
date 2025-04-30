@@ -456,39 +456,63 @@ def schedule_drives(cohort_name, start_date, num_students):
 
 
 @anvil.server.callable
-def create_cohort(school, start_date):
+def create_full_cohort_schedule(school, start_date, num_students=None):
     """
-    Main function to create a new cohort
+    Create a complete schedule for a new cohort including:
+    - Cohort creation
+    - Student assignment
+    - Class scheduling
+    - Drive scheduling
 
     Args:
-        school (str): School abbreviation (e.g., 'HSS', 'NHS') from app_tables/schools/abbreviation
+        school (str): School abbreviation (e.g., 'HSS', 'NHS')
         start_date (date): Start date of the program
+        num_students (int, optional): Number of students. If None, will calculate based on capacity
 
     Returns:
-        dict: Cohort information including name, students, classes, and drives
+        dict: Complete cohort schedule information
     """
-    print(f"\nCreating new cohort for {school} starting {start_date}")
+    print(f"\nCreating full schedule for {school} cohort starting {start_date}")
 
     # 1. Generate cohort name
     cohort_name = generate_cohort_name(school, start_date)
     print(f"Cohort name: {cohort_name}")
 
-    # 2. Calculate max students based on instructor availability
-    capacity = calculate_weekly_capacity(start_date, school)
-    num_students = min(capacity["max_students"], MAX_COHORT_SIZE)
-    print(f"Max students: {num_students}")
+    # 2. Calculate capacity if num_students not provided
+    if num_students is None:
+        capacity = calculate_weekly_capacity(start_date, school)
+        num_students = min(capacity["max_students"], MAX_COHORT_SIZE)
+    print(f"Number of students: {num_students}")
 
-    # 3. Create ghost students
+    # 3. Create student records
     students = create_ghost_students(cohort_name, num_students)
     print(f"Created {len(students)} student records")
 
     # 4. Schedule classes
     classes = schedule_classes(cohort_name, start_date, num_students)
     print(f"Scheduled {len(classes)} classes")
+    print("Class schedule:")
+    for class_slot in classes:
+        print(f"  • Class {class_slot['class_number']} on {class_slot['date']}")
 
     # 5. Schedule drives
     drives = schedule_drives(cohort_name, start_date, num_students)
-    print(f"Scheduled {len(drives)} drives")
+    print(f"\nScheduled {len(drives)} drives")
+    print("Drive schedule:")
+    for drive in drives:
+        print(
+            f"  • Drive {drive['drive_letter']} on {drive['date']} (Slot: {drive['slot']})"
+        )
+
+    # 6. Store everything in the cohort record
+    cohort_data_row = app_tables.cohorts.get(cohort_name=cohort_name)
+    if cohort_data_row:
+        cohort_data_row.update(
+            student_list=students,
+            class_schedule=classes,
+            drive_schedule=drives,
+            status="scheduled",
+        )
 
     return {
         "cohort_name": cohort_name,
@@ -496,6 +520,8 @@ def create_cohort(school, start_date):
         "students": students,
         "classes": classes,
         "drives": drives,
+        "start_date": start_date,
+        "end_date": start_date + timedelta(weeks=6),
     }
 
 
