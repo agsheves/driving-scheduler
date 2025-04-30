@@ -47,12 +47,13 @@ def get_available_days(start_date):
 
     # Get holidays from the database
     # Convert the test dictionary to the required format
-    holidays = [{"date": datetime.strptime(date_str, "%Y-%m-%d").date(), "name": name} 
-              for date_str, name in no_class_days_test.items()]
-    
+    holidays = [
+        {"date": datetime.strptime(date_str, "%Y-%m-%d").date(), "name": name}
+        for date_str, name in no_class_days_test.items()
+    ]
+
     # Now this will work correctly
     holiday_dates = {h["date"] for h in holidays}
-
 
     # Check 6 weeks of dates
     for _ in range(6 * 7):  # 6 weeks * 7 days
@@ -82,14 +83,14 @@ def get_daily_drive_slots(day):
         instructor_row = app_tables.instructor_schedules.get(instructor=instructor)
         if not instructor_row:
             continue
-            
+
         # Check vacations
-        instructor_vacations = instructor_row['vacation_days']
+        instructor_vacations = instructor_row["vacation_days"]
         if day in instructor_vacations:
             continue
 
         # Get availability for the specific day
-        instructor_availability = instructor_row['weekly_availability']
+        instructor_availability = instructor_row["weekly_availability"]
         day_availability = instructor_availability.get(str(day), {})
         if not day_availability:
             continue
@@ -134,7 +135,7 @@ def calculate_weekly_capacity(start_date):
 
         # Apply 10% buffer
         available_slots = int(total_slots * (1 - BUFFER_PERCENTAGE))
-        weekly_slots[week_num] = available_slots
+        weekly_slots[str(week_num)] = available_slots
 
     # Find the minimum weekly capacity (bottleneck)
     min_weekly_slots = min(weekly_slots.values())
