@@ -40,7 +40,6 @@ def process_instructor_availability(instructors, start_date=None):
                 instructor=instructor
             )
             weekly_data = instructor_schedule["weekly_availability"]
-            print(weekly_data)
             if weekly_data is None or weekly_data == "":
                 continue
             print(f"Found data for {instructor['firstName']}: {weekly_data.keys()}")
@@ -63,7 +62,7 @@ def process_instructor_availability(instructors, start_date=None):
 
         for day_index, day_name in enumerate(days_of_week):
             try:
-                day_availability = weekly_data["weekly_availability"][day_name]
+                day_availability = weekly_data[day_name]
                 print(
                     f"Processing {day_name} for {instructor['firstName']}: {len(day_availability)} time slots"
                 )
