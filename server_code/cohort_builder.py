@@ -562,8 +562,27 @@ def test_capacity_calculation(start_date=None, school=None):
     print("\n6. Testing drive scheduling...")
     drives = schedule_drives(cohort_name, start_date, capacity["max_students"])
     print(f"Scheduled {len(drives)} drives")
-    print("First week drives:")
-    first_week_drives = [d for d in drives if datetime.fromisoformat(d["date"]).date() - start_date < timedelta(days=7)]
+
+    # Debug printing for drives
+    print("\nDebug - All drives:")
+    for drive in drives:
+        print(f"  • Drive {drive['drive_letter']} on {drive['date']}")
+
+    print("\nDebug - First week calculation:")
+    for drive in drives:
+        drive_date = datetime.fromisoformat(drive["date"]).date()
+        days_diff = (drive_date - start_date).days
+        print(
+            f"  • Drive {drive['drive_letter']} on {drive['date']} (days from start: {days_diff})"
+        )
+
+    print("\nFirst week drives:")
+    first_week_drives = [
+        d
+        for d in drives
+        if datetime.fromisoformat(d["date"]).date() - start_date < timedelta(days=7)
+    ]
+    print(f"Found {len(first_week_drives)} drives in first week")
     for drive in first_week_drives:
         print(f"  • Drive {drive['drive_letter']} on {drive['date']}")
 
