@@ -95,7 +95,7 @@ def get_daily_drive_slots(day, school):
         # Check school preferences
         school_prefs = instructor_row["school_preferences"]
         print(school_prefs)
-        #print(f"Checking preferences for {instructor['firstName']}: {school_prefs}")
+        # print(f"Checking preferences for {instructor['firstName']}: {school_prefs}")
         if school in school_prefs.get("school_preferences", {}).get("no", []):
             #
             continue
@@ -179,14 +179,34 @@ def generate_cohort_name(school, start_date):
     """
     Generate cohort name in format YEAR-SEQUENCENUMBER-SCHOOL_ABBREVIATION
     Example: 2025-11-HSS
+    Also creates the cohort record in the database
     """
     year = start_date.year
     # Get next sequence number for this year
     existing_cohorts = app_tables.cohorts.search(year=year, school=school)
     sequence = len(existing_cohorts) + 1
     full_name = f"{year}-{sequence:02d}-{school}"
-    app_tables.cohorts.add_row(cohort_name=full_name, start_date=start_date)
+
+    # Calculate end date (6 weeks from start)
+    end_date = start_date + timedelta(weeks=6)
+
+    # Determine status
+    today = datetime.now().date()
+    status = "planned" if start_date > today else "active"
+
+    # Create cohort record
+    app_tables.cohorts.add_row(
+        cohort_name=full_name,
+        start_date=start_date,
+        end_date=end_date,
+        status=status,
+        school=school,
+        year=year,
+        sequence=sequence,
+    )
+
     return full_name
+
 
 @anvil.server.callable
 def create_ghost_students(cohort_name, num_students):
@@ -317,7 +337,7 @@ def test_capacity_calculation(start_date=None, school=None):
     if school is None:
         school = "HSS"  # Default to HSS for testing
 
-    print("\n=== Testing Capacity Calculation Functions ===")
+    print("\n=== Testing Cohort Builder Functions ===")
     print(f"Start Date: {start_date}")
     print(f"School: {school}")
 
@@ -342,9 +362,35 @@ def test_capacity_calculation(start_date=None, school=None):
     print(f"Max weekly slots: {capacity['max_weekly_slots']}")
     print(f"Maximum students: {capacity['max_students']}")
 
+    # Test cohort creation
+    print("\n4. Testing cohort creation...")
+    cohort_name = generate_cohort_name(school, start_date)
+    print(f"Generated cohort name: {cohort_name}")
+
+    # Test class scheduling
+    print("\n5. Testing class scheduling...")
+    classes = schedule_classes(cohort_name, start_date, capacity["max_students"])
+    print(f"Scheduled {len(classes)} classes")
+    print("First week classes:")
+    for class_slot in classes[:3]:
+        print(f"  • Class {class_slot['class_number']} on {class_slot['date']}")
+
+    # Test drive scheduling
+    print("\n6. Testing drive scheduling...")
+    drives = schedule_drives(cohort_name, start_date, capacity["max_students"])
+    print(f"Scheduled {len(drives)} drives")
+    print("First week drives:")
+    first_week_drives = [d for d in drives if (d["date"] - start_date).days < 7]
+    for drive in first_week_drives:
+        print(f"  • Drive {drive['drive_letter']} on {drive['date']}")
+
     return {
         "start_date": start_date,
+        "school": school,
         "first_day_slots": first_day_slots,
         "last_day_slots": last_day_slots,
         "capacity": capacity,
+        "cohort_name": cohort_name,
+        "num_classes": len(classes),
+        "num_drives": len(drives),
     }
