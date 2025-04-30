@@ -130,25 +130,33 @@ def calculate_weekly_capacity(start_date):
     # Calculate drive slots per week
     # Internal storage with int keys and int values
     weekly_slots = {}
-    
+
     for week_num in range(1, 7):
+        total_slots = 0
+        # Get the days for this week
+        week_days = [
+            day
+            for day in available_days
+            if (day - start_date).days // 7 + 1 == week_num
+        ]
+        # Calculate total slots for this week
+        for day in week_days:
+            total_slots += get_daily_drive_slots(day)
         available_slots = int(total_slots)
-        weekly_slots[week_num] = available_slots  # week_num = int, available_slots = int
-    
+        weekly_slots[week_num] = available_slots
+
     # Do math using int values
     max_weekly_slots = max(weekly_slots.values())
     avg_weekly_slots = sum(weekly_slots.values()) / len(weekly_slots)
-    
+
     # Just before returning to Anvil
     weekly_slots_serialized = {str(k): v for k, v in weekly_slots.items()}
-    
+
     return {
         "weekly_slots": weekly_slots_serialized,
         "max_weekly_slots": max_weekly_slots,
-        "avg_weekly_slots": avg_weekly_slots
+        "avg_weekly_slots": avg_weekly_slots,
     }
-
-
 
 
 @anvil.server.callable
