@@ -577,10 +577,11 @@ def test_capacity_calculation(start_date=None, school=None):
         )
 
     print("\nFirst week drives:")
+    # Filter for drives in week 2 (days 7-13 from start)
     first_week_drives = [
         d
         for d in drives
-        if datetime.fromisoformat(d["date"]).date() - start_date < timedelta(days=7)
+        if 7 <= (datetime.fromisoformat(d["date"]).date() - start_date).days < 14
     ]
     print(f"Found {len(first_week_drives)} drives in first week")
     for drive in first_week_drives:
