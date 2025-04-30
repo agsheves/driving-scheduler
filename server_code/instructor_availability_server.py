@@ -40,6 +40,7 @@ def process_instructor_availability(instructors, start_date=None):
                 instructor=instructor
             )
             weekly_data = instructor_schedule["weekly_availability"]
+            print(weekly_data)
             if weekly_data is None or weekly_data == "":
                 continue
             print(f"Found data for {instructor['firstName']}: {weekly_data.keys()}")
@@ -97,9 +98,9 @@ def process_instructor_availability(instructors, start_date=None):
     df = pd.DataFrame(all_records)
 
     # Debug print to see sample of the dataframe in terminal
-    # print(f"Total records: {len(df)}")
-    # print("Sample of DataFrame (first 20 records):")
-    # print(df.head(20))
+    print(f"Total records: {len(df)}")
+    print("Sample of DataFrame (first 20 records):")
+    print(df.head(20))
 
     if df.empty:
         return None
