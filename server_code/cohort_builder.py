@@ -1,8 +1,7 @@
 """
-Program Builder Consolidated Module
+Cohort Builder Module
 
-This module handles the calculation of program capacity based on available drive slots,
-taking into account vacations and holidays.
+Handles creation and scheduling of driving school cohorts.
 """
 
 import anvil.files
@@ -15,8 +14,9 @@ import anvil.server
 from datetime import datetime, timedelta, date
 
 # Constants
-STUDENTS_PER_SLOT = 2  # 2 students per drive slot
-BUFFER_PERCENTAGE = 0.9  # 10% buffer for classes and slack
+STUDENTS_PER_DRIVE = 2
+MAX_COHORT_SIZE = 30
+BUFFER_PERCENTAGE = 0.9
 
 # Test data for no_class_days if table is empty
 no_class_days_test = {
@@ -28,6 +28,14 @@ no_class_days_test = {
     "2025-11-28": "Thanksgiving",
     "2025-12-25": "Christmas Day",
 }
+
+
+# no_class_days_listed = app_tables.no_class_days.search(applies_all_or_school='all')
+no_class_days_listed = None
+if no_class_days_listed is None:
+    no_class_days = no_class_days_test
+else:
+    no_class_days = no_class_days_listed
 
 
 @anvil.server.callable
@@ -46,18 +54,15 @@ def get_available_days(start_date):
     current_date = start_date
 
     # Get holidays from the database
-    # Convert the test dictionary to the required format
     holidays = [
         {"date": datetime.strptime(date_str, "%Y-%m-%d").date(), "name": name}
-        for date_str, name in no_class_days_test.items()
+        for date_str, name in no_class_days.items()
     ]
 
-    # Now this will work correctly
     holiday_dates = {h["date"] for h in holidays}
 
     # Check 6 weeks of dates
     for _ in range(6 * 7):  # 6 weeks * 7 days
-        # Skip if it's a holiday
         if current_date not in holiday_dates:
             available_days.append(current_date)
         current_date += timedelta(days=1)
@@ -65,12 +70,14 @@ def get_available_days(start_date):
     return available_days
 
 
-def get_daily_drive_slots(day):
+def get_daily_drive_slots(day, school):
     """
     Calculate total available drive slots for a specific day across all instructors.
+    Only includes instructors who can teach at the specified school.
 
     Args:
         day (date): The day to check
+        school (str): The school to check availability for
 
     Returns:
         int: Total number of available drive slots for the day
@@ -79,11 +86,15 @@ def get_daily_drive_slots(day):
     instructors = app_tables.users.search(is_instructor=True)
 
     for instructor in instructors:
-        # Get instructor's schedule
-
         instructor_row = app_tables.instructor_schedules.get(instructor=instructor)
         if not instructor_row:
             continue
+
+        # Check school preferences
+        school_prefs = instructor_row["school_preferences"]
+        if school in school_prefs.get("no", []):
+            # Skip if instructor cannot teach at this school
+            continue  
 
         # Check vacations
         instructor_vacations = instructor_row["vacation_days"]
@@ -91,10 +102,9 @@ def get_daily_drive_slots(day):
             continue
 
         # Get availability for the specific day
-        # Get availability for the specific day
-        # Get availability for the specific day
-        # Get availability for the specific day
-        instructor_availability = instructor_row["weekly_availability"]["weekly_availability"]  # Get the inner dict
+        instructor_availability = instructor_row["weekly_availability"][
+            "weekly_availability"
+        ]
         day_name = day.strftime("%A").lower()
         day_availability = instructor_availability.get(day_name, {})
         if not day_availability:
@@ -102,20 +112,21 @@ def get_daily_drive_slots(day):
 
         # Count available drive slots
         for slot, status in day_availability.items():
-            if status == "Yes" or "Drive" in slot:
+            if status == "Yes" or status == "Drive Only":
                 total_slots += 1
 
     return total_slots
 
 
 @anvil.server.callable
-def calculate_weekly_capacity(start_date):
+def calculate_weekly_capacity(start_date, school):
     """
     Calculate the weekly capacity based on available drive slots,
-    taking into account instructor availability and vacations.
+    taking into account instructor availability, vacations, and school preferences.
 
     Args:
         start_date (date): Start date of the program
+        school (str): The school to calculate capacity for
 
     Returns:
         dict: Contains weekly capacity information
@@ -131,36 +142,145 @@ def calculate_weekly_capacity(start_date):
         weekly_days[week_num].append(day)
 
     # Calculate drive slots per week
-    # Internal storage with int keys and int values
     weekly_slots = {}
 
     for week_num in range(1, 7):
         total_slots = 0
-        # Get the days for this week
         week_days = [
             day
             for day in available_days
             if (day - start_date).days // 7 + 1 == week_num
         ]
-        # Calculate total slots for this week
         for day in week_days:
-            total_slots += get_daily_drive_slots(day)
+            total_slots += get_daily_drive_slots(day, school)
         available_slots = int(total_slots)
         weekly_slots[week_num] = available_slots
 
-    # Do math using int values
     max_weekly_slots = max(weekly_slots.values())
     avg_weekly_slots = sum(weekly_slots.values()) / len(weekly_slots)
-    max_students = max_weekly_slots * 2
+    max_students = min(max_weekly_slots * STUDENTS_PER_DRIVE, MAX_COHORT_SIZE)
 
-    # Just before returning to Anvil
     weekly_slots_serialized = {str(k): v for k, v in weekly_slots.items()}
 
     return {
         "weekly_slots": weekly_slots_serialized,
         "max_weekly_slots": max_weekly_slots,
         "avg_weekly_slots": avg_weekly_slots,
-        "max_students": max_students
+        "max_students": max_students,
+    }
+
+
+@anvil.server.callable
+def generate_cohort_name(school, start_date):
+    """
+    Generate cohort name in format YEAR-SEQUENCENUMBER-SCHOOL_ABBREVIATION
+    Example: 2025-11-HSS
+    """
+    year = start_date.year
+    # Get next sequence number for this year
+    existing_cohorts = app_tables.cohorts.search(year=year, school=school)
+    sequence = len(existing_cohorts) + 1
+    return f"{year}-{sequence:02d}-{school}"
+
+
+@anvil.server.callable
+def create_ghost_students(cohort_name, num_students):
+    """
+    Create ghost student records for the cohort
+    Example IDs: 2025-11-HSS-student01
+    """
+    students = []
+    for i in range(1, num_students + 1):
+        student_id = f"{cohort_name}-student{i:02d}"
+        students.append(student_id)
+    return students
+
+
+@anvil.server.callable
+def schedule_classes(cohort_name, start_date, num_students):
+    """
+    Schedule 15 classes (3 per week for 5 weeks)
+    Returns list of class schedules with instructor assignments
+    """
+    classes = []
+    current_date = start_date
+    class_number = 1
+
+    for week in range(5):
+        for _ in range(3):  # 3 classes per week
+            if class_number <= 15:
+                classes.append(
+                    {
+                        "cohort": cohort_name,
+                        "class_number": class_number,
+                        "date": current_date,
+                        "instructor": None,  # To be assigned
+                    }
+                )
+                class_number += 1
+        current_date += timedelta(days=7)
+    return classes
+
+
+@anvil.server.callable
+def schedule_drives(cohort_name, start_date, num_students):
+    """
+    Schedule drives (1 per week for weeks 2-6)
+    Returns list of drive schedules with instructor assignments
+    """
+    drives = []
+    current_date = start_date + timedelta(days=7)  # Start week 2
+    num_pairs = num_students // 2
+
+    for week in range(5):
+        for pair in range(num_pairs):
+            drive_letter = chr(65 + pair)  # A, B, C, etc.
+            drives.append(
+                {
+                    "cohort": cohort_name,
+                    "drive_letter": drive_letter,
+                    "date": current_date,
+                    "instructor": None,  # To be assigned
+                }
+            )
+        current_date += timedelta(days=7)
+    return drives
+
+
+@anvil.server.callable
+def create_cohort(school, start_date):
+    """
+    Main function to create a new cohort
+    """
+    print(f"\nCreating new cohort for {school} starting {start_date}")
+
+    # 1. Generate cohort name
+    cohort_name = generate_cohort_name(school, start_date)
+    print(f"Cohort name: {cohort_name}")
+
+    # 2. Calculate max students based on instructor availability
+    capacity = calculate_weekly_capacity(start_date, school)
+    num_students = min(capacity["max_students"], MAX_COHORT_SIZE)
+    print(f"Max students: {num_students}")
+
+    # 3. Create ghost students
+    students = create_ghost_students(cohort_name, num_students)
+    print(f"Created {len(students)} student records")
+
+    # 4. Schedule classes
+    classes = schedule_classes(cohort_name, start_date, num_students)
+    print(f"Scheduled {len(classes)} classes")
+
+    # 5. Schedule drives
+    drives = schedule_drives(cohort_name, start_date, num_students)
+    print(f"Scheduled {len(drives)} drives")
+
+    return {
+        "cohort_name": cohort_name,
+        "num_students": num_students,
+        "students": students,
+        "classes": classes,
+        "drives": drives,
     }
 
 
@@ -193,28 +313,20 @@ def test_capacity_calculation(start_date=None):
 
     # Test get_daily_drive_slots for first and last day
     print("\n2. Testing get_daily_drive_slots...")
-    first_day_slots = get_daily_drive_slots(available_days[0])
-    last_day_slots = get_daily_drive_slots(available_days[-1])
+    first_day_slots = get_daily_drive_slots(available_days[0], "HSS")
+    last_day_slots = get_daily_drive_slots(available_days[-1], "HSS")
     print(f"First day slots: {first_day_slots}")
     print(f"Last day slots: {last_day_slots}")
 
     # Test calculate_weekly_capacity
     print("\n3. Testing calculate_weekly_capacity...")
-    capacity = calculate_weekly_capacity(start_date)
+    capacity = calculate_weekly_capacity(start_date, "HSS")
     print(f"Weekly slots: {capacity['weekly_slots']}")
     print(f"Max weekly slots: {capacity['max_weekly_slots']}")
     print(f"Maximum students: {capacity['max_students']}")
 
-    # Verify the calculations
-    print("\n4. Verifying calculations...")
-    max_slots = max(capacity["weekly_slots"].values())
-    expected_students = max_slots * STUDENTS_PER_SLOT
-    print(f"Expected students ({max_slots} * {STUDENTS_PER_SLOT}): {expected_students}")
-    print(f"Calculated students: {capacity['max_students']}")
-
     return {
         "start_date": start_date,
-        #"available_days": available_days,
         "first_day_slots": first_day_slots,
         "last_day_slots": last_day_slots,
         "capacity": capacity,
