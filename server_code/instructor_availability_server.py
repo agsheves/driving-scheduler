@@ -76,6 +76,7 @@ def process_instructor_availability(instructors, start_date=None):
                 continue
 
             for slot_name, status in day_availability.items():
+                print(f"{slot_name}: {status}")
                 if slot_name in LESSON_SLOTS:
                     try:
                         print(
