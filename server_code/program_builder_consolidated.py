@@ -16,7 +16,7 @@ from datetime import datetime, timedelta, date
 
 # Constants
 STUDENTS_PER_SLOT = 2  # 2 students per drive slot
-BUFFER_PERCENTAGE = 0.1  # 10% buffer for classes and slack
+BUFFER_PERCENTAGE = 0.9  # 10% buffer for classes and slack
 
 # Test data for no_class_days if table is empty
 no_class_days_test = {
@@ -80,6 +80,7 @@ def get_daily_drive_slots(day):
 
     for instructor in instructors:
         # Get instructor's schedule
+        print(f"==Function log== Checking {instructor['firstName']}")
         instructor_row = app_tables.instructor_schedules.get(instructor=instructor)
         if not instructor_row:
             continue
@@ -97,8 +98,9 @@ def get_daily_drive_slots(day):
 
         # Count available drive slots
         for slot, status in day_availability.items():
-            if status == "Yes" and "Drive" in slot:
+            if status == "Yes" or "Drive" in slot:
                 total_slots += 1
+        print(f"==Function log== {instructor['firstName']} has {total_slots} slots available")
 
     return total_slots
 
@@ -126,45 +128,28 @@ def calculate_weekly_capacity(start_date):
         weekly_days[week_num].append(day)
 
     # Calculate drive slots per week
+    # Internal storage with int keys and int values
     weekly_slots = {}
-    for week_num, days in weekly_days.items():
-        # Calculate total slots for the week
-        total_slots = 0
-        for day in days:
-            total_slots += get_daily_drive_slots(day)
-
-        # Apply 10% buffer
-        available_slots = int(total_slots * (1 - BUFFER_PERCENTAGE))
-        weekly_slots[str(week_num)] = available_slots
-
-    # Find the minimum weekly capacity (bottleneck)
-    min_weekly_slots = min(weekly_slots.values())
-
-    # Calculate max students (2 per slot)
-    max_students = min_weekly_slots * STUDENTS_PER_SLOT
-
+    
+    for week_num in range(1, 7):
+        total_slots = ...  # some calculation
+        available_slots = int(total_slots * (BUFFER_PERCENTAGE))
+        weekly_slots[week_num] = available_slots  # week_num = int, available_slots = int
+    
+    # Do math using int values
+    max_weekly_slots = max(weekly_slots.values())
+    avg_weekly_slots = sum(weekly_slots.values()) / len(weekly_slots)
+    
+    # Just before returning to Anvil
+    weekly_slots_serialized = {str(k): v for k, v in weekly_slots.items()}
+    
     return {
-        "start_date": start_date,
-        "weekly_slots": weekly_slots,
-        "min_weekly_slots": min_weekly_slots,
-        "max_students": max_students,
-        "available_days": available_days,
+        "weekly_slots": weekly_slots_serialized,
+        "max_weekly_slots": max_weekly_slots,
+        "avg_weekly_slots": avg_weekly_slots
     }
 
 
-def get_instructor_availability(instructor, day):
-    instructor_vacations = instructor["vacations"]
-    instructor_availability_slots = instructor["availability_slots"]
-    if day in instructor_vacations:
-        return 0
-    else:
-        for day in instructor_availability_slots:
-            slot_count = 0
-            if yes in slot:
-                slot_count += 1
-            if drive in slot:
-                slot_count += 1
-        return slot_count
 
 
 @anvil.server.callable
@@ -205,14 +190,14 @@ def test_capacity_calculation(start_date=None):
     print("\n3. Testing calculate_weekly_capacity...")
     capacity = calculate_weekly_capacity(start_date)
     print(f"Weekly slots: {capacity['weekly_slots']}")
-    print(f"Minimum weekly slots: {capacity['min_weekly_slots']}")
+    print(f"Max weekly slots: {capacity['max_weekly_slots']}")
     print(f"Maximum students: {capacity['max_students']}")
 
     # Verify the calculations
     print("\n4. Verifying calculations...")
-    min_slots = min(capacity["weekly_slots"].values())
-    expected_students = min_slots * STUDENTS_PER_SLOT
-    print(f"Expected students ({min_slots} * {STUDENTS_PER_SLOT}): {expected_students}")
+    max_slots = max(capacity["weekly_slots"].values())
+    expected_students = max_slots * STUDENTS_PER_SLOT
+    print(f"Expected students ({max_slots} * {STUDENTS_PER_SLOT}): {expected_students}")
     print(f"Calculated students: {capacity['max_students']}")
 
     return {
