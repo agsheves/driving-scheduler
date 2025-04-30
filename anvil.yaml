@@ -80,6 +80,11 @@ db_schema:
       type: string
     server: full
     title: no_class_dates
+  table_7:
+    client: none
+    columns: []
+    server: full
+    title: Table 7
   users:
     client: search
     columns:
