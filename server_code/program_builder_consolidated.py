@@ -80,7 +80,7 @@ def get_daily_drive_slots(day):
 
     for instructor in instructors:
         # Get instructor's schedule
-        print(f"==Function log== Checking {instructor['firstName']}")
+
         instructor_row = app_tables.instructor_schedules.get(instructor=instructor)
         if not instructor_row:
             continue
@@ -91,8 +91,12 @@ def get_daily_drive_slots(day):
             continue
 
         # Get availability for the specific day
-        instructor_availability = instructor_row["weekly_availability"]
-        day_availability = instructor_availability.get(str(day), {})
+        # Get availability for the specific day
+        # Get availability for the specific day
+        # Get availability for the specific day
+        instructor_availability = instructor_row["weekly_availability"]["weekly_availability"]  # Get the inner dict
+        day_name = day.strftime("%A").lower()
+        day_availability = instructor_availability.get(day_name, {})
         if not day_availability:
             continue
 
@@ -100,7 +104,6 @@ def get_daily_drive_slots(day):
         for slot, status in day_availability.items():
             if status == "Yes" or "Drive" in slot:
                 total_slots += 1
-    print(f"==Function log== Found {total_slots} slots for {day}")
 
     return total_slots
 
@@ -148,6 +151,7 @@ def calculate_weekly_capacity(start_date):
     # Do math using int values
     max_weekly_slots = max(weekly_slots.values())
     avg_weekly_slots = sum(weekly_slots.values()) / len(weekly_slots)
+    max_students = max_weekly_slots * 2
 
     # Just before returning to Anvil
     weekly_slots_serialized = {str(k): v for k, v in weekly_slots.items()}
@@ -156,6 +160,7 @@ def calculate_weekly_capacity(start_date):
         "weekly_slots": weekly_slots_serialized,
         "max_weekly_slots": max_weekly_slots,
         "avg_weekly_slots": avg_weekly_slots,
+        "max_students": max_students
     }
 
 
@@ -209,7 +214,7 @@ def test_capacity_calculation(start_date=None):
 
     return {
         "start_date": start_date,
-        "available_days": available_days,
+        #"available_days": available_days,
         "first_day_slots": first_day_slots,
         "last_day_slots": last_day_slots,
         "capacity": capacity,
