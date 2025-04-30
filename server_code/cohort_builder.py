@@ -184,8 +184,9 @@ def generate_cohort_name(school, start_date):
     # Get next sequence number for this year
     existing_cohorts = app_tables.cohorts.search(year=year, school=school)
     sequence = len(existing_cohorts) + 1
-    return f"{year}-{sequence:02d}-{school}"
-
+    full_name = f"{year}-{sequence:02d}-{school}"
+    app_tables.cohorts.add_row(cohort_name=full_name, start_date=start_date)
+    return full_name
 
 @anvil.server.callable
 def create_ghost_students(cohort_name, num_students):
