@@ -23,10 +23,10 @@ no_class_days_test = {
 
 # Get no_class_days from database or use test data
 no_class_days_db = list(app_tables.no_class_dates.search())
-print("No class days from DB:", no_class_days_db)
+#print("No class days from DB:", no_class_days_db)
 no_class_days = {}
 if no_class_days_db:
-    print("Processing DB no_class_days")
+    #print("Processing DB no_class_days")
     for day in no_class_days_db:
         try:
             date_str = day["date"].strftime("%Y-%m-%d")
