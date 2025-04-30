@@ -94,8 +94,10 @@ def get_daily_drive_slots(day, school):
 
         # Check school preferences
         school_prefs = instructor_row["school_preferences"]
-        if school in school_prefs.get("no", []):
-            # Skip if instructor cannot teach at this school
+        print(school_prefs)
+        #print(f"Checking preferences for {instructor['firstName']}: {school_prefs}")
+        if school in school_prefs.get("school_preferences", {}).get("no", []):
+            #
             continue
 
         # Check vacations
