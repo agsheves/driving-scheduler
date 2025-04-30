@@ -8,20 +8,10 @@ from anvil.tables import app_tables
 # Changing these will change all referneces to time slots, lessons, etc.
 #
 
-availability_time_slots = [
-    "08:00",
-    "09:00",
-    "10:00",
-    "11:00",
-    "12:00",
-    "13:00",
-    "14:00",
-    "15:00",
-    "16:00",
-    "17:00",
-    "18:00",
-    "19:00",
-]
+# Lesson slot types from globals
+# time_slot_5 is extended as the evening drive and class start times differ
+LESSON_SLOTS = app_tables.global_variables_edit_with_care.get(version='latest')['lesson_slots']
+
 days_full = [
     "Monday",
     "Tuesday",

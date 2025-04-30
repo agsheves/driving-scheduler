@@ -15,18 +15,9 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
+from .globals import LESSON_SLOTS
 
-# Lesson slot types from globals
-LESSON_SLOTS = {
-    "Drive 1": {"start_time": "08:00", "end_time": "10:00", "type": "drive"},
-    "Drive 2": {"start_time": "10:15", "end_time": "12:15", "type": "drive"},
-    "Drive 3": {"start_time": "13:15", "end_time": "15:15", "type": "drive"},
-    "Drive 4": {"start_time": "15:45", "end_time": "17:45", "type": "drive"},
-    "Drive 5": {"start_time": "18:00", "end_time": "20:00", "type": "drive"},
-    "Class 1": {"start_time": "10:00", "end_time": "12:00", "type": "class"},
-    "Class 2": {"start_time": "16:00", "end_time": "18:00", "type": "class"},
-    "Class 3": {"start_time": "18:30", "end_time": "20:30", "type": "class"},
-}
+
 
 
 @anvil.server.callable
@@ -95,7 +86,6 @@ def process_instructor_availability(instructors, start_date=None):
                                 "day_index": day_index,
                                 "day_name": day_name,
                                 "slot": slot_name,
-                                "type": LESSON_SLOTS[slot_name]["type"],
                                 "start_time": LESSON_SLOTS[slot_name]["start_time"],
                                 "end_time": LESSON_SLOTS[slot_name]["end_time"],
                                 "status": status,

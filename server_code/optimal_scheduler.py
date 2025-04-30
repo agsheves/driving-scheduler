@@ -9,11 +9,11 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-from .globals import current_teen_driving_schedule, COURSE_STRUCTURE
+from .globals import current_teen_driving_schedule, COURSE_STRUCTURE, LESSON_SLOTS
 
 # Import from globals
 # comment for github tracking
-LESSON_SLOTS = current_teen_driving_schedule
+LESSON_SLOTS = LESSON_SLOTS
 
 
 class OptimalScheduler:
@@ -62,7 +62,6 @@ class OptimalScheduler:
             for slot_name, slot_info in LESSON_SLOTS.items():
                 if self._is_slot_available(current_date, slot_name):
                     day_slots[slot_name] = {
-                        "type": slot_info["type"],
                         "start_time": slot_info["start_time"],
                         "end_time": slot_info["end_time"],
                         "available_instructors": self._get_available_instructors(

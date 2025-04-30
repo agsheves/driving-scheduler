@@ -43,6 +43,9 @@ db_schema:
     - admin_ui: {order: -1, width: 200}
       name: version
       type: string
+    - admin_ui: {order: 6, width: 200}
+      name: lesson_slots
+      type: simpleObject
     server: full
     title: global_variables_EDIT_WITH_CARE
   instructor_schedules:
@@ -141,5 +144,5 @@ services:
 - client_config: {}
   server_config: {file_table: files}
   source: /runtime/services/anvil/files.yml
-startup: {module: Scheduler, type: form}
+startup: {module: Frame, type: form}
 startup_form: null
