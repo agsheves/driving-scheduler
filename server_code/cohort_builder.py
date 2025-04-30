@@ -13,6 +13,8 @@ from anvil.tables import app_tables
 import anvil.server
 from datetime import datetime, timedelta, date
 
+# Schools are referenced by their abbreviation found in app_tables / schools / abbreviation
+
 # Constants
 STUDENTS_PER_DRIVE = 2
 MAX_COHORT_SIZE = 30
@@ -77,7 +79,7 @@ def get_daily_drive_slots(day, school):
 
     Args:
         day (date): The day to check
-        school (str): The school to check availability for
+        school (str): School abbreviation (e.g., 'HSS', 'NHS') from app_tables/schools/abbreviation
 
     Returns:
         int: Total number of available drive slots for the day
@@ -94,7 +96,7 @@ def get_daily_drive_slots(day, school):
         school_prefs = instructor_row["school_preferences"]
         if school in school_prefs.get("no", []):
             # Skip if instructor cannot teach at this school
-            continue  
+            continue
 
         # Check vacations
         instructor_vacations = instructor_row["vacation_days"]
@@ -126,7 +128,7 @@ def calculate_weekly_capacity(start_date, school):
 
     Args:
         start_date (date): Start date of the program
-        school (str): The school to calculate capacity for
+        school (str): School abbreviation (e.g., 'HSS', 'NHS') from app_tables/schools/abbreviation
 
     Returns:
         dict: Contains weekly capacity information
@@ -251,6 +253,13 @@ def schedule_drives(cohort_name, start_date, num_students):
 def create_cohort(school, start_date):
     """
     Main function to create a new cohort
+
+    Args:
+        school (str): School abbreviation (e.g., 'HSS', 'NHS') from app_tables/schools/abbreviation
+        start_date (date): Start date of the program
+
+    Returns:
+        dict: Cohort information including name, students, classes, and drives
     """
     print(f"\nCreating new cohort for {school} starting {start_date}")
 
@@ -285,13 +294,14 @@ def create_cohort(school, start_date):
 
 
 @anvil.server.callable
-def test_capacity_calculation(start_date=None):
+def test_capacity_calculation(start_date=None, school=None):
     """
     Test function to verify the capacity calculation functions.
     Tests each function individually and shows their results.
 
     Args:
         start_date (date): Optional start date (defaults to next Monday)
+        school (str): School abbreviation (e.g., 'HSS', 'NHS') from app_tables/schools/abbreviation
 
     Returns:
         dict: Test results with function outputs
@@ -301,8 +311,12 @@ def test_capacity_calculation(start_date=None):
         days_until_monday = (7 - today.weekday()) % 7
         start_date = today + timedelta(days=days_until_monday)
 
+    if school is None:
+        school = "HSS"  # Default to HSS for testing
+
     print("\n=== Testing Capacity Calculation Functions ===")
     print(f"Start Date: {start_date}")
+    print(f"School: {school}")
 
     # Test get_available_days
     print("\n1. Testing get_available_days...")
@@ -313,14 +327,14 @@ def test_capacity_calculation(start_date=None):
 
     # Test get_daily_drive_slots for first and last day
     print("\n2. Testing get_daily_drive_slots...")
-    first_day_slots = get_daily_drive_slots(available_days[0], "HSS")
-    last_day_slots = get_daily_drive_slots(available_days[-1], "HSS")
+    first_day_slots = get_daily_drive_slots(available_days[0], school)
+    last_day_slots = get_daily_drive_slots(available_days[-1], school)
     print(f"First day slots: {first_day_slots}")
     print(f"Last day slots: {last_day_slots}")
 
     # Test calculate_weekly_capacity
     print("\n3. Testing calculate_weekly_capacity...")
-    capacity = calculate_weekly_capacity(start_date, "HSS")
+    capacity = calculate_weekly_capacity(start_date, school)
     print(f"Weekly slots: {capacity['weekly_slots']}")
     print(f"Max weekly slots: {capacity['max_weekly_slots']}")
     print(f"Maximum students: {capacity['max_students']}")
