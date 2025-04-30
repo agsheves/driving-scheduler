@@ -240,8 +240,8 @@ def create_ghost_students(cohort_name, num_students):
     for i in range(1, num_students + 1):
         student_id = f"{cohort_name}-student{i:02d}"
         students.append(student_id)
-    cohort_record = app_tables.cohorts.search(cohort_name=cohort_name)
-    cohort_record(student_list=students)
+    cohort_record = app_tables.cohorts.get(cohort_name=cohort_name)
+    cohort_record.update(student_list=students)
     return students
 
 
