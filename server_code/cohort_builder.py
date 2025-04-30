@@ -12,6 +12,7 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
 from datetime import datetime, timedelta, date
+from .globals import LESSON_SLOTS
 
 # Schools are referenced by their abbreviation found in app_tables / schools / abbreviation
 
@@ -329,31 +330,127 @@ def schedule_classes(cohort_name, start_date, num_students):
 def schedule_drives(cohort_name, start_date, num_students):
     """
     Schedule drives (1 per week for weeks 2-6)
-    Returns list of drive schedules with instructor assignments
+    Implements conflict resolution logic:
+    1. Try same day, different time
+    2. Use backup slots (Tuesday/Thursday evening, Sunday)
+    3. Move to next week as last resort
+    Uses predefined backup slots and checks for vacation days
     """
-    # this is where we have to identify the available slots and allocate an instructor, time slot and student pair.
-    # These repeat weekly
-    # Need some logic to manage weeks with holidays - maybe keep the Tuesday and Thursday evening slots for these
-
-    drives = []
-    current_date = start_date + timedelta(days=7)  # Start week 2
+    # Get available days and instructor availability
+    available_days = get_available_days(start_date)
     num_pairs = num_students // 2
-    # pair students by consecutive placeholder student number from the cohort so 1&2, 3&4.
 
+    # Initialize drive schedule
+    drives = []
+
+    # Get lesson slots and define backup slots
+    lesson_slots = LESSON_SLOTS
+    backup_slots = {
+        "Tuesday": "lesson_slot_5",
+        "Thursday": "lesson_slot_5",
+        "Sunday": "lesson_slot_1",
+    }
+
+    # Define primary slots (all slots except backup slots)
+    primary_slots = {}
+    for slot in lesson_slots:
+        day = slot["day"]
+        if slot not in backup_slots.values():
+            if day not in primary_slots:
+                primary_slots[day] = []
+            primary_slots[day].append(slot)
+
+    # Track used backup slots
+    used_backup_slots = {day: [] for day in backup_slots.keys()}
+
+    # Get company vacation days
+    vacation_days = [
+        datetime.strptime(date_str, "%Y-%m-%d").date()
+        for date_str in no_class_days.keys()
+    ]
+
+    # Schedule drives for weeks 2-6
     for week in range(5):
+        week_start = start_date + timedelta(days=7 * (week + 1))  # Start from week 2
+
+        # Get available days for this week, excluding vacation days
+        week_days = [
+            day
+            for day in available_days
+            if week_start <= day < week_start + timedelta(days=7)
+            and day not in vacation_days
+        ]
+
         for pair in range(num_pairs):
             drive_letter = chr(65 + pair)  # A, B, C, etc.
-            drives.append(
-                {
+
+            # Try to schedule on primary day first
+            primary_date = None
+            primary_slot = None
+
+            # First try primary slots
+            for day in week_days:
+                day_name = day.strftime("%A")
+                if day_name in primary_slots:
+                    # Try each time slot for this day
+                    for slot in primary_slots[day_name]:
+                        if slot not in used_backup_slots.get(day_name, []):
+                            primary_date = day
+                            primary_slot = slot
+                            break
+                    if primary_date:
+                        break
+
+            # If primary slot not available, try backup slots
+            if primary_date is None:
+                for day in week_days:
+                    day_name = day.strftime("%A")
+                    if day_name in backup_slots:
+                        backup_slot = backup_slots[day_name]
+                        if backup_slot not in used_backup_slots.get(day_name, []):
+                            primary_date = day
+                            primary_slot = backup_slot
+                            used_backup_slots[day_name].append(backup_slot)
+                            break
+
+            # If still no slot found, move to next week
+            if primary_date is None:
+                next_week_start = week_start + timedelta(days=7)
+                next_week_days = [
+                    day
+                    for day in available_days
+                    if next_week_start <= day < next_week_start + timedelta(days=7)
+                    and day not in vacation_days
+                ]
+                if next_week_days:
+                    primary_date = next_week_days[0]
+                    # Try to find a slot for this day
+                    day_name = primary_date.strftime("%A")
+                    if day_name in primary_slots:
+                        primary_slot = primary_slots[day_name][0]
+                    elif day_name in backup_slots:
+                        primary_slot = backup_slots[day_name]
+                        used_backup_slots[day_name].append(primary_slot)
+
+            if primary_date and primary_slot:
+                drive_slot = {
                     "cohort": cohort_name,
                     "drive_letter": drive_letter,
-                    "date": current_date,
+                    "date": primary_date.isoformat(),
+                    "slot": primary_slot,
+                    "week": week + 2,  # Weeks 2-6
+                    "is_backup_slot": primary_date.strftime("%A") in backup_slots,
+                    "is_weekend": primary_date.weekday() in [5, 6],
                     "instructor": None,  # To be assigned
+                    "status": "scheduled",
                 }
-            )
-        current_date += timedelta(days=7)
-    # cohort_data_row = app_tables.cohorts.get(cohort_name=cohort_name)
-    # cohort_data_row.update(drive_list = drives)
+                drives.append(drive_slot)
+
+    # Store the schedule in the cohort table
+    cohort_data_row = app_tables.cohorts.get(cohort_name=cohort_name)
+    if cohort_data_row:
+        cohort_data_row.update(drive_schedule=drives)
+
     return drives
 
 
