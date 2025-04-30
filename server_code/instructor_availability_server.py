@@ -65,7 +65,9 @@ def process_instructor_availability(instructors, start_date=None):
             try:
                 print("==Debug== Trying to access:", day_name)  # Debug print
                 print("==Debug== Weekly data structure:", weekly_data)  # Debug print
-                day_availability = weekly_data[day_name]  # Try direct access first
+                day_availability = weekly_data["weekly_availability"][
+                    day_name
+                ]  # Fixed access
                 print(
                     f"Processing {day_name} for {instructor['firstName']}: {len(day_availability)} time slots"
                 )
