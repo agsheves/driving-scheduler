@@ -122,7 +122,7 @@ db_schema:
     server: full
     title: no_class_days
   schools:
-    client: none
+    client: search
     columns:
     - admin_ui: {order: 0, width: 200}
       name: school_name

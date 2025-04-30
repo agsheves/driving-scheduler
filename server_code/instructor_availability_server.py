@@ -40,13 +40,13 @@ def process_instructor_availability(instructors, start_date=None):
                 instructor=instructor
             )
             weekly_data = instructor_schedule["weekly_availability"]
-            print("==Debug== Weekly data:", weekly_data)  # Debug print
+            #print("==Debug== Weekly data:", weekly_data)  # Debug print
             if weekly_data is None or weekly_data == "":
                 continue
-            print(f"Found data for {instructor['firstName']}: {weekly_data.keys()}")
+            #print(f"Found data for {instructor['firstName']}: {weekly_data.keys()}")
         except (KeyError, TypeError) as e:
             weekly_data = {}
-            print(f"Error getting data for {instructor['firstName']}: {e}")
+            #print(f"Error getting data for {instructor['firstName']}: {e}")
             continue
 
         availability_mapping = {"No": 0, "Yes": 1, "Drive Only": 2, "Class Only": 3}
@@ -63,30 +63,30 @@ def process_instructor_availability(instructors, start_date=None):
 
         for day_index, day_name in enumerate(days_of_week):
             try:
-                print("==Debug== Trying to access:", day_name)  # Debug print
-                print("==Debug== Weekly data structure:", weekly_data)  # Debug print
+                #print("==Debug== Trying to access:", day_name)  # Debug print
+                #print("==Debug== Weekly data structure:", weekly_data)  # Debug print
                 day_availability = weekly_data["weekly_availability"][
                     day_name
                 ]  # Fixed access
-                print(
-                    f"Processing {day_name} for {instructor['firstName']}: {len(day_availability)} time slots"
-                )
+                #print(
+                    #f"Processing {day_name} for {instructor['firstName']}: {len(day_availability)} time slots"
+                #)
             except (KeyError, TypeError) as e:
-                print(f"No data for {day_name}: {e}")
+               # print(f"No data for {day_name}: {e}")
                 continue
 
             for slot_name, status in day_availability.items():
-                print(f"{slot_name}: {status}")
+                #print(f"{slot_name}: {status}")
                 if slot_name in LESSON_SLOTS:
                     try:
-                        print(
-                            "==Debug== Processing slot:",
-                            slot_name,
-                            "with status:",
-                            status,
-                        )  # Debug print
+                        #print(
+                            #"==Debug== Processing slot:",
+                            #slot_name,
+                            #"with status:",
+                            #status,
+                       # )  # Debug print
                         value = availability_mapping.get(status, -1)
-                        print("==Debug== Mapped value:", value)  # Debug print
+                        #print("==Debug== Mapped value:", value)  # Debug print
                         all_records.append(
                             {
                                 "instructor": instructor["firstName"],
@@ -109,8 +109,8 @@ def process_instructor_availability(instructors, start_date=None):
     df = pd.DataFrame(all_records)
 
     # Debug print to see sample of the dataframe in terminal
-    print(f"Total records: {len(df)}")
-    print("Sample of DataFrame (first 20 records):")
+    #print(f"Total records: {len(df)}")
+    #print("Sample of DataFrame (first 20 records):")
     print(df.head(20))
 
     if df.empty:

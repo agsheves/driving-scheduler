@@ -120,18 +120,38 @@ components:
     name: schedule_plot_complete
     properties: {}
     type: Plot
-  - event_bindings: {click: test_schedule_builder_button_click}
-    layout_properties: {grid_position: 'JEPTLO,WFKVPD'}
-    name: test_schedule_builder_button
-    properties: {role: outlined-button, text: Test Schedule Builder}
-    type: Button
-  - layout_properties: {grid_position: 'JGSOVU,ZMGQSY'}
-    name: schedule_print_box
-    properties: {format: plain_text}
-    type: RichText
+  - components:
+    - components:
+      - event_bindings: {change: school_selector_change}
+        layout_properties: {grid_position: 'IAMLLD,WXNJVA'}
+        name: school_selector
+        properties: {}
+        type: DropDown
+      - event_bindings: {change: cohort_start_date_change}
+        layout_properties: {grid_position: 'IAMLLD,MCYKIH'}
+        name: cohort_start_date
+        properties: {}
+        type: DatePicker
+      - event_bindings: {click: cohort_builder_button_click}
+        layout_properties: {grid_position: 'MUQGCL,QMYFLB'}
+        name: cohort_builder_button
+        properties: {role: outlined-button, text: Build a Cohort}
+        type: Button
+      - layout_properties: {grid_position: 'VZYBOC,PMGYED'}
+        name: schedule_print_box
+        properties: {format: plain_text}
+        type: RichText
+      layout_properties: {grid_position: 'EIZVQB,VPJAFP'}
+      name: schedule_builder_panel
+      properties: {background: ''}
+      type: ColumnPanel
+    layout_properties: {grid_position: 'JJBCKZ,MHOXOY'}
+    name: outlined_card_1
+    properties: {role: outlined-card}
+    type: ColumnPanel
   layout_properties: {full_width_row: true, grid_position: 'NEDZDU,SPKYRK'}
   name: schedule_panel
-  properties: {wrap_on: never}
+  properties: {visible: true, wrap_on: never}
   type: ColumnPanel
 container: {type: ColumnPanel}
 is_package: true

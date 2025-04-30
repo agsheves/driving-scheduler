@@ -55,6 +55,8 @@ class Scheduler(SchedulerTemplate):
     self.drive_time_list_label.text = drive_list_print
     self.class_time_list_label.text = class_list_print
     self.break_time_list_label.text = break_list_print
+    school_list = app_tables.schools.search()
+    self.school_selector.items = [(s['school_name'], s['abbreviation']) for s in school_list]
     self.filter_instructors = False
     self.populate_instructor_filter_drop_down()
     self.refresh_schedule_display()
@@ -206,12 +208,50 @@ class Scheduler(SchedulerTemplate):
     self.filter_instructors = True
     self.refresh_schedule_display()
 
-  def test_schedule_builder_button_click(self, **event_args):
-    start = date.today()
-    result = anvil.server.call('create_full_cohort_schedule','HSS', start, None)
+  def cohort_builder_button_click(self, **event_args):
+
+    if not self.school_selector.selected_value:
+        self.schedule_print_box.content = "Please select a school"
+        return
+        
+    if not self.start_date:
+        self.schedule_print_box.content = "Please select a start date"
+        return
+        
+    # Convert the string date back to a date object for the API call
+    start_date = datetime.strptime(self.start_date, "%m-%d-%Y").date()
+    
+    result = anvil.server.call('create_full_cohort_schedule', 
+                              self.school_selector.selected_value, 
+                              start_date, 
+                              None)
+    
     if result:
-        self.schedule_print_box.content = result
+        formatted_output = f"Cohort Schedule: {result['cohort_name']}\n\n"
+        
+        formatted_output += "Class Schedule:\n"
+        for class_slot in result['classes']:
+            formatted_output += f"Class {class_slot['class_number']}: {class_slot['date']} ({class_slot['day']})\n"
+        
+        formatted_output += "\nDrive Schedule:\n"
+        for drive in result['drives']:
+            formatted_output += f"Drive {drive['drive_letter']}: {drive['date']} - Slot {drive['slot']} (Week {drive['week']})\n"
+        
+        formatted_output += f"\nSummary:\n"
+        formatted_output += f"Number of Students: {result['num_students']}\n"
+        formatted_output += f"Start Date: {result['start_date']}\n"
+        formatted_output += f"End Date: {result['end_date']}"
+        
+        self.schedule_print_box.content = formatted_output
     else:
-        self.schedule_print_box.content = result
+        self.schedule_print_box.content = "Error creating schedule"
+
+  def school_selector_change(self, **event_args):
+    self.selected_school = self.school_selector.selected_value
+
+  def cohort_start_date_change(self, **event_args):
+    start_date = self.cohort_start_date.date
+    self.start_date = start_date.strftime("%m-%d-%Y")
+    
     
 

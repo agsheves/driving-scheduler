@@ -89,7 +89,7 @@ def calculate_instructor_availability_slots(
 
     for instructor in instructors:
         try:
-            print(f"\nProcessing instructor: {instructor['firstName']}")
+            #print(f"\nProcessing instructor: {instructor['firstName']}")
 
             # Get instructor's schedule data
             instructor_schedule = app_tables.instructor_schedules.get(
@@ -102,8 +102,8 @@ def calculate_instructor_availability_slots(
             weekly_data = instructor_schedule["weekly_availability"]
             vacation_data = instructor_schedule["vacation_days"]
 
-            print(f"Weekly data type: {type(weekly_data)}")
-            print(f"Vacation data: {vacation_data}")
+            #print(f"Weekly data type: {type(weekly_data)}")
+            #print(f"Vacation data: {vacation_data}")
 
             if not weekly_data:
                 print(f"No weekly data for {instructor['firstName']}")
@@ -154,9 +154,9 @@ def calculate_instructor_availability_slots(
                 "class_slots_available": class_slots,
             }
 
-            print(
-                f"Results for {instructor['firstName']}: {results[instructor['firstName']]}"
-            )
+            #print(
+                #f"Results for {instructor['firstName']}: {results[instructor['firstName']]}"
+            #)
 
         except Exception as e:
             print(f"Error processing {instructor['firstName']}: {str(e)}")
@@ -179,13 +179,13 @@ def test_availability_calculation():
     try:
         # Get all instructors
         instructors = app_tables.users.search(is_instructor=True)
-        print(f"Found {len(instructors)} instructors")
+        #print(f"Found {len(instructors)} instructors")
 
         # Set test date range (next 30 days)
         start_date = datetime.now().date()
         end_date = start_date + timedelta(days=30)
 
-        print(f"Testing date range: {start_date} to {end_date}")
+        #print(f"Testing date range: {start_date} to {end_date}")
 
         # Calculate availability
         results = calculate_instructor_availability_slots(

@@ -472,37 +472,37 @@ def create_full_cohort_schedule(school, start_date, num_students=None):
     Returns:
         dict: Complete cohort schedule information
     """
-    print(f"\nCreating full schedule for {school} cohort starting {start_date}")
+    #print(f"\nCreating full schedule for {school} cohort starting {start_date}")
 
     # 1. Generate cohort name
     cohort_name = generate_cohort_name(school, start_date)
-    print(f"Cohort name: {cohort_name}")
+    #print(f"Cohort name: {cohort_name}")
 
     # 2. Calculate capacity if num_students not provided
     if num_students is None:
         capacity = calculate_weekly_capacity(start_date, school)
         num_students = min(capacity["max_students"], MAX_COHORT_SIZE)
-    print(f"Number of students: {num_students}")
+    #print(f"Number of students: {num_students}")
 
     # 3. Create student records
     students = create_ghost_students(cohort_name, num_students)
-    print(f"Created {len(students)} student records")
+    #print(f"Created {len(students)} student records")
 
     # 4. Schedule classes
     classes = schedule_classes(cohort_name, start_date, num_students)
-    print(f"Scheduled {len(classes)} classes")
-    print("Class schedule:")
-    for class_slot in classes:
-        print(f"  • Class {class_slot['class_number']} on {class_slot['date']}")
+    #print(f"Scheduled {len(classes)} classes")
+    #print("Class schedule:")
+    #for class_slot in classes:
+        #print(f"  • Class {class_slot['class_number']} on {class_slot['date']}")
 
     # 5. Schedule drives
     drives = schedule_drives(cohort_name, start_date, num_students)
-    print(f"\nScheduled {len(drives)} drives")
-    print("Drive schedule:")
-    for drive in drives:
-        print(
-            f"  • Drive {drive['drive_letter']} on {drive['date']} (Slot: {drive['slot']})"
-        )
+   # print(f"\nScheduled {len(drives)} drives")
+    #print("Drive schedule:")
+    #for drive in drives:
+       # print(
+       #     f"  • Drive {drive['drive_letter']} on {drive['date']} (Slot: {drive['slot']})"
+        #)
 
     # 6. Store everything in the cohort record
     cohort_data_row = app_tables.cohorts.get(cohort_name=cohort_name)
