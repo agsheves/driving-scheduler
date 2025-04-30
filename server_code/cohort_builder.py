@@ -354,7 +354,8 @@ def schedule_drives(cohort_name, start_date, num_students):
     # Define primary slots (all slots except backup slots)
     primary_slots = {}
     for slot in lesson_slots:
-        day = slot["day"]
+        # Changed to get the first item in list - make sure this is correct
+        day = slot[0]
         if slot not in backup_slots.values():
             if day not in primary_slots:
                 primary_slots[day] = []
@@ -562,7 +563,7 @@ def test_capacity_calculation(start_date=None, school=None):
     drives = schedule_drives(cohort_name, start_date, capacity["max_students"])
     print(f"Scheduled {len(drives)} drives")
     print("First week drives:")
-    first_week_drives = [d for d in drives if (d["date"] - start_date).days < 7]
+    first_week_drives = [d for d in drives if datetime.fromisoformat(d["date"]).date() - start_date < timedelta(days=7)]
     for drive in first_week_drives:
         print(f"  • Drive {drive['drive_letter']} on {drive['date']}")
 
