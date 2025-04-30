@@ -18,8 +18,6 @@ from datetime import datetime, timedelta
 from .globals import LESSON_SLOTS
 
 
-
-
 @anvil.server.callable
 def process_instructor_availability(instructors, start_date=None):
     """Process instructor availability data and return formatted schedule.
@@ -50,10 +48,7 @@ def process_instructor_availability(instructors, start_date=None):
             print(f"Error getting data for {instructor['firstName']}: {e}")
             continue
 
-        availability_mapping = {
-            "No": 0,
-            "Yes": 1,
-        }
+        availability_mapping = {"No": 0, "Yes": 1, "Drive Only": 2, "Class Only": 3}
 
         days_of_week = [
             "monday",
@@ -96,15 +91,15 @@ def process_instructor_availability(instructors, start_date=None):
                         print(f"Error with slot {slot_name}: {e}")
                         continue
 
-        #print(f"Added {instructor['firstName']}")
+        # print(f"Added {instructor['firstName']}")
 
     # Process the data with pandas
     df = pd.DataFrame(all_records)
 
     # Debug print to see sample of the dataframe in terminal
-    #print(f"Total records: {len(df)}")
-    #print("Sample of DataFrame (first 20 records):")
-    #print(df.head(20))
+    # print(f"Total records: {len(df)}")
+    # print("Sample of DataFrame (first 20 records):")
+    # print(df.head(20))
 
     if df.empty:
         return None
@@ -183,13 +178,12 @@ def get_max_drive_slots(date):
     # Count available drive slots
     drive_slots = 0
     for slot_info in availability_data["y_labels"]:
-        if "Drive" in slot_info:
-            # Check if any instructor is available for this slot
-            slot_index = availability_data["y_labels"].index(slot_info)
-            for instructor_availability in availability_data["z_values"][slot_index]:
-                if instructor_availability == 1:  # 1 means "Yes" in our mapping
-                    drive_slots += 1
-                    break  # Count each slot only once if at least one instructor is available
+        # Check if any instructor is available for this slot
+        slot_index = availability_data["y_labels"].index(slot_info)
+        for instructor_availability in availability_data["z_values"][slot_index]:
+            if instructor_availability in [1, 2]:  # 1 means "Yes", 2 means "Drive Only"
+                drive_slots += 1
+                break  # Count each slot only once if at least one instructor is available
 
     return drive_slots
 
@@ -212,12 +206,11 @@ def get_max_class_slots(date):
     # Count available class slots
     class_slots = 0
     for slot_info in availability_data["y_labels"]:
-        if "Class" in slot_info:
-            # Check if any instructor is available for this slot
-            slot_index = availability_data["y_labels"].index(slot_info)
-            for instructor_availability in availability_data["z_values"][slot_index]:
-                if instructor_availability == 1:  # 1 means "Yes" in our mapping
-                    class_slots += 1
-                    break  # Count each slot only once if at least one instructor is available
+        # Check if any instructor is available for this slot
+        slot_index = availability_data["y_labels"].index(slot_info)
+        for instructor_availability in availability_data["z_values"][slot_index]:
+            if instructor_availability in [1, 3]:  # 1 means "Yes", 3 means "Class Only"
+                class_slots += 1
+                break  # Count each slot only once if at least one instructor is available
 
     return class_slots

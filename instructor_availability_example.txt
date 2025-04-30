@@ -1,0 +1,53 @@
+{
+  "weekly_availability": {
+    "friday": {
+      "time_slot_1": "No",
+      "time_slot_2": "Yes",
+      "time_slot_3": "Drive Only",
+      "time_slot_4": "Yes",
+      "time_slot_5": "Yes"
+    },
+    "monday": {
+      "time_slot_1": "No",
+      "time_slot_2": "Yes",
+      "time_slot_3": "Drive Only",
+      "time_slot_4": "Yes",
+      "time_slot_5": "Class Only"
+    },
+    "sunday": {
+      "time_slot_1": "Yes",
+      "time_slot_2": "No",
+      "time_slot_3": "No",
+      "time_slot_4": "No",
+      "time_slot_5": "No"
+    },
+    "tuesday": {
+      "time_slot_1": "No",
+      "time_slot_2": "Yes",
+      "time_slot_3": "Yes",
+      "time_slot_4": "Drive Only",
+      "time_slot_5": "Class Only"
+    },
+    "saturday": {
+      "time_slot_1": "Yes",
+      "time_slot_2": "Class Only",
+      "time_slot_3": "Yes",
+      "time_slot_4": "Drive Only",
+      "time_slot_5": "No"
+    },
+    "thursday": {
+      "time_slot_1": "No",
+      "time_slot_2": "Drive Only",
+      "time_slot_3": "Yes",
+      "time_slot_4": "Class Only",
+      "time_slot_5": "Yes"
+    },
+    "wednesday": {
+      "time_slot_1": "No",
+      "time_slot_2": "Class Only",
+      "time_slot_3": "Yes",
+      "time_slot_4": "Yes",
+      "time_slot_5": "Drive Only"
+    }
+  }
+}
