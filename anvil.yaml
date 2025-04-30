@@ -1,5 +1,13 @@
 allow_embedding: false
 db_schema:
+  cohorts:
+    client: none
+    columns:
+    - admin_ui: {order: 0, width: 200}
+      name: cohort_name
+      type: string
+    server: full
+    title: cohorts
   files:
     client: full
     columns:
@@ -89,11 +97,20 @@ db_schema:
       type: string
     server: full
     title: no_class_days
-  table_7:
+  schools:
     client: none
-    columns: []
+    columns:
+    - admin_ui: {order: 0, width: 200}
+      name: school_name
+      type: string
+    - admin_ui: {order: 1, width: 200}
+      name: abbreviation
+      type: string
+    - admin_ui: {order: 2, width: 200}
+      name: address
+      type: string
     server: full
-    title: Table 7
+    title: schools
   users:
     client: search
     columns:

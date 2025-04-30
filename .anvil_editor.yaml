@@ -21,11 +21,11 @@ unique_ids:
     globals: '1745441019703903915888803.4835'
   scripts: {}
   server_modules:
-    course_rules_server: G7A3B4IOTVLOC26ROLPU7KQTQJIV2GR2
+    cohort_builder: NIZ6EBG3WGIBS2HRF3T5WAHQ776XIGP6
+    course_rules_server_OLD: IRKX2YFO5574E3LTVKPDST7SSHXYZZVL
     data_model_server: YYQSRIQPDBJ3ZSMCMARFVHKMTOP6CKWM
     instructor_availability_server: N7VY63G3LRCL3K7BTQIF2MRUDKZM3SQ6
-    optimal_scheduler: E7SKMFI4MSWKO7L5U2DH32DHUIG6CQSW
-    program_builder_consolidated: QJIMZUKMP7KRA4643OJHGZ3RL3ASO5JJ
-    program_scheduler_server: U73WRZYS3H3GT6RLS5BI3P2T4SQCAHMJ
+    optimal_scheduler_OLD: 6EXTM7GHUHL46WGDC724GFT22RFRSDF6
+    program_scheduler_server_OLD: HC3X2F27SL4HNOYZOVGWZHA2UVC7TQIK
     utilities_server: '1745370443217982111491553.8365'
     utilization_calculation_server: MVEYM2VHHWR4AMOQLGR7SAWKVSS2UOM4
