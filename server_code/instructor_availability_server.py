@@ -78,8 +78,14 @@ def process_instructor_availability(instructors, start_date=None):
             for slot_name, status in day_availability.items():
                 if slot_name in LESSON_SLOTS:
                     try:
+                        print(
+                            "==Debug== Processing slot:",
+                            slot_name,
+                            "with status:",
+                            status,
+                        )  # Debug print
                         value = availability_mapping.get(status, -1)
-
+                        print("==Debug== Mapped value:", value)  # Debug print
                         all_records.append(
                             {
                                 "instructor": instructor["firstName"],
