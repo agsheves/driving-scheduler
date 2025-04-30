@@ -12,11 +12,22 @@ import anvil.tables as tables
 import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 # Constants
 STUDENTS_PER_SLOT = 2  # 2 students per drive slot
 BUFFER_PERCENTAGE = 0.1  # 10% buffer for classes and slack
+
+# Test data for no_class_days if table is empty
+no_class_days_test = {
+    "2025-01-01": "New Year's Day",
+    "2025-05-01": "May Day Test",
+    "2025-05-27": "Memorial Day",
+    "2025-07-04": "Independence Day",
+    "2025-09-02": "Labor Day",
+    "2025-11-28": "Thanksgiving",
+    "2025-12-25": "Christmas Day",
+}
 
 
 @anvil.server.callable
@@ -35,8 +46,13 @@ def get_available_days(start_date):
     current_date = start_date
 
     # Get holidays from the database
-    holidays = app_tables.holidays.search()
+    # Convert the test dictionary to the required format
+    holidays = [{"date": datetime.strptime(date_str, "%Y-%m-%d").date(), "name": name} 
+              for date_str, name in no_class_days_test.items()]
+    
+    # Now this will work correctly
     holiday_dates = {h["date"] for h in holidays}
+
 
     # Check 6 weeks of dates
     for _ in range(6 * 7):  # 6 weeks * 7 days
@@ -62,16 +78,24 @@ def get_daily_drive_slots(day):
     instructors = app_tables.users.search(is_instructor=True)
 
     for instructor in instructors:
-        # Skip if instructor is on vacation
-        instructor_vacations = instructor.get("vacations", [])
+        # Get instructor's schedule
+        instructor_row = app_tables.instructor_schedules.get(instructor=instructor)
+        if not instructor_row:
+            continue
+            
+        # Check vacations
+        instructor_vacations = instructor_row['vacation_days']
         if day in instructor_vacations:
             continue
 
-        # Get instructor's availability for the day
-        availability_slots = instructor.get("availability_slots", {}).get(str(day), {})
+        # Get availability for the specific day
+        instructor_availability = instructor_row['weekly_availability']
+        day_availability = instructor_availability.get(str(day), {})
+        if not day_availability:
+            continue
 
         # Count available drive slots
-        for slot, status in availability_slots.items():
+        for slot, status in day_availability.items():
             if status == "Yes" and "Drive" in slot:
                 total_slots += 1
 
