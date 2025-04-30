@@ -6,6 +6,18 @@ db_schema:
     - admin_ui: {order: 0, width: 200}
       name: cohort_name
       type: string
+    - admin_ui: {order: 1, width: 200}
+      name: school
+      type: string
+    - admin_ui: {order: 2, width: 200}
+      name: start_date
+      type: date
+    - admin_ui: {order: 3, width: 200}
+      name: end_date
+      type: date
+    - admin_ui: {order: 4, width: 200}
+      name: status
+      type: string
     server: full
     title: cohorts
   files:
