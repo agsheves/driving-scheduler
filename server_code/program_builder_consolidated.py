@@ -100,7 +100,7 @@ def get_daily_drive_slots(day):
         for slot, status in day_availability.items():
             if status == "Yes" or "Drive" in slot:
                 total_slots += 1
-        print(f"==Function log== {instructor['firstName']} has {total_slots} slots available")
+    print(f"==Function log== Found {total_slots} slots for {day}")
 
     return total_slots
 
@@ -132,8 +132,7 @@ def calculate_weekly_capacity(start_date):
     weekly_slots = {}
     
     for week_num in range(1, 7):
-        total_slots = ...  # some calculation
-        available_slots = int(total_slots * (BUFFER_PERCENTAGE))
+        available_slots = int(total_slots)
         weekly_slots[week_num] = available_slots  # week_num = int, available_slots = int
     
     # Do math using int values
