@@ -25,10 +25,10 @@ db_schema:
       name: student_list
       type: simpleObject
     - admin_ui: {order: 7, width: 200}
-      name: class_list
+      name: class_schedule
       type: simpleObject
     - admin_ui: {order: 8, width: 200}
-      name: drive_list
+      name: drive_schedule
       type: simpleObject
     server: full
     title: cohorts
