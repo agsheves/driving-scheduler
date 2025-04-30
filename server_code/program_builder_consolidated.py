@@ -1,0 +1,199 @@
+"""
+Program Builder Consolidated Module
+
+This module handles the calculation of program capacity based on available drive slots,
+taking into account vacations and holidays.
+"""
+
+import anvil.files
+from anvil.files import data_files
+import anvil.users
+import anvil.tables as tables
+import anvil.tables.query as q
+from anvil.tables import app_tables
+import anvil.server
+from datetime import datetime, timedelta
+
+# Constants
+STUDENTS_PER_SLOT = 2  # 2 students per drive slot
+BUFFER_PERCENTAGE = 0.1  # 10% buffer for classes and slack
+
+
+@anvil.server.callable
+def get_available_days(start_date):
+    """
+    Get available days for the program, excluding holidays.
+    Note: Instructor vacations are handled separately in get_daily_drive_slots.
+
+    Args:
+        start_date (date): Start date of the program
+
+    Returns:
+        list: List of available dates
+    """
+    available_days = []
+    current_date = start_date
+
+    # Get holidays from the database
+    holidays = app_tables.holidays.search()
+    holiday_dates = {h["date"] for h in holidays}
+
+    # Check 6 weeks of dates
+    for _ in range(6 * 7):  # 6 weeks * 7 days
+        # Skip if it's a holiday
+        if current_date not in holiday_dates:
+            available_days.append(current_date)
+        current_date += timedelta(days=1)
+
+    return available_days
+
+
+def get_daily_drive_slots(day):
+    """
+    Calculate total available drive slots for a specific day across all instructors.
+
+    Args:
+        day (date): The day to check
+
+    Returns:
+        int: Total number of available drive slots for the day
+    """
+    total_slots = 0
+    instructors = app_tables.users.search(is_instructor=True)
+
+    for instructor in instructors:
+        # Skip if instructor is on vacation
+        instructor_vacations = instructor.get("vacations", [])
+        if day in instructor_vacations:
+            continue
+
+        # Get instructor's availability for the day
+        availability_slots = instructor.get("availability_slots", {}).get(str(day), {})
+
+        # Count available drive slots
+        for slot, status in availability_slots.items():
+            if status == "Yes" and "Drive" in slot:
+                total_slots += 1
+
+    return total_slots
+
+
+@anvil.server.callable
+def calculate_weekly_capacity(start_date):
+    """
+    Calculate the weekly capacity based on available drive slots,
+    taking into account instructor availability and vacations.
+
+    Args:
+        start_date (date): Start date of the program
+
+    Returns:
+        dict: Contains weekly capacity information
+    """
+    available_days = get_available_days(start_date)
+
+    # Group days by week
+    weekly_days = {}
+    for day in available_days:
+        week_num = (day - start_date).days // 7 + 1
+        if week_num not in weekly_days:
+            weekly_days[week_num] = []
+        weekly_days[week_num].append(day)
+
+    # Calculate drive slots per week
+    weekly_slots = {}
+    for week_num, days in weekly_days.items():
+        # Calculate total slots for the week
+        total_slots = 0
+        for day in days:
+            total_slots += get_daily_drive_slots(day)
+
+        # Apply 10% buffer
+        available_slots = int(total_slots * (1 - BUFFER_PERCENTAGE))
+        weekly_slots[week_num] = available_slots
+
+    # Find the minimum weekly capacity (bottleneck)
+    min_weekly_slots = min(weekly_slots.values())
+
+    # Calculate max students (2 per slot)
+    max_students = min_weekly_slots * STUDENTS_PER_SLOT
+
+    return {
+        "start_date": start_date,
+        "weekly_slots": weekly_slots,
+        "min_weekly_slots": min_weekly_slots,
+        "max_students": max_students,
+        "available_days": available_days,
+    }
+
+
+def get_instructor_availability(instructor, day):
+    instructor_vacations = instructor["vacations"]
+    instructor_availability_slots = instructor["availability_slots"]
+    if day in instructor_vacations:
+        return 0
+    else:
+        for day in instructor_availability_slots:
+            slot_count = 0
+            if yes in slot:
+                slot_count += 1
+            if drive in slot:
+                slot_count += 1
+        return slot_count
+
+
+@anvil.server.callable
+def test_capacity_calculation(start_date=None):
+    """
+    Test function to verify the capacity calculation functions.
+    Tests each function individually and shows their results.
+
+    Args:
+        start_date (date): Optional start date (defaults to next Monday)
+
+    Returns:
+        dict: Test results with function outputs
+    """
+    if start_date is None:
+        today = datetime.now().date()
+        days_until_monday = (7 - today.weekday()) % 7
+        start_date = today + timedelta(days=days_until_monday)
+
+    print("\n=== Testing Capacity Calculation Functions ===")
+    print(f"Start Date: {start_date}")
+
+    # Test get_available_days
+    print("\n1. Testing get_available_days...")
+    available_days = get_available_days(start_date)
+    print(f"Found {len(available_days)} available days")
+    print(f"First day: {available_days[0]}")
+    print(f"Last day: {available_days[-1]}")
+
+    # Test get_daily_drive_slots for first and last day
+    print("\n2. Testing get_daily_drive_slots...")
+    first_day_slots = get_daily_drive_slots(available_days[0])
+    last_day_slots = get_daily_drive_slots(available_days[-1])
+    print(f"First day slots: {first_day_slots}")
+    print(f"Last day slots: {last_day_slots}")
+
+    # Test calculate_weekly_capacity
+    print("\n3. Testing calculate_weekly_capacity...")
+    capacity = calculate_weekly_capacity(start_date)
+    print(f"Weekly slots: {capacity['weekly_slots']}")
+    print(f"Minimum weekly slots: {capacity['min_weekly_slots']}")
+    print(f"Maximum students: {capacity['max_students']}")
+
+    # Verify the calculations
+    print("\n4. Verifying calculations...")
+    min_slots = min(capacity["weekly_slots"].values())
+    expected_students = min_slots * STUDENTS_PER_SLOT
+    print(f"Expected students ({min_slots} * {STUDENTS_PER_SLOT}): {expected_students}")
+    print(f"Calculated students: {capacity['max_students']}")
+
+    return {
+        "start_date": start_date,
+        "available_days": available_days,
+        "first_day_slots": first_day_slots,
+        "last_day_slots": last_day_slots,
+        "capacity": capacity,
+    }
