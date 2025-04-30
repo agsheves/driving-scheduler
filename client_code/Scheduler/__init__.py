@@ -141,7 +141,11 @@ class Scheduler(SchedulerTemplate):
             if val == 0:
                 text_row.append('Unavailable')
             elif val == 1:
-                text_row.append('Available')
+                text_row.append('Any')
+            elif val == 2:
+              text_row.append('Drive Only')
+            elif val == 3:
+              text_row.append('Class Only')
             else:
                 text_row.append('')
         text_matrix.append(text_row)
@@ -151,15 +155,17 @@ class Scheduler(SchedulerTemplate):
         x=data['x_labels'],
         y=data['y_labels'],
         colorscale=[
-            [0/1, 'DimGrey'],
-            [1/1, 'RebeccaPurple']
+            [0/3, 'DimGrey'],
+            [1/3, 'RebeccaPurple'],
+            [2/3, 'RebeccaPurple'],
+            [3/3, 'RebeccaPurple']
         ],
         text=text_matrix,
         texttemplate="%{text}",
         showscale=False,
         bgcolor='white',
         zmin=0,
-        zmax=1
+        zmax=3
     ))
     
     # Update layout - keeping it very minimal
