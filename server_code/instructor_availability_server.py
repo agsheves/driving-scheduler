@@ -62,7 +62,7 @@ def process_instructor_availability(instructors, start_date=None):
 
         for day_index, day_name in enumerate(days_of_week):
             try:
-                day_availability = weekly_data[day_name]
+                day_availability = weekly_data["weekly_availability"][day_name]
                 print(
                     f"Processing {day_name} for {instructor['firstName']}: {len(day_availability)} time slots"
                 )
