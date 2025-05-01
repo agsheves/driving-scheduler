@@ -16,6 +16,7 @@ import numpy as np
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
 from .globals import LESSON_SLOTS
+import io
 
 
 @anvil.server.callable
@@ -307,12 +308,39 @@ def generate_capacity_report(days=180):
     # Format the Excel file
     filename = f"total_availability_as_at_{start_date.strftime('%Y%m%d')}.xlsx"
 
-    # Create Excel file using anvil.files
-    with anvil.files.new_excel() as excel:
-        # Write the DataFrame to Excel
-        df.to_excel(excel, sheet_name="Capacity Report")
+    # Create Excel writer
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        # Write to Excel
+        df.to_excel(writer, sheet_name="Capacity Report")
 
-        # Save the file
-        excel.save(filename)
+        # Get workbook and worksheet
+        workbook = writer.book
+        worksheet = writer.sheets["Capacity Report"]
 
-    return filename
+        # Add formatting
+        header_format = workbook.add_format(
+            {"bold": True, "bg_color": "#D9E1F2", "border": 1, "align": "center"}
+        )
+
+        # Format headers
+        for col_num, value in enumerate(df.columns.values):
+            worksheet.write(0, col_num + 1, value, header_format)
+        for row_num, value in enumerate(df.index.values):
+            worksheet.write(row_num + 1, 0, value, header_format)
+
+        # Set column widths
+        worksheet.set_column(0, 0, 15)  # Instructor names
+        for i in range(1, len(df.columns) + 1):
+            worksheet.set_column(i, i, 12)  # Date columns
+
+    # Create media object and save to database
+    excel_media = anvil.BlobMedia(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        output.getvalue(),
+        name=filename,
+    )
+
+    app_tables.files.add_row(filename=filename, file=excel_media, file_type="Excel")
+
+    return excel_media
