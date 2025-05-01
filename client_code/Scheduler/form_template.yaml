@@ -107,15 +107,15 @@ components:
       name: instructor_list
       properties: {font_size: 16, role: body}
       type: Label
+    - event_bindings: {click: create_availability_reprot_button_click}
+      layout_properties: {grid_position: 'FANICX,MMFRKN'}
+      name: create_availability_reprot_button
+      properties: {role: filled-button, text: Run Utility Report}
+      type: Button
     - event_bindings: {click: refresh_schedule_button_click}
       layout_properties: {grid_position: 'ALHZIE,KQTDQG'}
       name: refresh_schedule_button
       properties: {role: filled-button, text: Refresh Schedule, visible: false}
-      type: Button
-    - event_bindings: {click: create_availability_reprot_button_click}
-      layout_properties: {grid_position: 'ALHZIE,LGSQGZ'}
-      name: create_availability_reprot_button
-      properties: {role: filled-button, text: Run Utility Report}
       type: Button
     layout_properties: {grid_position: 'ZBGTPJ,EMSISF'}
     name: schedule_control_column
