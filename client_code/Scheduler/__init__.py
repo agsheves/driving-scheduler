@@ -258,7 +258,7 @@ class Scheduler(SchedulerTemplate):
 
   def export_cohort_button_click(self, **event_args):
     name = self.cohort_name
-    anvil.server.call('export_cohort_schedule', name)
+    anvil.server.call('export_merged_cohort_schedule', name)
     self.cohort_name = ""
     
     
