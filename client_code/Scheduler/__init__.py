@@ -34,7 +34,8 @@ class Scheduler(SchedulerTemplate):
     drive_list_print = ""
     class_list_print = ""
     break_list_print = ""
-    self.cohort_schedule = ""
+    self.merged_schedule = ""
+    self.cohort_name = ""
     
     # New code for flattened structure:
     for title, event in self.teen_schedule.items():
@@ -227,21 +228,22 @@ class Scheduler(SchedulerTemplate):
                               start_date, 
                               None)
     
-    if result:
-        formatted_output = f"Cohort Schedule: {result['cohort_name']}\n\n"
+    if self.cohort_schedule:
+        self.cohort_name = self.cohort_schedule['cohort_name']
+        formatted_output = f"Cohort Schedule: {self.cohort_schedule['cohort_name']}\n\n"
         
         formatted_output += "Class Schedule:\n"
-        for class_slot in result['classes']:
+        for class_slot in self.cohort_schedule['classes']:
             formatted_output += f"Class {class_slot['class_number']}: {class_slot['date']} ({class_slot['day']})\n"
         
         formatted_output += "\nDrive Schedule:\n"
-        for drive in result['drives']:
+        for drive in self.cohort_schedule['drives']:
             formatted_output += f"Drive {drive['drive_letter']}: {drive['date']} - Slot {drive['slot']} (Week {drive['week']})\n"
         
         formatted_output += f"\nSummary:\n"
-        formatted_output += f"Number of Students: {result['num_students']}\n"
-        formatted_output += f"Start Date: {result['start_date']}\n"
-        formatted_output += f"End Date: {result['end_date']}"
+        formatted_output += f"Number of Students: {self.cohort_schedule['num_students']}\n"
+        formatted_output += f"Start Date: {self.cohort_schedule['start_date']}\n"
+        formatted_output += f"End Date: {self.cohort_schedule['end_date']}"
         
         self.schedule_print_box.content = formatted_output
     else:
@@ -253,6 +255,11 @@ class Scheduler(SchedulerTemplate):
   def cohort_start_date_change(self, **event_args):
     start_date = self.cohort_start_date.date
     self.start_date = start_date.strftime("%m-%d-%Y")
+
+  def export_cohort_button_click(self, **event_args):
+    name = self.cohort_name
+    anvil.server.call('export_cohort_schedule', name)
+    self.cohort_name = ""
     
     
 

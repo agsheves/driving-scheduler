@@ -12,6 +12,7 @@ import anvil.media
 from collections import OrderedDict
 import pandas as pd
 from datetime import datetime, timedelta
+from .globals import LESSON_SLOTS
 
 ###########################################################
 # General data import function to take CSV data and convert to JSON.
@@ -245,6 +246,7 @@ def export_instructor_availability():
 
 @anvil.server.callable
 def export_cohort_schedule(cohort_name):
+    print(cohort_name)
     """
     Export cohort schedule to Excel.
     Creates sheets for classes and drives.
@@ -315,10 +317,10 @@ def export_merged_cohort_schedule(cohort_name):
     Args:
         cohort_name (str): Name of the cohort to export
     """
-    from ..cohort_builder import create_merged_schedule
 
     # Get merged schedule
-    daily_schedules = create_merged_schedule(cohort_name)
+    # The merged cohort is  now created on cohort creation so no need for an additional merge here
+    daily_schedules = app_tables.cohorts.get(cohort_name=cohort_name)['complete_schedule']
 
     # Create Excel writer
     output = io.BytesIO()

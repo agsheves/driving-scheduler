@@ -564,7 +564,7 @@ def create_full_cohort_schedule(school, start_date, num_students=None):
     # print(
     #     f"  • Drive {drive['drive_letter']} on {drive['date']} (Slot: {drive['slot']})"
     # )
-
+    complete_schedule = anvil.server.call('create_merged_schedule', cohort_name)
     # 6. Store everything in the cohort record
     cohort_data_row = app_tables.cohorts.get(cohort_name=cohort_name)
     if cohort_data_row:
@@ -573,8 +573,9 @@ def create_full_cohort_schedule(school, start_date, num_students=None):
             class_schedule=classes,
             drive_schedule=drives,
             status="scheduled",
-        )
-    anvil.server.call('create_merged_schedule', )
+            complete_schedule=complete_schedule,
+        )    
+    
 
     return {
         "cohort_name": cohort_name,
@@ -582,6 +583,7 @@ def create_full_cohort_schedule(school, start_date, num_students=None):
         "students": students,
         "classes": classes,
         "drives": drives,
+        "complete_schedule": complete_schedule,
         "start_date": start_date,
         "end_date": start_date + timedelta(weeks=6),
     }
