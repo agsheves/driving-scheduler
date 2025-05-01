@@ -260,6 +260,10 @@ class Scheduler(SchedulerTemplate):
     name = self.cohort_name
     anvil.server.call('export_merged_cohort_schedule', name)
     self.cohort_name = ""
+
+  def create_availability_reprot_button_click(self, **event_args):
+    anvil.server.call('generate_capacity_report')
+    Notification("Your report is available in the file downloader")
     
     
 

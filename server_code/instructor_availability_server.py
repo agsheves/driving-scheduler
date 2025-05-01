@@ -244,7 +244,7 @@ def generate_capacity_report(days=180):
 
     # Get vacation days
     vacation_days = app_tables.no_class_days.search()
-    vacation_dict = {str(day["date"]): day["name"] for day in vacation_days}
+    vacation_dict = {str(day["date"]): day["Event"] for day in vacation_days}
 
     # Create date range
     start_date = datetime.now().date()
