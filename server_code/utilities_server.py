@@ -318,8 +318,6 @@ def export_merged_cohort_schedule(cohort_name):
     Args:
         cohort_name (str): Name of the cohort to export
     """
-    from ..cohort_builder import create_merged_schedule
-    from ..globals import LESSON_SLOTS
 
     # Get merged schedule
     daily_schedules = app_tables.cohorts.get(cohort_name=cohort_name)[
