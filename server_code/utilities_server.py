@@ -398,7 +398,7 @@ def export_merged_cohort_schedule(cohort_name):
         # Apply conditional formatting
         for row_num in range(2, len(df) + 2):  # Start from row 2 to account for headers
             for col_num in range(1, len(df.columns) + 1):
-                cell_value = worksheet.table[row_num][col_num]
+                cell_value = df.iloc[row_num - 2, col_num - 1]
                 if cell_value:
                     if "Class" in cell_value:
                         worksheet.conditional_format(
