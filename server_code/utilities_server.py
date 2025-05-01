@@ -408,63 +408,16 @@ def export_merged_cohort_schedule(cohort_name):
             date_obj = datetime.strptime(value, "%Y-%m-%d")
             worksheet.write(1, col_num + 1, date_obj.strftime("%A"), header_format)
 
-        # Format row headers (times) and write data
+        # Format row headers (times)
         for row_num, value in enumerate(df.index.values):
-            # Write time in first column
             worksheet.write(row_num + 2, 0, value, time_format)
-            # Write data in subsequent columns
-            for col_num in range(len(df.columns)):
-                cell_value = df.iloc[row_num, col_num]
-                if cell_value:
-                    if (
-                        cell_value not in [""]
-                        and "Class" not in cell_value
-                        and "Drive" not in cell_value
-                    ):
-                        worksheet.write(
-                            row_num + 2, col_num + 1, cell_value, vacation_format
-                        )
-                    elif "Class" in cell_value:
-                        worksheet.write(
-                            row_num + 2, col_num + 1, cell_value, class_format
-                        )
-                    elif "Drive" in cell_value:
-                        worksheet.write(
-                            row_num + 2, col_num + 1, cell_value, drive_format
-                        )
-                else:
-                    worksheet.write(row_num + 2, col_num + 1, "")
 
-        # Set column widths
-        worksheet.set_column(0, 0, 8)  # Time column
-        for i in range(1, len(df.columns) + 1):
-            worksheet.set_column(i, i, 12)  # Date columns
-
-        # Apply conditional formatting
+        # Apply conditional formatting to data cells
         for row_num in range(2, len(df) + 2):  # Start from row 2 to account for headers
             for col_num in range(1, len(df.columns) + 1):
-                # Get value from DataFrame instead of worksheet table
-                cell_value = df.iloc[row_num - 2, col_num - 1]
+                cell_value = worksheet.table[row_num][col_num].value
                 if cell_value:
-                    # Check if it's a holiday name (any value that's not a Class or Drive)
-                    if (
-                        cell_value not in [""]
-                        and "Class" not in cell_value
-                        and "Drive" not in cell_value
-                    ):
-                        worksheet.conditional_format(
-                            row_num,
-                            col_num,
-                            row_num,
-                            col_num,
-                            {
-                                "type": "cell",
-                                "criteria": "not equal to",
-                                "value": '""',
-                                "format": vacation_format,
-                            },
-                        )
-                    elif "Class" in cell_value:
+                    if "Class" in str(cell_value):
                         worksheet.conditional_format(
                             row_num,
                             col_num,
@@ -477,7 +430,7 @@ def export_merged_cohort_schedule(cohort_name):
                                 "format": class_format,
                             },
                         )
-                    elif "Drive" in cell_value:
+                    elif "Drive" in str(cell_value):
                         worksheet.conditional_format(
                             row_num,
                             col_num,
@@ -490,6 +443,24 @@ def export_merged_cohort_schedule(cohort_name):
                                 "format": drive_format,
                             },
                         )
+                    elif cell_value not in ["", None]:
+                        worksheet.conditional_format(
+                            row_num,
+                            col_num,
+                            row_num,
+                            col_num,
+                            {
+                                "type": "cell",
+                                "criteria": "not equal to",
+                                "value": '""',
+                                "format": vacation_format,
+                            },
+                        )
+
+        # Set column widths
+        worksheet.set_column(0, 0, 8)  # Time column
+        for i in range(1, len(df.columns) + 1):
+            worksheet.set_column(i, i, 12)  # Date columns
 
     # Create media object and save to database
     excel_media = anvil.BlobMedia(
