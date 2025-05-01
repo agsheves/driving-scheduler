@@ -360,6 +360,7 @@ def schedule_drives(cohort_name, start_date, num_students):
             if day not in primary_slots:
                 primary_slots[day] = []
             primary_slots[day].append(slot)
+    print(f"==Log== Primary slots: {primary_slots}")
 
     # Track used backup slots
     used_backup_slots = {day: [] for day in backup_slots.keys()}
