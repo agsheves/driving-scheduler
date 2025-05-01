@@ -271,18 +271,18 @@ def schedule_classes(cohort_name, start_date, num_students):
         1: 0,  # Monday
         2: 2,  # Wednesday
         3: 4,  # Friday
-        4: 1,  # Tuesday
-        5: 3,  # Thursday
-        6: 0,  # Monday
-        7: 2,  # Wednesday
-        8: 4,  # Friday
-        9: 1,  # Tuesday
-        10: 3,  # Thursday
-        11: 0,  # Monday
-        12: 2,  # Wednesday
-        13: 4,  # Friday
-        14: 1,  # Tuesday
-        15: 3,  # Thursday
+        4: 0,  # Monday
+        5: 2,  # Wednesday
+        6: 4,  # Friday
+        7: 0,  # Monday
+        8: 2,  # Wednesday
+        9: 4,  # Friday
+        10: 0,  # Monday
+        11: 2,  # Wednesday
+        12: 4,  # Friday
+        13: 0,  # Monday
+        14: 2,  # Wednesday
+        15: 4,  # Friday
     }
 
     # Schedule each class

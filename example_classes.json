@@ -1,0 +1,107 @@
+[
+    {
+      "day": "Monday",
+      "date": "2025-05-05",
+      "week": 1,
+      "status": "scheduled",
+      "class_number": 1
+    },
+    {
+      "day": "Wednesday",
+      "date": "2025-05-07",
+      "week": 1,
+      "status": "scheduled",
+      "class_number": 2
+    },
+    {
+      "day": "Friday",
+      "date": "2025-05-09",
+      "week": 1,
+      "status": "scheduled",
+      "class_number": 3
+    },
+    {
+      "day": "Tuesday",
+      "date": "2025-05-13",
+      "week": 2,
+      "status": "scheduled",
+      "class_number": 4
+    },
+    {
+      "day": "Thursday",
+      "date": "2025-05-15",
+      "week": 2,
+      "status": "scheduled",
+      "class_number": 5
+    },
+    {
+      "day": "Monday",
+      "date": "2025-05-12",
+      "week": 2,
+      "status": "scheduled",
+      "class_number": 6
+    },
+    {
+      "day": "Wednesday",
+      "date": "2025-05-21",
+      "week": 3,
+      "status": "scheduled",
+      "class_number": 7
+    },
+    {
+      "day": "Friday",
+      "date": "2025-05-23",
+      "week": 3,
+      "status": "scheduled",
+      "class_number": 8
+    },
+    {
+      "day": "Tuesday",
+      "date": "2025-05-20",
+      "week": 3,
+      "status": "scheduled",
+      "class_number": 9
+    },
+    {
+      "day": "Thursday",
+      "date": "2025-05-29",
+      "week": 4,
+      "status": "scheduled",
+      "class_number": 10
+    },
+    {
+      "day": "Monday",
+      "date": "2025-06-02",
+      "week": 4,
+      "status": "scheduled",
+      "class_number": 11
+    },
+    {
+      "day": "Wednesday",
+      "date": "2025-05-28",
+      "week": 4,
+      "status": "scheduled",
+      "class_number": 12
+    },
+    {
+      "day": "Friday",
+      "date": "2025-06-06",
+      "week": 5,
+      "status": "scheduled",
+      "class_number": 13
+    },
+    {
+      "day": "Tuesday",
+      "date": "2025-06-03",
+      "week": 5,
+      "status": "scheduled",
+      "class_number": 14
+    },
+    {
+      "day": "Thursday",
+      "date": "2025-06-05",
+      "week": 5,
+      "status": "scheduled",
+      "class_number": 15
+    }
+  ]
