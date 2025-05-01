@@ -27,7 +27,7 @@ CLASS_DAYS = ["Monday", "Wednedsay", "Friday"]
 no_class_days_test = {
     "2025-01-01": "New Year's Day",
     "2025-05-01": "May Day Test",
-    "2025-05-27": "Memorial Day",
+    "2025-05-26": "Memorial Day",
     "2025-07-04": "Independence Day",
     "2025-09-02": "Labor Day",
     "2025-11-28": "Thanksgiving",
@@ -355,8 +355,9 @@ def get_weekly_lesson_slots(week_number):
             term_days = [day.strip() for day in slot_info["term"].split(",")]
 
             # Add slot to each applicable day
-            for day in term_days:
-                if day in weekly_slots:
+            if term_days == ["all"]:
+                # Add to all weekdays
+                for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]:
                     # Skip class slots on class days for weeks 2-5
                     if (
                         week_number < 6
@@ -364,15 +365,17 @@ def get_weekly_lesson_slots(week_number):
                         and slot_name == class_slot
                     ):
                         continue
+                    weekly_slots[day].append(slot_name)
 
-                    # Add slot based on term availability
-                    if term_days == ["all"]:
-                        # Add to all days
-                        weekly_slots[day].append(slot_name)
-                    elif term_days == ["Sat", "Sun"]:
-                        # Only add to weekend days
-                        if day in ["Saturday", "Sunday"]:
-                            weekly_slots[day].append(slot_name)
+                # Add to weekends if it's lesson_slot_4 or lesson_slot_5
+                if slot_name in ["lesson_slot_4", "lesson_slot_5"]:
+                    weekly_slots["Saturday"].append(slot_name)
+                    weekly_slots["Sunday"].append(slot_name)
+
+            elif term_days == ["Sat", "Sun"]:
+                # Add to weekend days
+                weekly_slots["Saturday"].append(slot_name)
+                weekly_slots["Sunday"].append(slot_name)
 
     return weekly_slots
 
