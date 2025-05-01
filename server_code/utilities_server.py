@@ -380,6 +380,23 @@ def export_merged_cohort_schedule(cohort_name):
             {"bold": True, "bg_color": "#F2F2F2", "border": 1, "align": "center"}
         )
 
+        class_format = workbook.add_format(
+            {"bg_color": "#E2EFDA", "border": 1, "align": "center"}  # Light green
+        )
+
+        drive_format = workbook.add_format(
+            {"bg_color": "#DDEBF7", "border": 1, "align": "center"}  # Light blue
+        )
+
+        vacation_format = workbook.add_format(
+            {
+                "bg_color": "#FCE4D6",  # Light orange
+                "border": 1,
+                "align": "center",
+                "italic": True,
+            }
+        )
+
         # Format headers (dates)
         for col_num, value in enumerate(df.columns.values):
             worksheet.write(0, col_num + 1, value, header_format)
@@ -413,6 +430,11 @@ def export_merged_cohort_schedule(cohort_name):
                         )
                 else:
                     worksheet.write(row_num + 2, col_num + 1, "")
+
+        # Set column widths
+        worksheet.set_column(0, 0, 8)  # Time column
+        for i in range(1, len(df.columns) + 1):
+            worksheet.set_column(i, i, 12)  # Date columns
 
     # Create media object and save to database
     excel_media = anvil.BlobMedia(
