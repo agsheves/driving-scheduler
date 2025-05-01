@@ -141,6 +141,10 @@ components:
         name: schedule_print_box
         properties: {format: plain_text}
         type: RichText
+      - layout_properties: {grid_position: 'ISCEWE,EZAIAA'}
+        name: export_cohort_button
+        properties: {icon: 'fa:download', role: outlined-button, text: Export}
+        type: Button
       layout_properties: {grid_position: 'EIZVQB,VPJAFP'}
       name: schedule_builder_panel
       properties: {background: ''}

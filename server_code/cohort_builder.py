@@ -574,6 +574,7 @@ def create_full_cohort_schedule(school, start_date, num_students=None):
             drive_schedule=drives,
             status="scheduled",
         )
+    anvil.server.call('create_merged_schedule', )
 
     return {
         "cohort_name": cohort_name,

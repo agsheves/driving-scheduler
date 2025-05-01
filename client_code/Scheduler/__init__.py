@@ -34,6 +34,7 @@ class Scheduler(SchedulerTemplate):
     drive_list_print = ""
     class_list_print = ""
     break_list_print = ""
+    self.cohort_schedule = ""
     
     # New code for flattened structure:
     for title, event in self.teen_schedule.items():
@@ -221,7 +222,7 @@ class Scheduler(SchedulerTemplate):
     # Convert the string date back to a date object for the API call
     start_date = datetime.strptime(self.start_date, "%m-%d-%Y").date()
     
-    result = anvil.server.call('create_full_cohort_schedule', 
+    self.cohort_schedule = anvil.server.call('create_full_cohort_schedule', 
                               self.school_selector.selected_value, 
                               start_date, 
                               None)
