@@ -413,16 +413,18 @@ def export_merged_cohort_schedule(cohort_name):
             worksheet.write(row_num + 2, 0, value, time_format)
 
         # Apply conditional formatting to data cells
-        for row_num in range(2, len(df) + 2):  # Start from row 2 to account for headers
-            for col_num in range(1, len(df.columns) + 1):
-                cell_value = worksheet.table[row_num][col_num].value
-                if cell_value:
+        for row_num in range(len(df)):  # DataFrame rows
+            for col_num in range(len(df.columns)):  # DataFrame columns
+                cell_value = df.iloc[row_num, col_num]
+                if (
+                    pd.notna(cell_value) and cell_value
+                ):  # Check for non-null and non-empty
                     if "Class" in str(cell_value):
                         worksheet.conditional_format(
-                            row_num,
-                            col_num,
-                            row_num,
-                            col_num,
+                            row_num + 2,
+                            col_num + 1,
+                            row_num + 2,
+                            col_num + 1,
                             {
                                 "type": "cell",
                                 "criteria": "not equal to",
@@ -432,10 +434,10 @@ def export_merged_cohort_schedule(cohort_name):
                         )
                     elif "Drive" in str(cell_value):
                         worksheet.conditional_format(
-                            row_num,
-                            col_num,
-                            row_num,
-                            col_num,
+                            row_num + 2,
+                            col_num + 1,
+                            row_num + 2,
+                            col_num + 1,
                             {
                                 "type": "cell",
                                 "criteria": "not equal to",
@@ -445,10 +447,10 @@ def export_merged_cohort_schedule(cohort_name):
                         )
                     elif cell_value not in ["", None]:
                         worksheet.conditional_format(
-                            row_num,
-                            col_num,
-                            row_num,
-                            col_num,
+                            row_num + 2,
+                            col_num + 1,
+                            row_num + 2,
+                            col_num + 1,
                             {
                                 "type": "cell",
                                 "criteria": "not equal to",
