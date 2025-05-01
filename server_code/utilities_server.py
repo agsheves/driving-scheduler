@@ -397,6 +397,10 @@ def export_merged_cohort_schedule(cohort_name):
             }
         )
 
+        # Write headers
+        worksheet.write(0, 0, "DATE", header_format)
+        worksheet.write(1, 0, "DAY", header_format)
+
         # Format headers (dates)
         for col_num, value in enumerate(df.columns.values):
             worksheet.write(0, col_num + 1, value, header_format)
@@ -435,6 +439,57 @@ def export_merged_cohort_schedule(cohort_name):
         worksheet.set_column(0, 0, 8)  # Time column
         for i in range(1, len(df.columns) + 1):
             worksheet.set_column(i, i, 12)  # Date columns
+
+        # Apply conditional formatting
+        for row_num in range(2, len(df) + 2):  # Start from row 2 to account for headers
+            for col_num in range(1, len(df.columns) + 1):
+                # Get value from DataFrame instead of worksheet table
+                cell_value = df.iloc[row_num - 2, col_num - 1]
+                if cell_value:
+                    # Check if it's a holiday name (any value that's not a Class or Drive)
+                    if (
+                        cell_value not in [""]
+                        and "Class" not in cell_value
+                        and "Drive" not in cell_value
+                    ):
+                        worksheet.conditional_format(
+                            row_num,
+                            col_num,
+                            row_num,
+                            col_num,
+                            {
+                                "type": "cell",
+                                "criteria": "not equal to",
+                                "value": '""',
+                                "format": vacation_format,
+                            },
+                        )
+                    elif "Class" in cell_value:
+                        worksheet.conditional_format(
+                            row_num,
+                            col_num,
+                            row_num,
+                            col_num,
+                            {
+                                "type": "cell",
+                                "criteria": "not equal to",
+                                "value": '""',
+                                "format": class_format,
+                            },
+                        )
+                    elif "Drive" in cell_value:
+                        worksheet.conditional_format(
+                            row_num,
+                            col_num,
+                            row_num,
+                            col_num,
+                            {
+                                "type": "cell",
+                                "criteria": "not equal to",
+                                "value": '""',
+                                "format": drive_format,
+                            },
+                        )
 
     # Create media object and save to database
     excel_media = anvil.BlobMedia(
