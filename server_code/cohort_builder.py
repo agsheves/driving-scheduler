@@ -522,9 +522,16 @@ def schedule_drives(cohort_name, start_date, num_students):
                 print(f"  Drive {drive_letter} falls on vacation day, will reschedule")
 
         # Reschedule drives that fell on vacation days
+        print(f"\n--- Rescheduling Drives for Week {week_num} ---")
+        print(f"Drives to reschedule: {len(drives_to_reschedule)}")
+
         for drive in drives_to_reschedule:
+            print(f"\nAttempting to reschedule Drive {drive['drive_letter']}:")
+            print(f"  Original: {drive['original_day']} at {drive['original_slot']}")
+
             rescheduled = False
             # Try spare slots first
+            print("  Trying spare slots first...")
             for day, slot in spare_slots.items():
                 if not rescheduled:
                     # Find the date for this day in the current week
@@ -553,16 +560,26 @@ def schedule_drives(cohort_name, start_date, num_students):
                                 }
                                 drives.append(drive_slot)
                                 print(
-                                    f"  Rescheduled Drive {drive['drive_letter']} to {week_day} at {slot}"
+                                    f"  ✓ Rescheduled to {week_day} at {slot} (spare slot)"
                                 )
                                 rescheduled = True
                                 break
+                            else:
+                                print(
+                                    f"  × Spare slot {slot} on {week_day} is already used"
+                                )
 
             # If couldn't use spare slot, try any available slot
             if not rescheduled:
+                print("  No spare slots available, trying other slots...")
                 for week_day in week_days:
                     if week_day not in vacation_days and not rescheduled:
-                        for slot in weekly_slots[week_day.strftime("%A")]:
+                        available_slots = weekly_slots[week_day.strftime("%A")]
+                        print(
+                            f"  Checking {week_day} - Available slots: {available_slots}"
+                        )
+
+                        for slot in available_slots:
                             slot_used = any(
                                 d["date"] == week_day.isoformat() and d["slot"] == slot
                                 for d in drives
@@ -581,11 +598,28 @@ def schedule_drives(cohort_name, start_date, num_students):
                                     "rescheduled_from": f"{drive['original_day']} {drive['original_slot']}",
                                 }
                                 drives.append(drive_slot)
-                                print(
-                                    f"  Rescheduled Drive {drive['drive_letter']} to {week_day} at {slot}"
-                                )
+                                print(f"  ✓ Rescheduled to {week_day} at {slot}")
                                 rescheduled = True
                                 break
+                            else:
+                                print(f"  × Slot {slot} on {week_day} is already used")
+
+            if not rescheduled:
+                print(
+                    f"  ⚠️ WARNING: Could not reschedule Drive {drive['drive_letter']} in week {week_num}"
+                )
+                print(
+                    f"  Original schedule: {drive['original_day']} at {drive['original_slot']}"
+                )
+                print(
+                    f"  Available days in week: {[d.strftime('%A') for d in week_days if d not in vacation_days]}"
+                )
+                print(f"  Available slots by day:")
+                for day in week_days:
+                    if day not in vacation_days:
+                        print(
+                            f"    {day.strftime('%A')}: {weekly_slots[day.strftime('%A')]}"
+                        )
 
     # Store the schedule in the cohort table
     cohort_data_row = app_tables.cohorts.get(cohort_name=cohort_name)
