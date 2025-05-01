@@ -251,11 +251,11 @@ def generate_capacity_report(days=180):
     start_date = datetime.now().date()
     date_range = [start_date + timedelta(days=x) for x in range(days)]
 
-    # Initialize DataFrame
+    # Initialize DataFrame with proper date objects as columns
     df = pd.DataFrame(
         index=[i["firstName"] for i in instructors]
         + ["Total Available", "Total Booked"],
-        columns=date_range,
+        columns=pd.to_datetime(date_range),
     )
 
     # Get instructor schedules
@@ -276,7 +276,7 @@ def generate_capacity_report(days=180):
 
             # Check if it's a vacation day
             if date_str in vacation_dict:
-                df.loc[instructor["firstName"], date] = f"0 - {vacation_dict[date_str]}"
+                df.loc[instructor["firstName"], date] = vacation_dict[date_str]
                 continue
 
             # Get day of week
@@ -297,8 +297,8 @@ def generate_capacity_report(days=180):
     for date in date_range:
         date_str = str(date)
         if date_str in vacation_dict:
-            df.loc["Total Available", date] = f"0 - {vacation_dict[date_str]}"
-            df.loc["Total Booked", date] = f"0 - {vacation_dict[date_str]}"
+            df.loc["Total Available", date] = vacation_dict[date_str]
+            df.loc["Total Booked", date] = vacation_dict[date_str]
         else:
             # Sum available slots for this day
             available = df.loc[df.index[:-2], date].sum()
@@ -322,17 +322,17 @@ def generate_capacity_report(days=180):
         header_format = workbook.add_format(
             {"bold": True, "bg_color": "#D9E1F2", "border": 1, "align": "center"}
         )
+        date_format = workbook.add_format({"num_format": "yyyy-mm-dd"})
 
         # Format headers
         for col_num, value in enumerate(df.columns.values):
             worksheet.write(0, col_num + 1, value, header_format)
+            worksheet.set_column(col_num + 1, col_num + 1, 12, date_format)
         for row_num, value in enumerate(df.index.values):
             worksheet.write(row_num + 1, 0, value, header_format)
 
         # Set column widths
         worksheet.set_column(0, 0, 15)  # Instructor names
-        for i in range(1, len(df.columns) + 1):
-            worksheet.set_column(i, i, 12)  # Date columns
 
     # Create media object and save to database
     excel_media = anvil.BlobMedia(
