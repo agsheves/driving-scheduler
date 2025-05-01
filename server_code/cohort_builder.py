@@ -326,6 +326,57 @@ def schedule_classes(cohort_name, start_date, num_students):
     return class_schedule
 
 
+def get_weekly_lesson_slots(week_number):
+    """
+    Get available lesson slots for drives, excluding breaks and class slots.
+    Args:
+        week_number (int): Week number (1-6)
+    Returns:
+        dict: Available slots by day, excluding class slots for weeks 2-5
+    """
+    weekly_slots = {
+        "Monday": [],
+        "Tuesday": [],
+        "Wednesday": [],
+        "Thursday": [],
+        "Friday": [],
+        "Saturday": [],
+        "Sunday": [],
+    }
+
+    # Class days and slots (reserved for weeks 1-5)
+    class_days = ["Monday", "Wednesday", "Friday"]
+    class_slot = "lesson_slot_5"
+
+    # Filter out breaks and organize by day
+    for slot_name, slot_info in LESSON_SLOTS.items():
+        if not slot_name.startswith("break_"):
+            # Parse the term days
+            term_days = [day.strip() for day in slot_info["term"].split(",")]
+
+            # Add slot to each applicable day
+            for day in term_days:
+                if day in weekly_slots:
+                    # Skip class slots on class days for weeks 2-5
+                    if (
+                        week_number < 6
+                        and day in class_days
+                        and slot_name == class_slot
+                    ):
+                        continue
+
+                    # Add slot based on term availability
+                    if term_days == ["all"]:
+                        # Add to all days
+                        weekly_slots[day].append(slot_name)
+                    elif term_days == ["Sat", "Sun"]:
+                        # Only add to weekend days
+                        if day in ["Saturday", "Sunday"]:
+                            weekly_slots[day].append(slot_name)
+
+    return weekly_slots
+
+
 @anvil.server.callable
 def schedule_drives(cohort_name, start_date, num_students):
     """
