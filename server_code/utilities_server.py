@@ -10,19 +10,22 @@ import json
 import io
 import anvil.media
 from collections import OrderedDict
+import pandas as pd
+from datetime import datetime, timedelta
 
 ###########################################################
 # General data import function to take CSV data and convert to JSON.
 
+
 @anvil.server.callable
 def csv_to_structured_json(csv_file):
     if isinstance(csv_file, str):
-        print('CSV convert function has file')
-        with open(csv_file, 'r') as f:
+        print("CSV convert function has file")
+        with open(csv_file, "r") as f:
             reader = csv.reader(f)
             data = list(reader)
     else:
-        reader = csv.reader(csv_file.get_bytes().decode('utf-8').splitlines())
+        reader = csv.reader(csv_file.get_bytes().decode("utf-8").splitlines())
         data = list(reader)
 
     headers = data[0][1:]  # Column headers (excluding first column)
@@ -36,75 +39,80 @@ def csv_to_structured_json(csv_file):
         for j, value in enumerate(row[1:], start=0):
             column_header = headers[j]
             row_data[column_header] = value
-        
+
         structured_data[row_header] = row_data
-    
+
     return structured_data
+
 
 @anvil.server.callable
 def convert_csv_to_json(file):
-  json_payload = csv_to_structured_json(file)
-  print(json_payload)
-  return json_payload
+    json_payload = csv_to_structured_json(file)
+    print(json_payload)
+    return json_payload
+
 
 # Optional: Pretty print the JSON
 def print_json(json_data):
     print(json.dumps(json_data, indent=2))
 
+
 # Drive schedule spoecifc import function
+
 
 @anvil.server.callable
 def convert_schedule_csv_to_json(csv_file):
     if isinstance(csv_file, str):
-        with open(csv_file, 'r') as f:
+        with open(csv_file, "r") as f:
             reader = csv.DictReader(f)
             data = list(reader)
     else:
-        content = csv_file.get_bytes().decode('utf-8')
+        content = csv_file.get_bytes().decode("utf-8")
         reader = csv.DictReader(content.splitlines())
         data = list(reader)
-    
+
     structured_data = {}
-    
+
     for row in data:
         # Use the "Title" field as the main key
-        title = row.pop('Title', None)
+        title = row.pop("Title", None)
         if title:
             # Add all other columns as properties
             structured_data[title] = {k: v for k, v in row.items() if k}
-    
+
     return structured_data
+
 
 @anvil.server.callable
 def update_teen_drive_schedule(file):
     json_payload = convert_schedule_csv_to_json(file)
-    current_variables = app_tables.global_variables_edit_with_care.get(version='latest')
-    
+    current_variables = app_tables.global_variables_edit_with_care.get(version="latest")
+
     if current_variables:
-        current_schedule = current_variables['current_teen_driving_schedule']
+        current_schedule = current_variables["current_teen_driving_schedule"]
         current_variables.update(
             previous_teen_driving_schedule=current_schedule,
-            current_teen_driving_schedule=json_payload
+            current_teen_driving_schedule=json_payload,
         )
         return True
     else:
         app_tables.global_variables_edit_with_care.add_row(
-            version='latest',
-            current_teen_driving_schedule=json_payload
+            version="latest", current_teen_driving_schedule=json_payload
         )
         return True
-  
+
 
 ###########################################################
 # Data export function to take JSON data and convert to CSV
 
-def export_json_to_csv(json_data, filename='schedule.csv'):
+
+def export_json_to_csv(json_data, filename="schedule.csv"):
     output = io.StringIO()
     writer = csv.writer(output)
-    
+
     # Convert JSON to OrderedDict to preserve order
     json_data = OrderedDict(json_data)
-    
+
     # Get all unique column headers
     all_headers = set()
     for _, event_data in json_data.items():
@@ -112,30 +120,187 @@ def export_json_to_csv(json_data, filename='schedule.csv'):
     all_headers = sorted(all_headers)
     # Write the header row
     writer.writerow(["Title"] + list(all_headers))
-    
+
     # Write each item as a row
     for event_id, event_data in json_data.items():
         row = [event_id]  # Event ID (e.g., "Drive 1") as first column
-        
+
         # Add data for each header
         for header in all_headers:
-            row.append(event_data.get(header, ''))
-        
-        writer.writerow(row)
-    
-    # Create media object
-    csv_media = anvil.BlobMedia('text/csv', 
-                                 output.getvalue().encode('utf-8'), 
-                                 name=filename)
+            row.append(event_data.get(header, ""))
 
-    app_tables.files.add_row(
-        filename=filename,
-        file=csv_media,
-        file_type='CSV'
+        writer.writerow(row)
+
+    # Create media object
+    csv_media = anvil.BlobMedia(
+        "text/csv", output.getvalue().encode("utf-8"), name=filename
     )
-  
+
+    app_tables.files.add_row(filename=filename, file=csv_media, file_type="CSV")
+
 
 @anvil.server.callable
 def convert_JSON_to_csv_and_save(json_data, filename):
-    return export_json_to_csv(json_data, filename) 
+    return export_json_to_csv(json_data, filename)
 
+
+###########################################################
+# Excel export functions
+
+
+@anvil.server.callable
+def export_instructor_availability():
+    """
+    Export instructor availability to Excel.
+    Creates one sheet per instructor with their weekly availability.
+    """
+    # Get all instructors
+    instructors = app_tables.users.search(is_instructor=True)
+
+    # Create Excel writer
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        for instructor in instructors:
+            # Get instructor schedule
+            instructor_row = app_tables.instructor_schedules.get(instructor=instructor)
+            if not instructor_row:
+                continue
+
+            # Get availability data
+            availability = instructor_row["weekly_availability"]["weekly_availability"]
+            school_prefs = instructor_row["school_preferences"]
+            vacation_days = instructor_row["vacation_days"]
+
+            # Create DataFrame for this instructor
+            days = [
+                "monday",
+                "tuesday",
+                "wednesday",
+                "thursday",
+                "friday",
+                "saturday",
+                "sunday",
+            ]
+            slots = [
+                "lesson_slot_1",
+                "lesson_slot_2",
+                "lesson_slot_3",
+                "lesson_slot_4",
+                "lesson_slot_5",
+            ]
+
+            data = []
+            for day in days:
+                day_data = availability.get(day, {})
+                for slot in slots:
+                    status = day_data.get(slot, "No")
+                    data.append(
+                        {"Day": day.capitalize(), "Slot": slot, "Status": status}
+                    )
+
+            df = pd.DataFrame(data)
+            df_pivot = df.pivot(index="Slot", columns="Day", values="Status")
+
+            # Write to Excel
+            sheet_name = f"{instructor['firstName']} {instructor['lastName']}"
+            df_pivot.to_excel(writer, sheet_name=sheet_name)
+
+            # Get workbook and worksheet
+            workbook = writer.book
+            worksheet = writer.sheets[sheet_name]
+
+            # Add formatting
+            header_format = workbook.add_format(
+                {"bold": True, "bg_color": "#D9E1F2", "border": 1}
+            )
+
+            # Format headers
+            for col_num, value in enumerate(df_pivot.columns.values):
+                worksheet.write(0, col_num + 1, value, header_format)
+            for row_num, value in enumerate(df_pivot.index.values):
+                worksheet.write(row_num + 1, 0, value, header_format)
+
+            # Add school preferences
+            worksheet.write(len(slots) + 3, 0, "School Preferences:", header_format)
+            worksheet.write(len(slots) + 4, 0, str(school_prefs))
+
+            # Add vacation days
+            worksheet.write(len(slots) + 6, 0, "Vacation Days:", header_format)
+            for i, vac_day in enumerate(vacation_days):
+                worksheet.write(len(slots) + 7 + i, 0, str(vac_day))
+
+    # Create media object and save to database
+    excel_media = anvil.BlobMedia(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        output.getvalue(),
+        name="instructor_availability.xlsx",
+    )
+
+    app_tables.files.add_row(
+        filename="instructor_availability.xlsx", file=excel_media, file_type="Excel"
+    )
+
+    return excel_media
+
+
+@anvil.server.callable
+def export_cohort_schedule(cohort_name):
+    """
+    Export cohort schedule to Excel.
+    Creates sheets for classes and drives.
+    """
+    # Get cohort data
+    cohort = app_tables.cohorts.get(cohort_name=cohort_name)
+    if not cohort:
+        raise ValueError(f"Cohort {cohort_name} not found")
+
+    # Create Excel writer
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        # Classes sheet
+        if cohort["class_schedule"]:
+            classes_df = pd.DataFrame(cohort["class_schedule"])
+            classes_df.to_excel(writer, sheet_name="Classes", index=False)
+
+        # Drives sheet
+        if cohort["drive_schedule"]:
+            drives_df = pd.DataFrame(cohort["drive_schedule"])
+            drives_df.to_excel(writer, sheet_name="Drives", index=False)
+
+        # Get workbook
+        workbook = writer.book
+
+        # Format classes sheet
+        if cohort["class_schedule"]:
+            worksheet = writer.sheets["Classes"]
+            header_format = workbook.add_format(
+                {"bold": True, "bg_color": "#D9E1F2", "border": 1}
+            )
+
+            # Format headers
+            for col_num, value in enumerate(classes_df.columns.values):
+                worksheet.write(0, col_num, value, header_format)
+
+        # Format drives sheet
+        if cohort["drive_schedule"]:
+            worksheet = writer.sheets["Drives"]
+            header_format = workbook.add_format(
+                {"bold": True, "bg_color": "#D9E1F2", "border": 1}
+            )
+
+            # Format headers
+            for col_num, value in enumerate(drives_df.columns.values):
+                worksheet.write(0, col_num, value, header_format)
+
+    # Create media object and save to database
+    excel_media = anvil.BlobMedia(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        output.getvalue(),
+        name=f"{cohort_name}_schedule.xlsx",
+    )
+
+    app_tables.files.add_row(
+        filename=f"{cohort_name}_schedule.xlsx", file=excel_media, file_type="Excel"
+    )
+
+    return excel_media
