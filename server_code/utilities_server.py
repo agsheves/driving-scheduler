@@ -380,23 +380,6 @@ def export_merged_cohort_schedule(cohort_name):
             {"bold": True, "bg_color": "#F2F2F2", "border": 1, "align": "center"}
         )
 
-        class_format = workbook.add_format(
-            {"bg_color": "#E2EFDA", "border": 1, "align": "center"}  # Light green
-        )
-
-        drive_format = workbook.add_format(
-            {"bg_color": "#DDEBF7", "border": 1, "align": "center"}  # Light blue
-        )
-
-        vacation_format = workbook.add_format(
-            {
-                "bg_color": "#FCE4D6",  # Light orange
-                "border": 1,
-                "align": "center",
-                "italic": True,
-            }
-        )
-
         # Write headers
         worksheet.write(0, 0, "DATE", header_format)
         worksheet.write(1, 0, "DAY", header_format)
@@ -411,53 +394,6 @@ def export_merged_cohort_schedule(cohort_name):
         # Format row headers (times)
         for row_num, value in enumerate(df.index.values):
             worksheet.write(row_num + 2, 0, value, time_format)
-
-        # Apply conditional formatting to data cells
-        for row_num in range(len(df)):  # DataFrame rows
-            for col_num in range(len(df.columns)):  # DataFrame columns
-                cell_value = df.iloc[row_num, col_num]
-                if (
-                    pd.notna(cell_value) and cell_value
-                ):  # Check for non-null and non-empty
-                    if "Class" in str(cell_value):
-                        worksheet.conditional_format(
-                            row_num + 2,
-                            col_num + 1,
-                            row_num + 2,
-                            col_num + 1,
-                            {
-                                "type": "cell",
-                                "criteria": "not equal to",
-                                "value": '""',
-                                "format": class_format,
-                            },
-                        )
-                    elif "Drive" in str(cell_value):
-                        worksheet.conditional_format(
-                            row_num + 2,
-                            col_num + 1,
-                            row_num + 2,
-                            col_num + 1,
-                            {
-                                "type": "cell",
-                                "criteria": "not equal to",
-                                "value": '""',
-                                "format": drive_format,
-                            },
-                        )
-                    elif cell_value not in ["", None]:
-                        worksheet.conditional_format(
-                            row_num + 2,
-                            col_num + 1,
-                            row_num + 2,
-                            col_num + 1,
-                            {
-                                "type": "cell",
-                                "criteria": "not equal to",
-                                "value": '""',
-                                "format": vacation_format,
-                            },
-                        )
 
         # Set column widths
         worksheet.set_column(0, 0, 8)  # Time column
