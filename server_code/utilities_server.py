@@ -361,7 +361,7 @@ def export_merged_cohort_schedule(cohort_name):
         df = df.sort_index(axis=1)
 
         # Write to Excel
-        df.to_excel(writer, sheet_name="Schedule")
+        df.to_excel(writer, sheet_name="Schedule", startrow=2)  # Start data at row 2
 
         # Get workbook and worksheet
         workbook = writer.book
