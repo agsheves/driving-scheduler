@@ -420,10 +420,13 @@ def schedule_drives(cohort_name, start_date, num_students):
 
     # Get available slots for a typical week
     weekly_slots = get_weekly_lesson_slots(2)  # Use week 2 as template
+    print("\nMaster Schedule Creation:")
+    print(f"Number of pairs to schedule: {num_pairs}")
 
     # Schedule each pair in the master week
     for pair in range(num_pairs):
         drive_letter = chr(65 + pair)  # A, B, C, etc.
+        print(f"\nScheduling Drive {drive_letter}")
 
         # Try to schedule on primary day first
         scheduled = False
@@ -444,12 +447,18 @@ def schedule_drives(cohort_name, start_date, num_students):
                         {"drive_letter": drive_letter, "day": day, "slot": slot}
                     )
                     used_slots[day].append(slot)
+                    print(f"  Scheduled for {day} at {slot}")
                     scheduled = True
                     break
+
+    print("\nMaster Schedule Summary:")
+    for drive in master_schedule:
+        print(f"Drive {drive['drive_letter']}: {drive['day']} at {drive['slot']}")
 
     # Step 2: Apply master schedule to all weeks, adjusting for vacation days
     for week in range(5):
         week_num = week + 2  # Weeks 2-6
+        print(f"\nApplying Week {week_num} Schedule:")
 
         week_start = start_date + timedelta(days=7 * (week + 1))
 
@@ -490,6 +499,9 @@ def schedule_drives(cohort_name, start_date, num_students):
                     "status": "scheduled",
                 }
                 drives.append(drive_slot)
+                print(
+                    f"  Scheduled Drive {drive_letter} for {target_date} at {master_slot}"
+                )
             else:
                 # Drive falls on vacation day, add to reschedule list
                 drives_to_reschedule.append(
@@ -500,76 +512,84 @@ def schedule_drives(cohort_name, start_date, num_students):
                         "original_slot": master_slot,
                     }
                 )
+                print(f"  Drive {drive_letter} needs rescheduling (vacation day)")
 
         # Reschedule drives that fell on vacation days
-        for drive in drives_to_reschedule:
-            rescheduled = False
-            # Try spare slots first
-            for day, slot in spare_slots.items():
+        if drives_to_reschedule:
+            print(
+                f"\nRescheduling {len(drives_to_reschedule)} drives for week {week_num}:"
+            )
+            for drive in drives_to_reschedule:
+                print(f"  Attempting to reschedule Drive {drive['drive_letter']}")
+                rescheduled = False
+                # Try spare slots first
+                for day, slot in spare_slots.items():
+                    if not rescheduled:
+                        # Find the date for this day in the current week
+                        for week_day in week_days:
+                            if (
+                                week_day.strftime("%A") == day
+                                and week_day not in vacation_days
+                            ):
+                                # Check if this slot is already used
+                                slot_used = any(
+                                    d["date"] == week_day.isoformat()
+                                    and d["slot"] == slot
+                                    for d in drives
+                                )
+                                if not slot_used:
+                                    drive_slot = {
+                                        "cohort": cohort_name,
+                                        "drive_letter": drive["drive_letter"],
+                                        "date": week_day.isoformat(),
+                                        "slot": slot,
+                                        "week": drive["week"],
+                                        "is_backup_slot": True,
+                                        "is_weekend": week_day.weekday() in [5, 6],
+                                        "instructor": None,
+                                        "status": "scheduled",
+                                        "rescheduled_from": f"{drive['original_day']} {drive['original_slot']}",
+                                    }
+                                    drives.append(drive_slot)
+                                    rescheduled = True
+                                    break
+
+                # If couldn't use spare slot, try any available slot
                 if not rescheduled:
-                    # Find the date for this day in the current week
                     for week_day in week_days:
-                        if (
-                            week_day.strftime("%A") == day
-                            and week_day not in vacation_days
-                        ):
-                            # Check if this slot is already used
-                            slot_used = any(
-                                d["date"] == week_day.isoformat() and d["slot"] == slot
-                                for d in drives
-                            )
-                            if not slot_used:
-                                drive_slot = {
-                                    "cohort": cohort_name,
-                                    "drive_letter": drive["drive_letter"],
-                                    "date": week_day.isoformat(),
-                                    "slot": slot,
-                                    "week": drive["week"],
-                                    "is_backup_slot": True,
-                                    "is_weekend": week_day.weekday() in [5, 6],
-                                    "instructor": None,
-                                    "status": "scheduled",
-                                    "rescheduled_from": f"{drive['original_day']} {drive['original_slot']}",
-                                }
-                                drives.append(drive_slot)
-                                rescheduled = True
-                                break
+                        if week_day not in vacation_days and not rescheduled:
+                            available_slots = weekly_slots[week_day.strftime("%A")]
 
-            # If couldn't use spare slot, try any available slot
-            if not rescheduled:
-                for week_day in week_days:
-                    if week_day not in vacation_days and not rescheduled:
-                        available_slots = weekly_slots[week_day.strftime("%A")]
+                            for slot in available_slots:
+                                slot_used = any(
+                                    d["date"] == week_day.isoformat()
+                                    and d["slot"] == slot
+                                    for d in drives
+                                )
+                                if not slot_used:
+                                    drive_slot = {
+                                        "cohort": cohort_name,
+                                        "drive_letter": drive["drive_letter"],
+                                        "date": week_day.isoformat(),
+                                        "slot": slot,
+                                        "week": drive["week"],
+                                        "is_backup_slot": True,
+                                        "is_weekend": week_day.weekday() in [5, 6],
+                                        "instructor": None,
+                                        "status": "scheduled",
+                                        "rescheduled_from": f"{drive['original_day']} {drive['original_slot']}",
+                                    }
+                                    drives.append(drive_slot)
+                                    rescheduled = True
+                                    break
 
-                        for slot in available_slots:
-                            slot_used = any(
-                                d["date"] == week_day.isoformat() and d["slot"] == slot
-                                for d in drives
-                            )
-                            if not slot_used:
-                                drive_slot = {
-                                    "cohort": cohort_name,
-                                    "drive_letter": drive["drive_letter"],
-                                    "date": week_day.isoformat(),
-                                    "slot": slot,
-                                    "week": drive["week"],
-                                    "is_backup_slot": True,
-                                    "is_weekend": week_day.weekday() in [5, 6],
-                                    "instructor": None,
-                                    "status": "scheduled",
-                                    "rescheduled_from": f"{drive['original_day']} {drive['original_slot']}",
-                                }
-                                drives.append(drive_slot)
-                                rescheduled = True
-                                break
-
-            if not rescheduled:
-                print(
-                    f"WARNING: Could not reschedule Drive {drive['drive_letter']} in week {week_num}"
-                )
-                print(
-                    f"Original schedule: {drive['original_day']} at {drive['original_slot']}"
-                )
+                if not rescheduled:
+                    print(
+                        f"WARNING: Could not reschedule Drive {drive['drive_letter']} in week {week_num}"
+                    )
+                    print(
+                        f"Original schedule: {drive['original_day']} at {drive['original_slot']}"
+                    )
 
     # Store the schedule in the cohort table
     cohort_data_row = app_tables.cohorts.get(cohort_name=cohort_name)
