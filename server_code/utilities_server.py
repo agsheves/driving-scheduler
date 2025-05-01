@@ -313,14 +313,18 @@ def export_merged_cohort_schedule(cohort_name):
     """
     Export merged cohort schedule to Excel.
     Creates a single sheet with days as columns and slots as rows.
+    Row headers show lesson start times instead of slot names.
 
     Args:
         cohort_name (str): Name of the cohort to export
     """
+    from ..cohort_builder import create_merged_schedule
+    from ..globals import LESSON_SLOTS
 
     # Get merged schedule
-    # The merged cohort is  now created on cohort creation so no need for an additional merge here
-    daily_schedules = app_tables.cohorts.get(cohort_name=cohort_name)['complete_schedule']
+    daily_schedules = app_tables.cohorts.get(cohort_name=cohort_name)[
+        "complete_schedule"
+    ]
 
     # Create Excel writer
     output = io.BytesIO()
@@ -331,18 +335,21 @@ def export_merged_cohort_schedule(cohort_name):
             slot for slot in LESSON_SLOTS.keys() if not slot.startswith("break_")
         ]
 
+        # Create slot to time mapping
+        slot_to_time = {slot: LESSON_SLOTS[slot]["start_time"] for slot in slot_order}
+
         # Initialize data structure
         for slot in slot_order:
-            data[slot] = {}
+            data[slot_to_time[slot]] = {}  # Use time as key instead of slot name
 
         # Fill in the data
         for day in daily_schedules:
             date_str = day["date"]
             for slot, slot_data in day["slots"].items():
                 if slot_data["type"]:
-                    data[slot][date_str] = slot_data["title"]
+                    data[slot_to_time[slot]][date_str] = slot_data["title"]
                 else:
-                    data[slot][date_str] = ""
+                    data[slot_to_time[slot]][date_str] = ""
 
         # Create DataFrame
         df = pd.DataFrame(data).T
@@ -366,8 +373,8 @@ def export_merged_cohort_schedule(cohort_name):
             {"num_format": "yyyy-mm-dd", "align": "center"}
         )
 
-        slot_format = workbook.add_format(
-            {"bold": True, "bg_color": "#F2F2F2", "border": 1}
+        time_format = workbook.add_format(
+            {"bold": True, "bg_color": "#F2F2F2", "border": 1, "align": "center"}
         )
 
         # Format headers (dates)
@@ -377,12 +384,12 @@ def export_merged_cohort_schedule(cohort_name):
             date_obj = datetime.strptime(value, "%Y-%m-%d")
             worksheet.write(1, col_num + 1, date_obj.strftime("%A"), header_format)
 
-        # Format row headers (slots)
+        # Format row headers (times)
         for row_num, value in enumerate(df.index.values):
-            worksheet.write(row_num + 2, 0, value, slot_format)
+            worksheet.write(row_num + 2, 0, value, time_format)
 
         # Set column widths
-        worksheet.set_column(0, 0, 15)  # Slot column
+        worksheet.set_column(0, 0, 8)  # Time column
         for i in range(1, len(df.columns) + 1):
             worksheet.set_column(i, i, 12)  # Date columns
 
@@ -395,12 +402,35 @@ def export_merged_cohort_schedule(cohort_name):
             {"bg_color": "#DDEBF7", "border": 1, "align": "center"}  # Light blue
         )
 
+        vacation_format = workbook.add_format(
+            {
+                "bg_color": "#FCE4D6",  # Light orange
+                "border": 1,
+                "align": "center",
+                "italic": True,
+            }
+        )
+
         # Apply conditional formatting
         for row_num in range(2, len(df) + 2):  # Start from row 2 to account for headers
             for col_num in range(1, len(df.columns) + 1):
-                cell_value = worksheet.table[row_num][col_num]
+                # Get value from DataFrame instead of worksheet table
+                cell_value = df.iloc[row_num - 2, col_num - 1]
                 if cell_value:
-                    if "Class" in cell_value:
+                    if cell_value == "Vacation":
+                        worksheet.conditional_format(
+                            row_num,
+                            col_num,
+                            row_num,
+                            col_num,
+                            {
+                                "type": "cell",
+                                "criteria": "not equal to",
+                                "value": '""',
+                                "format": vacation_format,
+                            },
+                        )
+                    elif "Class" in cell_value:
                         worksheet.conditional_format(
                             row_num,
                             col_num,

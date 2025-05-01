@@ -405,6 +405,13 @@ def schedule_drives(cohort_name, start_date, num_students):
     ]
     print(f"Vacation Days: {vacation_days}")
 
+    # Define spare slots (lesson_slot_5 on Tue/Thu/Sun)
+    spare_slots = {
+        "Tuesday": "lesson_slot_5",
+        "Thursday": "lesson_slot_5",
+        "Sunday": "lesson_slot_5",
+    }
+
     # Step 1: Create master schedule for one week
     print("\n--- Creating Master Schedule ---")
     master_schedule = []
@@ -466,9 +473,11 @@ def schedule_drives(cohort_name, start_date, num_students):
             day
             for day in available_days
             if week_start <= day < week_start + timedelta(days=7)
-            and day not in vacation_days
         ]
         print(f"Available Days for Week {week_num}: {week_days}")
+
+        # Track drives that need rescheduling due to vacation days
+        drives_to_reschedule = []
 
         # Apply master schedule to this week
         for master_drive in master_schedule:
@@ -484,7 +493,7 @@ def schedule_drives(cohort_name, start_date, num_students):
                     break
 
             # If the day is available, schedule the drive
-            if target_date:
+            if target_date and target_date not in vacation_days:
                 drive_slot = {
                     "cohort": cohort_name,
                     "drive_letter": drive_letter,
@@ -501,11 +510,82 @@ def schedule_drives(cohort_name, start_date, num_students):
                     f"  Scheduled Drive {drive_letter} for {target_date} at {master_slot}"
                 )
             else:
-                # Handle vacation day - find alternative slot
-                print(
-                    f"  Drive {drive_letter} falls on vacation day, finding alternative..."
+                # Drive falls on vacation day, add to reschedule list
+                drives_to_reschedule.append(
+                    {
+                        "drive_letter": drive_letter,
+                        "week": week_num,
+                        "original_day": master_day,
+                        "original_slot": master_slot,
+                    }
                 )
-                # TODO: Implement vacation day rescheduling logic
+                print(f"  Drive {drive_letter} falls on vacation day, will reschedule")
+
+        # Reschedule drives that fell on vacation days
+        for drive in drives_to_reschedule:
+            rescheduled = False
+            # Try spare slots first
+            for day, slot in spare_slots.items():
+                if not rescheduled:
+                    # Find the date for this day in the current week
+                    for week_day in week_days:
+                        if (
+                            week_day.strftime("%A") == day
+                            and week_day not in vacation_days
+                        ):
+                            # Check if this slot is already used
+                            slot_used = any(
+                                d["date"] == week_day.isoformat() and d["slot"] == slot
+                                for d in drives
+                            )
+                            if not slot_used:
+                                drive_slot = {
+                                    "cohort": cohort_name,
+                                    "drive_letter": drive["drive_letter"],
+                                    "date": week_day.isoformat(),
+                                    "slot": slot,
+                                    "week": drive["week"],
+                                    "is_backup_slot": True,
+                                    "is_weekend": week_day.weekday() in [5, 6],
+                                    "instructor": None,
+                                    "status": "scheduled",
+                                    "rescheduled_from": f"{drive['original_day']} {drive['original_slot']}",
+                                }
+                                drives.append(drive_slot)
+                                print(
+                                    f"  Rescheduled Drive {drive['drive_letter']} to {week_day} at {slot}"
+                                )
+                                rescheduled = True
+                                break
+
+            # If couldn't use spare slot, try any available slot
+            if not rescheduled:
+                for week_day in week_days:
+                    if week_day not in vacation_days and not rescheduled:
+                        for slot in weekly_slots[week_day.strftime("%A")]:
+                            slot_used = any(
+                                d["date"] == week_day.isoformat() and d["slot"] == slot
+                                for d in drives
+                            )
+                            if not slot_used:
+                                drive_slot = {
+                                    "cohort": cohort_name,
+                                    "drive_letter": drive["drive_letter"],
+                                    "date": week_day.isoformat(),
+                                    "slot": slot,
+                                    "week": drive["week"],
+                                    "is_backup_slot": True,
+                                    "is_weekend": week_day.weekday() in [5, 6],
+                                    "instructor": None,
+                                    "status": "scheduled",
+                                    "rescheduled_from": f"{drive['original_day']} {drive['original_slot']}",
+                                }
+                                drives.append(drive_slot)
+                                print(
+                                    f"  Rescheduled Drive {drive['drive_letter']} to {week_day} at {slot}"
+                                )
+                                rescheduled = True
+                                break
 
     # Store the schedule in the cohort table
     cohort_data_row = app_tables.cohorts.get(cohort_name=cohort_name)
@@ -564,7 +644,7 @@ def create_full_cohort_schedule(school, start_date, num_students=None):
     # print(
     #     f"  • Drive {drive['drive_letter']} on {drive['date']} (Slot: {drive['slot']})"
     # )
-    complete_schedule = anvil.server.call('create_merged_schedule', cohort_name)
+    complete_schedule = anvil.server.call("create_merged_schedule", cohort_name)
     # 6. Store everything in the cohort record
     cohort_data_row = app_tables.cohorts.get(cohort_name=cohort_name)
     if cohort_data_row:
@@ -574,8 +654,7 @@ def create_full_cohort_schedule(school, start_date, num_students=None):
             drive_schedule=drives,
             status="scheduled",
             complete_schedule=complete_schedule,
-        )    
-    
+        )
 
     return {
         "cohort_name": cohort_name,
@@ -694,6 +773,7 @@ def create_merged_schedule(cohort_name):
     """
     Create a merged view of the cohort schedule showing all slots and their assignments.
     Returns a list of daily schedules with all slots and their assignments (classes or drives).
+    Vacation days are included with all slots marked as vacation.
 
     Args:
         cohort_name (str): Name of the cohort
@@ -717,11 +797,7 @@ def create_merged_schedule(cohort_name):
     daily_schedules = []
 
     while current_date <= end_date:
-        # Skip if it's a holiday
         date_str = current_date.strftime("%Y-%m-%d")
-        if date_str in no_class_days:
-            current_date += timedelta(days=1)
-            continue
 
         # Create daily schedule
         day_schedule = {
@@ -729,46 +805,58 @@ def create_merged_schedule(cohort_name):
             "day": current_date.strftime("%A"),
             "week": (current_date - start_date).days // 7 + 1,
             "slots": {},
+            "is_vacation": date_str in no_class_days,
         }
 
-        # Initialize all slots as empty
+        # Initialize all slots
         for slot_name in LESSON_SLOTS:
             if not slot_name.startswith("break_"):
-                day_schedule["slots"][slot_name] = {
-                    "type": None,  # None, "class", or "drive"
-                    "title": None,  # Class number or drive letter
-                    "details": None,  # Additional details
-                }
+                if day_schedule["is_vacation"]:
+                    # Mark all slots as vacation for vacation days
+                    day_schedule["slots"][slot_name] = {
+                        "type": "vacation",
+                        "title": "Vacation",
+                        "details": {
+                            "holiday_name": no_class_days.get(date_str, "Vacation Day")
+                        },
+                    }
+                else:
+                    # Initialize as empty for non-vacation days
+                    day_schedule["slots"][slot_name] = {
+                        "type": None,
+                        "title": None,
+                        "details": None,
+                    }
 
-        # Add class assignments
-        for class_slot in class_schedule:
-            if class_slot["date"] == date_str:
-                day_schedule["slots"]["lesson_slot_5"] = {
-                    "type": "class",
-                    "title": f"Class {class_slot['class_number']}",
-                    "details": {
-                        "week": class_slot["week"],
-                        "status": class_slot["status"],
-                    },
-                }
+        # Add class assignments (only for non-vacation days)
+        if not day_schedule["is_vacation"]:
+            for class_slot in class_schedule:
+                if class_slot["date"] == date_str:
+                    day_schedule["slots"]["lesson_slot_5"] = {
+                        "type": "class",
+                        "title": f"Class {class_slot['class_number']}",
+                        "details": {
+                            "week": class_slot["week"],
+                            "status": class_slot["status"],
+                        },
+                    }
 
-        # Add drive assignments
-        for drive_slot in drive_schedule:
-            if drive_slot["date"] == date_str:
-                day_schedule["slots"][drive_slot["slot"]] = {
-                    "type": "drive",
-                    "title": f"Drive {drive_slot['drive_letter']}",
-                    "details": {
-                        "week": drive_slot["week"],
-                        "is_backup_slot": drive_slot["is_backup_slot"],
-                        "is_weekend": drive_slot["is_weekend"],
-                        "status": drive_slot["status"],
-                    },
-                }
+        # Add drive assignments (only for non-vacation days)
+        if not day_schedule["is_vacation"]:
+            for drive_slot in drive_schedule:
+                if drive_slot["date"] == date_str:
+                    day_schedule["slots"][drive_slot["slot"]] = {
+                        "type": "drive",
+                        "title": f"Drive {drive_slot['drive_letter']}",
+                        "details": {
+                            "week": drive_slot["week"],
+                            "is_backup_slot": drive_slot["is_backup_slot"],
+                            "is_weekend": drive_slot["is_weekend"],
+                            "status": drive_slot["status"],
+                        },
+                    }
 
         daily_schedules.append(day_schedule)
         current_date += timedelta(days=1)
 
     return daily_schedules
-
-
