@@ -346,7 +346,12 @@ def export_merged_cohort_schedule(cohort_name):
         for day in daily_schedules:
             date_str = day["date"]
             for slot, slot_data in day["slots"].items():
-                if slot_data["type"]:
+                if slot_data["type"] == "vacation":
+                    # Use the holiday name from details
+                    data[slot_to_time[slot]][date_str] = slot_data["details"][
+                        "holiday_name"
+                    ]
+                elif slot_data["type"]:
                     data[slot_to_time[slot]][date_str] = slot_data["title"]
                 else:
                     data[slot_to_time[slot]][date_str] = ""
@@ -417,7 +422,12 @@ def export_merged_cohort_schedule(cohort_name):
                 # Get value from DataFrame instead of worksheet table
                 cell_value = df.iloc[row_num - 2, col_num - 1]
                 if cell_value:
-                    if cell_value == "Vacation":
+                    # Check if it's a holiday name (any value that's not a Class or Drive)
+                    if (
+                        cell_value not in [""]
+                        and "Class" not in cell_value
+                        and "Drive" not in cell_value
+                    ):
                         worksheet.conditional_format(
                             row_num,
                             col_num,
