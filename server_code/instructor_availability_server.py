@@ -276,7 +276,7 @@ def generate_capacity_report(days=180):
 
             # Check if it's a vacation day
             if date_str in vacation_dict:
-                df.loc[instructor["firstName"], date] = vacation_dict[date_str]
+                df.loc[instructor["firstName"], date] = f"0 - {vacation_dict[date_str]}"
                 continue
 
             # Get day of week
@@ -297,8 +297,8 @@ def generate_capacity_report(days=180):
     for date in date_range:
         date_str = str(date)
         if date_str in vacation_dict:
-            df.loc["Total Available", date] = vacation_dict[date_str]
-            df.loc["Total Booked", date] = vacation_dict[date_str]
+            df.loc["Total Available", date] = f"0 - {vacation_dict[date_str]}"
+            df.loc["Total Booked", date] = f"0 - {vacation_dict[date_str]}"
         else:
             # Sum available slots for this day
             available = df.loc[df.index[:-2], date].sum()
@@ -312,7 +312,9 @@ def generate_capacity_report(days=180):
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
         # Write to Excel
-        df.to_excel(writer, sheet_name="Capacity Report")
+        df.to_excel(
+            writer, sheet_name="Capacity Report", startrow=2
+        )  # Start data at row 2
 
         # Get workbook and worksheet
         workbook = writer.book
@@ -322,17 +324,32 @@ def generate_capacity_report(days=180):
         header_format = workbook.add_format(
             {"bold": True, "bg_color": "#D9E1F2", "border": 1, "align": "center"}
         )
-        date_format = workbook.add_format({"num_format": "yyyy-mm-dd"})
+        date_format = workbook.add_format(
+            {"num_format": "yyyy-mm-dd", "align": "center"}
+        )
+        name_format = workbook.add_format(
+            {"bold": True, "bg_color": "#F2F2F2", "border": 1, "align": "center"}
+        )
 
-        # Format headers
+        # Write headers
+        worksheet.write(0, 0, "DATE", header_format)
+        worksheet.write(1, 0, "DAY", header_format)
+
+        # Format headers (dates)
         for col_num, value in enumerate(df.columns.values):
             worksheet.write(0, col_num + 1, value, header_format)
-            worksheet.set_column(col_num + 1, col_num + 1, 12, date_format)
+            # Add day of week below date
+            date_obj = pd.to_datetime(value)
+            worksheet.write(1, col_num + 1, date_obj.strftime("%A"), header_format)
+
+        # Format row headers (instructor names)
         for row_num, value in enumerate(df.index.values):
-            worksheet.write(row_num + 1, 0, value, header_format)
+            worksheet.write(row_num + 2, 0, value, name_format)
 
         # Set column widths
         worksheet.set_column(0, 0, 15)  # Instructor names
+        for i in range(1, len(df.columns) + 1):
+            worksheet.set_column(i, i, 12)  # Date columns
 
     # Create media object and save to database
     excel_media = anvil.BlobMedia(
