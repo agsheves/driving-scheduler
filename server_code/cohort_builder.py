@@ -336,44 +336,32 @@ def schedule_drives(cohort_name, start_date, num_students):
     3. Move to next week as last resort
     Uses predefined backup slots and checks for vacation days
     """
+    print(f"\n=== Starting Drive Scheduling for {cohort_name} ===")
+    print(f"Start Date: {start_date}")
+    print(f"Number of Students: {num_students}")
+
     # Get available days and instructor availability
     available_days = get_available_days(start_date)
     num_pairs = num_students // 2
+    print(f"Number of Student Pairs: {num_pairs}")
 
     # Initialize drive schedule
     drives = []
-
-    # Get lesson slots and define backup slots
-    lesson_slots = LESSON_SLOTS
-    backup_slots = {
-        "Tuesday": "lesson_slot_5",
-        "Thursday": "lesson_slot_5",
-        "Sunday": "lesson_slot_1",
-    }
-
-    # Define primary slots (all slots except backup slots)
-    primary_slots = {}
-    for slot in lesson_slots:
-        # Changed to get the first item in list - make sure this is correct
-        day = slot[0]
-        if slot not in backup_slots.values():
-            if day not in primary_slots:
-                primary_slots[day] = []
-            primary_slots[day].append(slot)
-    print(f"==Log== Primary slots: {primary_slots}")
-
-    # Track used backup slots
-    used_backup_slots = {day: [] for day in backup_slots.keys()}
 
     # Get company vacation days
     vacation_days = [
         datetime.strptime(date_str, "%Y-%m-%d").date()
         for date_str in no_class_days.keys()
     ]
+    print(f"Vacation Days: {vacation_days}")
 
     # Schedule drives for weeks 2-6
     for week in range(5):
+        week_num = week + 2  # Weeks 2-6
+        print(f"\n--- Scheduling Week {week_num} ---")
+
         week_start = start_date + timedelta(days=7 * (week + 1))  # Start from week 2
+        print(f"Week Start Date: {week_start}")
 
         # Get available days for this week, excluding vacation days
         week_days = [
@@ -382,9 +370,17 @@ def schedule_drives(cohort_name, start_date, num_students):
             if week_start <= day < week_start + timedelta(days=7)
             and day not in vacation_days
         ]
+        print(f"Available Days for Week {week_num}: {week_days}")
+
+        # Get available slots for this week
+        weekly_slots = get_weekly_lesson_slots(week_num)
+        print(f"Available Slots for Week {week_num}:")
+        for day, slots in weekly_slots.items():
+            print(f"  {day}: {slots}")
 
         for pair in range(num_pairs):
             drive_letter = chr(65 + pair)  # A, B, C, etc.
+            print(f"\nScheduling Drive {drive_letter} for Week {week_num}")
 
             # Try to schedule on primary day first
             primary_date = None
@@ -393,30 +389,31 @@ def schedule_drives(cohort_name, start_date, num_students):
             # First try primary slots
             for day in week_days:
                 day_name = day.strftime("%A")
-                if day_name in primary_slots:
+                if day_name in weekly_slots:
                     # Try each time slot for this day
-                    for slot in primary_slots[day_name]:
-                        if slot not in used_backup_slots.get(day_name, []):
-                            primary_date = day
-                            primary_slot = slot
-                            break
+                    for slot in weekly_slots[day_name]:
+                        primary_date = day
+                        primary_slot = slot
+                        print(f"  Found slot: {slot} on {day_name}")
+                        break
                     if primary_date:
                         break
 
             # If primary slot not available, try backup slots
             if primary_date is None:
+                print("  No primary slot found, trying backup slots")
                 for day in week_days:
                     day_name = day.strftime("%A")
-                    if day_name in backup_slots:
-                        backup_slot = backup_slots[day_name]
-                        if backup_slot not in used_backup_slots.get(day_name, []):
+                    if day_name in ["Tuesday", "Thursday", "Sunday"]:
+                        if "lesson_slot_5" in weekly_slots[day_name]:
                             primary_date = day
-                            primary_slot = backup_slot
-                            used_backup_slots[day_name].append(backup_slot)
+                            primary_slot = "lesson_slot_5"
+                            print(f"  Found backup slot on {day_name}")
                             break
 
             # If still no slot found, move to next week
             if primary_date is None:
+                print("  No slots found, moving to next week")
                 next_week_start = week_start + timedelta(days=7)
                 next_week_days = [
                     day
@@ -426,13 +423,12 @@ def schedule_drives(cohort_name, start_date, num_students):
                 ]
                 if next_week_days:
                     primary_date = next_week_days[0]
-                    # Try to find a slot for this day
                     day_name = primary_date.strftime("%A")
-                    if day_name in primary_slots:
-                        primary_slot = primary_slots[day_name][0]
-                    elif day_name in backup_slots:
-                        primary_slot = backup_slots[day_name]
-                        used_backup_slots[day_name].append(primary_slot)
+                    if day_name in weekly_slots and weekly_slots[day_name]:
+                        primary_slot = weekly_slots[day_name][0]
+                        print(
+                            f"  Found slot in next week: {primary_slot} on {day_name}"
+                        )
 
             if primary_date and primary_slot:
                 drive_slot = {
@@ -440,18 +436,27 @@ def schedule_drives(cohort_name, start_date, num_students):
                     "drive_letter": drive_letter,
                     "date": primary_date.isoformat(),
                     "slot": primary_slot,
-                    "week": week + 2,  # Weeks 2-6
-                    "is_backup_slot": primary_date.strftime("%A") in backup_slots,
+                    "week": week_num,
+                    "is_backup_slot": primary_date.strftime("%A")
+                    in ["Tuesday", "Thursday", "Sunday"],
                     "is_weekend": primary_date.weekday() in [5, 6],
                     "instructor": None,  # To be assigned
                     "status": "scheduled",
                 }
                 drives.append(drive_slot)
+                print(
+                    f"  Scheduled Drive {drive_letter} for {primary_date} at {primary_slot}"
+                )
+            else:
+                print(
+                    f"  WARNING: Could not schedule Drive {drive_letter} for Week {week_num}"
+                )
 
     # Store the schedule in the cohort table
     cohort_data_row = app_tables.cohorts.get(cohort_name=cohort_name)
     if cohort_data_row:
         cohort_data_row.update(drive_schedule=drives)
+        print(f"\nStored {len(drives)} drives in cohort record")
 
     return drives
 
@@ -473,37 +478,37 @@ def create_full_cohort_schedule(school, start_date, num_students=None):
     Returns:
         dict: Complete cohort schedule information
     """
-    #print(f"\nCreating full schedule for {school} cohort starting {start_date}")
+    # print(f"\nCreating full schedule for {school} cohort starting {start_date}")
 
     # 1. Generate cohort name
     cohort_name = generate_cohort_name(school, start_date)
-    #print(f"Cohort name: {cohort_name}")
+    # print(f"Cohort name: {cohort_name}")
 
     # 2. Calculate capacity if num_students not provided
     if num_students is None:
         capacity = calculate_weekly_capacity(start_date, school)
         num_students = min(capacity["max_students"], MAX_COHORT_SIZE)
-    #print(f"Number of students: {num_students}")
+    # print(f"Number of students: {num_students}")
 
     # 3. Create student records
     students = create_ghost_students(cohort_name, num_students)
-    #print(f"Created {len(students)} student records")
+    # print(f"Created {len(students)} student records")
 
     # 4. Schedule classes
     classes = schedule_classes(cohort_name, start_date, num_students)
-    #print(f"Scheduled {len(classes)} classes")
-    #print("Class schedule:")
-    #for class_slot in classes:
-        #print(f"  • Class {class_slot['class_number']} on {class_slot['date']}")
+    # print(f"Scheduled {len(classes)} classes")
+    # print("Class schedule:")
+    # for class_slot in classes:
+    # print(f"  • Class {class_slot['class_number']} on {class_slot['date']}")
 
     # 5. Schedule drives
     drives = schedule_drives(cohort_name, start_date, num_students)
-   # print(f"\nScheduled {len(drives)} drives")
-    #print("Drive schedule:")
-    #for drive in drives:
-       # print(
-       #     f"  • Drive {drive['drive_letter']} on {drive['date']} (Slot: {drive['slot']})"
-        #)
+    # print(f"\nScheduled {len(drives)} drives")
+    # print("Drive schedule:")
+    # for drive in drives:
+    # print(
+    #     f"  • Drive {drive['drive_letter']} on {drive['date']} (Slot: {drive['slot']})"
+    # )
 
     # 6. Store everything in the cohort record
     cohort_data_row = app_tables.cohorts.get(cohort_name=cohort_name)
