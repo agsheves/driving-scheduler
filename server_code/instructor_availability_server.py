@@ -244,7 +244,7 @@ def generate_capacity_report(days=180):
 
     # Get vacation days
     vacation_days = app_tables.no_class_days.search()
-    vacation_dict = {str(day["date"]): day["name"] for day in vacation_days}
+    vacation_dict = {str(day["date"]): day["Event"] for day in vacation_days}
 
     # Create date range
     start_date = datetime.now().date()
@@ -306,29 +306,13 @@ def generate_capacity_report(days=180):
 
     # Format the Excel file
     filename = f"total_availability_as_at_{start_date.strftime('%Y%m%d')}.xlsx"
-    with pd.ExcelWriter(filename, engine="openpyxl") as writer:
-        df.to_excel(writer, sheet_name="Capacity Report")
 
-        # Get workbook and worksheet
-        workbook = writer.book
-        worksheet = writer.sheets["Capacity Report"]
+    # Create Excel file using anvil.files
+    with anvil.files.new_excel() as excel:
+        # Write the DataFrame to Excel
+        df.to_excel(excel, sheet_name="Capacity Report")
 
-        # Add formatting
-        header_format = workbook.add_format(
-            {"bold": True, "bg_color": "#D9E1F2", "border": 1, "align": "center"}
-        )
-
-        # Format headers
-        for col_num, value in enumerate(df.columns.values):
-            worksheet.write(0, col_num + 1, value, header_format)
-
-        # Format row headers
-        for row_num, value in enumerate(df.index.values):
-            worksheet.write(row_num + 1, 0, value, header_format)
-
-        # Set column widths
-        worksheet.set_column(0, 0, 15)  # Instructor names
-        for i in range(1, len(df.columns) + 1):
-            worksheet.set_column(i, i, 12)  # Date columns
+        # Save the file
+        excel.save(filename)
 
     return filename
