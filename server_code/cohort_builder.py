@@ -684,3 +684,88 @@ def test_capacity_calculation(start_date=None, school=None):
         "num_classes": len(classes),
         "num_drives": len(drives),
     }
+
+
+@anvil.server.callable
+def create_merged_schedule(cohort_name):
+    """
+    Create a merged view of the cohort schedule showing all slots and their assignments.
+    Returns a list of daily schedules with all slots and their assignments (classes or drives).
+
+    Args:
+        cohort_name (str): Name of the cohort
+
+    Returns:
+        list: List of daily schedules with slot assignments
+    """
+    # Get cohort data
+    cohort = app_tables.cohorts.get(cohort_name=cohort_name)
+    if not cohort:
+        raise ValueError(f"Cohort {cohort_name} not found")
+
+    # Get class and drive schedules
+    class_schedule = cohort["class_schedule"] or []
+    drive_schedule = cohort["drive_schedule"] or []
+
+    # Create a dictionary of all dates in the cohort's date range
+    start_date = cohort["start_date"]
+    end_date = cohort["end_date"]
+    current_date = start_date
+    daily_schedules = []
+
+    while current_date <= end_date:
+        # Skip if it's a holiday
+        date_str = current_date.strftime("%Y-%m-%d")
+        if date_str in no_class_days:
+            current_date += timedelta(days=1)
+            continue
+
+        # Create daily schedule
+        day_schedule = {
+            "date": date_str,
+            "day": current_date.strftime("%A"),
+            "week": (current_date - start_date).days // 7 + 1,
+            "slots": {},
+        }
+
+        # Initialize all slots as empty
+        for slot_name in LESSON_SLOTS:
+            if not slot_name.startswith("break_"):
+                day_schedule["slots"][slot_name] = {
+                    "type": None,  # None, "class", or "drive"
+                    "title": None,  # Class number or drive letter
+                    "details": None,  # Additional details
+                }
+
+        # Add class assignments
+        for class_slot in class_schedule:
+            if class_slot["date"] == date_str:
+                day_schedule["slots"]["lesson_slot_5"] = {
+                    "type": "class",
+                    "title": f"Class {class_slot['class_number']}",
+                    "details": {
+                        "week": class_slot["week"],
+                        "status": class_slot["status"],
+                    },
+                }
+
+        # Add drive assignments
+        for drive_slot in drive_schedule:
+            if drive_slot["date"] == date_str:
+                day_schedule["slots"][drive_slot["slot"]] = {
+                    "type": "drive",
+                    "title": f"Drive {drive_slot['drive_letter']}",
+                    "details": {
+                        "week": drive_slot["week"],
+                        "is_backup_slot": drive_slot["is_backup_slot"],
+                        "is_weekend": drive_slot["is_weekend"],
+                        "status": drive_slot["status"],
+                    },
+                }
+
+        daily_schedules.append(day_schedule)
+        current_date += timedelta(days=1)
+
+    return daily_schedules
+
+

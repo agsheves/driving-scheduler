@@ -304,3 +304,138 @@ def export_cohort_schedule(cohort_name):
     )
 
     return excel_media
+
+
+@anvil.server.callable
+def export_merged_cohort_schedule(cohort_name):
+    """
+    Export merged cohort schedule to Excel.
+    Creates a single sheet with days as columns and slots as rows.
+
+    Args:
+        cohort_name (str): Name of the cohort to export
+    """
+    from ..cohort_builder import create_merged_schedule
+
+    # Get merged schedule
+    daily_schedules = create_merged_schedule(cohort_name)
+
+    # Create Excel writer
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        # Create DataFrame with slots as index and days as columns
+        data = {}
+        slot_order = [
+            slot for slot in LESSON_SLOTS.keys() if not slot.startswith("break_")
+        ]
+
+        # Initialize data structure
+        for slot in slot_order:
+            data[slot] = {}
+
+        # Fill in the data
+        for day in daily_schedules:
+            date_str = day["date"]
+            for slot, slot_data in day["slots"].items():
+                if slot_data["type"]:
+                    data[slot][date_str] = slot_data["title"]
+                else:
+                    data[slot][date_str] = ""
+
+        # Create DataFrame
+        df = pd.DataFrame(data).T
+
+        # Sort columns by date
+        df = df.sort_index(axis=1)
+
+        # Write to Excel
+        df.to_excel(writer, sheet_name="Schedule")
+
+        # Get workbook and worksheet
+        workbook = writer.book
+        worksheet = writer.sheets["Schedule"]
+
+        # Add formatting
+        header_format = workbook.add_format(
+            {"bold": True, "bg_color": "#D9E1F2", "border": 1, "align": "center"}
+        )
+
+        date_format = workbook.add_format(
+            {"num_format": "yyyy-mm-dd", "align": "center"}
+        )
+
+        slot_format = workbook.add_format(
+            {"bold": True, "bg_color": "#F2F2F2", "border": 1}
+        )
+
+        # Format headers (dates)
+        for col_num, value in enumerate(df.columns.values):
+            worksheet.write(0, col_num + 1, value, header_format)
+            # Add day of week below date
+            date_obj = datetime.strptime(value, "%Y-%m-%d")
+            worksheet.write(1, col_num + 1, date_obj.strftime("%A"), header_format)
+
+        # Format row headers (slots)
+        for row_num, value in enumerate(df.index.values):
+            worksheet.write(row_num + 2, 0, value, slot_format)
+
+        # Set column widths
+        worksheet.set_column(0, 0, 15)  # Slot column
+        for i in range(1, len(df.columns) + 1):
+            worksheet.set_column(i, i, 12)  # Date columns
+
+        # Add conditional formatting for different types
+        class_format = workbook.add_format(
+            {"bg_color": "#E2EFDA", "border": 1, "align": "center"}  # Light green
+        )
+
+        drive_format = workbook.add_format(
+            {"bg_color": "#DDEBF7", "border": 1, "align": "center"}  # Light blue
+        )
+
+        # Apply conditional formatting
+        for row_num in range(2, len(df) + 2):  # Start from row 2 to account for headers
+            for col_num in range(1, len(df.columns) + 1):
+                cell_value = worksheet.table[row_num][col_num]
+                if cell_value:
+                    if "Class" in cell_value:
+                        worksheet.conditional_format(
+                            row_num,
+                            col_num,
+                            row_num,
+                            col_num,
+                            {
+                                "type": "cell",
+                                "criteria": "not equal to",
+                                "value": '""',
+                                "format": class_format,
+                            },
+                        )
+                    elif "Drive" in cell_value:
+                        worksheet.conditional_format(
+                            row_num,
+                            col_num,
+                            row_num,
+                            col_num,
+                            {
+                                "type": "cell",
+                                "criteria": "not equal to",
+                                "value": '""',
+                                "format": drive_format,
+                            },
+                        )
+
+    # Create media object and save to database
+    excel_media = anvil.BlobMedia(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        output.getvalue(),
+        name=f"{cohort_name}_merged_schedule.xlsx",
+    )
+
+    app_tables.files.add_row(
+        filename=f"{cohort_name}_merged_schedule.xlsx",
+        file=excel_media,
+        file_type="Excel",
+    )
+
+    return excel_media
