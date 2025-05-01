@@ -1,9 +1,7 @@
 """
 Instructor Availability Server Module
-
 This module handles instructor availability processing and scheduling.
 """
-
 import anvil.files
 from anvil.files import data_files
 import anvil.users
