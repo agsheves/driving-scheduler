@@ -229,15 +229,17 @@ def sync_instructor_availability_to_sheets():
 
             # Clear existing data by deleting rows
             print("Clearing existing data...")
-            rows = list(worksheet.rows)
-            if rows is None:
-                print("No existing rows to delete")
-                pass
-            else:
-                print(f"Found {len(rows)} rows to delete")
-                for row in rows:
-                    row.delete()
-                print("Existing data cleared")
+            try:
+                rows = list(worksheet.rows)
+                if rows:
+                    print(f"Found {len(rows)} rows to delete")
+                    for row in rows:
+                        row.delete()
+                    print("Existing data cleared")
+                else:
+                    print("No existing rows to delete")
+            except TypeError:
+                print("No existing rows to delete (empty sheet)")
 
             # Prepare all rows at once
             print("Preparing data rows...")
