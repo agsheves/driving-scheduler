@@ -201,6 +201,7 @@ def sync_instructor_availability_to_sheets():
         # Add availability rows
         for slot in slots:
             row_data = {"Slot": slot}
+            print(row_data)
             for day in days:
                 day_data = availability.get(day, {})
                 row_data[day.capitalize()] = day_data.get(slot, "")
