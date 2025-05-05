@@ -152,8 +152,6 @@ def convert_JSON_to_csv_and_save(json_data, filename):
 # For testing sheet access
 
 
-
-
 @anvil.server.background_task
 def sync_instructor_availability_to_sheets():
     """
@@ -382,6 +380,90 @@ def export_instructor_availability():
             worksheet.write(len(slots) + 6, 0, "Vacation Days:", header_format)
             for i, vac_day in enumerate(vacation_days):
                 worksheet.write(len(slots) + 7 + i, 0, str(vac_day))
+
+    # Create media object and save to database
+    excel_media = anvil.BlobMedia(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        output.getvalue(),
+        name="instructor_availability.xlsx",
+    )
+
+    app_tables.files.add_row(
+        filename="instructor_availability.xlsx", file=excel_media, file_type="Excel"
+    )
+
+    return excel_media
+
+
+@anvil.server.callable
+def export_instructor_eight_monthavailability():
+    """
+    Export instructor availability to Excel.
+    Creates one sheet per instructor with their weekly availability.
+    Dates as columns, lessons as rows.
+    """
+    # Get all instructors
+    instructors = app_tables.users.search(is_instructor=True)
+
+    # Create Excel writer
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        for instructor in instructors:
+            # Get instructor schedule
+            instructor_row = app_tables.instructor_schedules.get(instructor=instructor)
+            if not instructor_row:
+                continue
+
+            # Get availability data
+            availability = instructor_row["current_seven_month_availability"]
+
+            # Create DataFrame for this instructor
+            slots = [
+                "lesson_slot_1",
+                "lesson_slot_2",
+                "lesson_slot_3",
+                "lesson_slot_4",
+                "lesson_slot_5",
+            ]
+
+            # Get all unique dates from the availability data
+            all_dates = set()
+            for day_data in availability.values():
+                for date_data in day_data.values():
+                    if isinstance(date_data, dict) and "date" in date_data:
+                        all_dates.add(date_data["date"])
+
+            all_dates = sorted(list(all_dates))
+
+            # Create data structure
+            data = []
+            for slot in slots:
+                row_data = {"Lesson": slot}
+                for date in all_dates:
+                    # Find the status for this slot and date
+                    status = "No"
+                    for day_data in availability.values():
+                        for slot_data in day_data.values():
+                            if (
+                                isinstance(slot_data, dict)
+                                and slot_data.get("date") == date
+                            ):
+                                status = slot_data.get("result", "No")
+                    row_data[date] = status
+                data.append(row_data)
+
+            df = pd.DataFrame(data)
+            df.set_index("Lesson", inplace=True)
+
+            # Print a sample of the DataFrame for logging
+            print(f"\nDataFrame sample for {instructor['firstName']}:")
+            print(df.head(2))  # Show first 2 rows
+            print("\nColumns (dates):")
+            print(df.columns[:5])  # Show first 5 dates
+
+            # Write to Excel
+            sheet_name = f"{instructor['firstName']} {instructor['lastName']}"
+            df.to_excel(writer, sheet_name=sheet_name)
 
     # Create media object and save to database
     excel_media = anvil.BlobMedia(
