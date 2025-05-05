@@ -19,6 +19,7 @@ from .globals import LESSON_SLOTS
 ###########################################################
 # General data import function to take CSV data and convert to JSON.
 
+
 @anvil.server.callable
 def csv_to_structured_json(csv_file):
     if isinstance(csv_file, str):
@@ -148,6 +149,96 @@ def convert_JSON_to_csv_and_save(json_data, filename):
 
 ###########################################################
 # Excel export functions
+
+
+@anvil.server.callable
+def sync_instructor_availability_to_sheets():
+    """
+    Sync instructor availability to Google Sheets.
+    Creates one sheet per instructor with their weekly availability.
+    """
+    # Get all instructors
+    instructors = app_tables.users.search(is_instructor=True)
+
+    # Get or create the spreadsheet
+    try:
+        # Try to get existing spreadsheet
+        spreadsheet = app_files.get_by_name("instructor_availability")
+    except:
+        # Create new spreadsheet if it doesn't exist
+        spreadsheet = anvil.google.drive.create_spreadsheet("instructor_availability")
+        app_files.add_file(spreadsheet)
+
+    # Process each instructor
+    for instructor in instructors:
+        # Get instructor schedule
+        instructor_row = app_tables.instructor_schedules.get(instructor=instructor)
+        if not instructor_row:
+            continue
+
+        # Get availability data
+        availability = instructor_row["weekly_availability"]["weekly_availability"]
+        school_prefs = instructor_row["school_preferences"]
+        vacation_days = instructor_row["vacation_days"]
+
+        # Create sheet name
+        sheet_name = f"{instructor['firstName']} {instructor['lastName']}"
+
+        # Get or create worksheet
+        try:
+            worksheet = spreadsheet.get_worksheet(sheet_name)
+        except:
+            worksheet = spreadsheet.add_worksheet(sheet_name)
+
+        # Prepare data
+        days = [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday",
+        ]
+        slots = [
+            "lesson_slot_1",
+            "lesson_slot_2",
+            "lesson_slot_3",
+            "lesson_slot_4",
+            "lesson_slot_5",
+        ]
+
+        # Write headers
+        worksheet.write_row(0, 0, ["Slot"] + [day.capitalize() for day in days])
+        worksheet.write_column(1, 0, slots)
+
+        # Write availability data
+        for i, slot in enumerate(slots):
+            row_data = []
+            for day in days:
+                day_data = availability.get(day, {})
+                status = day_data.get(slot, "No")
+                row_data.append(status)
+            worksheet.write_row(i + 1, 1, row_data)
+
+        # Add school preferences
+        pref_row = len(slots) + 3
+        worksheet.write(pref_row, 0, "School Preferences:")
+        worksheet.write(pref_row + 1, 0, str(school_prefs))
+
+        # Add vacation days
+        vac_row = len(slots) + 6
+        worksheet.write(vac_row, 0, "Vacation Days:")
+        for i, vac_day in enumerate(vacation_days):
+            worksheet.write(vac_row + 1 + i, 0, str(vac_day))
+
+        # Format the sheet
+        worksheet.format("A1:G1", {"bold": True, "backgroundColor": "#D9E1F2"})
+        worksheet.format("A1:A6", {"bold": True, "backgroundColor": "#D9E1F2"})
+        worksheet.set_column_width(0, 150)  # Set first column width
+        worksheet.set_column_widths(1, 7, 100)  # Set other columns width
+
+    return True
 
 
 @anvil.server.callable
