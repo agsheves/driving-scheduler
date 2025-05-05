@@ -368,18 +368,24 @@ def generate_seven_month_availability(instructor=None):
         instructor_schedule["current_seven_month_availability"] or {}
     )
 
-    # Find the last date in existing availability
-    last_date = None
+    # Early exit if we already have 8 months of coverage
     if existing_availability:
         try:
             last_date = max(
                 datetime.strptime(date, "%Y-%m-%d").date()
                 for date in existing_availability.keys()
             )
-            print(f"Last date in existing availability: {last_date}")
+            target_end_date = datetime.now().date() + timedelta(
+                days=240
+            )  # 8 months from today
+            if last_date >= target_end_date:
+                print(
+                    f"Existing availability already covers 8 months (extends to {last_date})"
+                )
+                return None
         except (ValueError, TypeError) as e:
-            print(f"Error finding last date: {e}")
-            last_date = None
+            print(f"Error checking existing availability: {e}")
+            # Continue with generation if there's an error checking dates
 
     # Save current schedule as previous before updating
     if existing_availability:
@@ -427,15 +433,20 @@ def generate_seven_month_availability(instructor=None):
     target_end_date = today + timedelta(days=240)  # 8 months from today
 
     # If we have existing availability, only add dates up to the target end date
-    if last_date:
-        if last_date >= target_end_date:
-            print("Existing availability already covers 8 months")
-            return existing_availability
-        start_date = last_date + timedelta(days=1)
-        end_date = target_end_date
+    if existing_availability:
+        try:
+            last_date = max(
+                datetime.strptime(date, "%Y-%m-%d").date()
+                for date in existing_availability.keys()
+            )
+            start_date = last_date + timedelta(days=1)
+        except (ValueError, TypeError) as e:
+            print(f"Error finding last date: {e}")
+            start_date = today
     else:
         start_date = today
-        end_date = target_end_date
+
+    end_date = target_end_date
 
     # Create date range for new dates only
     date_range = [
