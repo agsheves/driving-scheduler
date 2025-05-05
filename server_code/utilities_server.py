@@ -180,14 +180,14 @@ def sync_instructor_availability_to_sheets():
         vacation_days = instructor_row["vacation_days"]
 
         # Create sheet name
-        sheet_name = f"{instructor['firstName']} {instructor['surname']}"
+        sheet_name = f"{instructor['firstName']}_{instructor['surname']}"
 
         # Get worksheet
         try:
             worksheet = spreadsheet[sheet_name]
         except:
             print(f"Error: Worksheet {sheet_name} not found")
-            continue
+            spreadsheet
 
         # Prepare data
         days = [
