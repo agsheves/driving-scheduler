@@ -95,7 +95,10 @@ db_schema:
       name: school_preferences
       type: simpleObject
     - admin_ui: {order: 4, width: 200}
-      name: seven_month_availability
+      name: current_seven_month_availability
+      type: simpleObject
+    - admin_ui: {order: 5, width: 200}
+      name: previous_seven_month_availability
       type: simpleObject
     server: full
     title: instructor_schedules
