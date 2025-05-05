@@ -187,6 +187,9 @@ def sync_instructor_availability_to_sheets():
         school_prefs = instructor_row["school_preferences"]
         vacation_days = instructor_row["vacation_days"]
         print(f"Retrieved availability data for {instructor['firstName']}")
+        print(f"Availability data: {availability}")
+        print(f"School prefs: {school_prefs}")
+        print(f"Vacation days: {vacation_days}")
 
         # Create sheet name (using underscore to avoid spaces)
         sheet_name = f"{instructor['firstName']}_{instructor['surname']}"
@@ -196,6 +199,8 @@ def sync_instructor_availability_to_sheets():
         try:
             worksheet = spreadsheet[sheet_name]
             print(f"Successfully accessed worksheet: {sheet_name}")
+            print(f"Worksheet fields: {worksheet.fields}")
+            print(f"Number of rows: {len(list(worksheet.rows))}")
         except Exception as e:
             print(f"Error accessing worksheet {sheet_name}: {str(e)}")
             continue
@@ -203,7 +208,10 @@ def sync_instructor_availability_to_sheets():
         try:
             # Clear existing data
             print("Clearing existing data...")
-            for row in worksheet.rows:
+            rows = list(worksheet.rows)
+            print(f"Found {len(rows)} rows to clear")
+            for row in rows:
+                print(f"Deleting row: {row}")
                 row.delete()
             print("Existing data cleared")
 
@@ -230,6 +238,7 @@ def sync_instructor_availability_to_sheets():
             header_data = {"Slot": "Slot"}
             for day in days:
                 header_data[day.capitalize()] = day.capitalize()
+            print(f"Header data: {header_data}")
             worksheet.add_row(**header_data)
             print("Headers added")
 
@@ -241,6 +250,7 @@ def sync_instructor_availability_to_sheets():
                     day_data = availability.get(day, {})
                     status = day_data.get(slot, "No")
                     row_data[day.capitalize()] = status
+                print(f"Adding row data: {row_data}")
                 worksheet.add_row(**row_data)
             print("Availability data added")
 
@@ -262,6 +272,10 @@ def sync_instructor_availability_to_sheets():
             )
         except Exception as e:
             print(f"Error writing data to worksheet: {str(e)}")
+            print(f"Error type: {type(e)}")
+            import traceback
+
+            print(f"Traceback: {traceback.format_exc()}")
             continue
 
     return True
