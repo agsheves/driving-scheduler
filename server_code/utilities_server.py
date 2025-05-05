@@ -155,7 +155,6 @@ def convert_JSON_to_csv_and_save(json_data, filename):
 def sync_instructor_availability_to_sheets():
     instructors = app_tables.users.search(is_instructor=True)
     spreadsheet = app_files.current_availability
-    print("Available worksheets:", list(spreadsheet.worksheets))
 
     for instructor in instructors:
         instructor_row = app_tables.instructor_schedules.get(instructor=instructor)
@@ -165,24 +164,16 @@ def sync_instructor_availability_to_sheets():
         availability = instructor_row["weekly_availability"]["weekly_availability"]
         print(availability)
         sheet_name = f"{instructor['firstName']}_{instructor['surname']}"
-
-        # Verify sheet exists
-        if sheet_name not in spreadsheet.worksheets:
-            print(f"Sheet {sheet_name} not found in spreadsheet")
-            continue
-
         worksheet = spreadsheet[sheet_name]
-        print(f"Accessing worksheet: {worksheet}")
+        print(worksheet)
 
-        # Clear existing data - skip if sheet is empty
+        # Clear existing data
         try:
             rows = list(worksheet.rows)
-            print(f"Found {len(rows)} rows to delete")
             for row in rows:
                 row.delete()
-        except Exception as e:
-            print(f"Error clearing rows: {e}")
-            pass  # Just continue if there's an error with empty sheet
+        except:
+            pass
 
         # Prepare data
         days = [
@@ -202,33 +193,19 @@ def sync_instructor_availability_to_sheets():
             "lesson_slot_5",
         ]
 
-        # Create header row - must match column names exactly
+        # Create header row
         header = {"Slot": "Slot"}
         for day in days:
-            header[day] = (
-                day.capitalize()
-            )  # Use lowercase for keys to match sheet columns
-        print("Adding header:", header)
-        try:
-            worksheet.add_row(**header)
-            print("Header added successfully")
-        except Exception as e:
-            print(f"Error adding header: {e}")
+            header[day.capitalize()] = day.capitalize()
+        worksheet.add_row(**header)
 
         # Add availability rows
         for slot in slots:
             row_data = {"Slot": slot}
             for day in days:
                 day_data = availability.get(day, {})
-                row_data[day] = day_data.get(
-                    slot, ""
-                )  # Use lowercase for keys to match sheet columns
-            print("Adding row:", row_data)
-            try:
-                worksheet.add_row(**row_data)
-                print("Row added successfully")
-            except Exception as e:
-                print(f"Error adding row: {e}")
+                row_data[day.capitalize()] = day_data.get(slot, "")
+            worksheet.add_row(**row_data)
 
     return True
 
