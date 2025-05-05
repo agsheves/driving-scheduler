@@ -167,14 +167,13 @@ def sync_instructor_availability_to_sheets():
         worksheet = spreadsheet[sheet_name]
         print(worksheet)
 
-        # Clear existing data
+        # Clear existing data - skip if sheet is empty
         try:
             rows = list(worksheet.rows)
-            if rows:  # Only try to delete if there are rows
-                for row in rows:
-                    row.delete()
-        except Exception as e:
-            print(f"Error clearing rows: {e}")
+            for row in rows:
+                row.delete()
+        except:
+            pass  # Just continue if there's an error with empty sheet
 
         # Prepare data
         days = [
