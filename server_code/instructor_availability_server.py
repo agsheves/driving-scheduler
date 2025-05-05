@@ -422,9 +422,22 @@ def generate_seven_month_availability(instructor=None):
                 print(f"Error processing vacation date range: {e}")
                 continue
 
-    # Create date range - start from last date if it exists, otherwise from today
-    start_date = last_date + timedelta(days=1) if last_date else datetime.now().date()
-    end_date = start_date + timedelta(days=240)  # 8 months
+    # Calculate the target end date (8 months from today)
+    today = datetime.now().date()
+    target_end_date = today + timedelta(days=240)  # 8 months from today
+
+    # If we have existing availability, only add dates up to the target end date
+    if last_date:
+        if last_date >= target_end_date:
+            print("Existing availability already covers 8 months")
+            return existing_availability
+        start_date = last_date + timedelta(days=1)
+        end_date = target_end_date
+    else:
+        start_date = today
+        end_date = target_end_date
+
+    # Create date range for new dates only
     date_range = [
         start_date + timedelta(days=x) for x in range((end_date - start_date).days)
     ]
@@ -458,6 +471,9 @@ def generate_seven_month_availability(instructor=None):
 
     print(f"Generated availability for {len(new_availability)} new days")
     print(f"Total availability now covers {len(merged_availability)} days")
+    print(
+        f"Availability now extends to {max(datetime.strptime(date, '%Y-%m-%d').date() for date in merged_availability.keys())}"
+    )
     instructor_schedule.update(current_seven_month_availability=merged_availability)
     return merged_availability
 
