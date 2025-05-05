@@ -250,23 +250,23 @@ def sync_instructor_availability_to_sheets():
                     row_data[day.capitalize()] = status
                 rows.append(row_data)
 
-            # Add all rows at once
+            # Add all rows one by one
             print("Writing all rows...")
-            worksheet.add_rows(rows)
+            for row in rows:
+                worksheet.add_row(**row)
             print("Main data written")
 
             # Add school preferences
             print("Writing school preferences...")
-            pref_rows = [{"Slot": "School Preferences:"}, {"Slot": str(school_prefs)}]
-            worksheet.add_rows(pref_rows)
+            worksheet.add_row(**{"Slot": "School Preferences:"})
+            worksheet.add_row(**{"Slot": str(school_prefs)})
             print("School preferences written")
 
             # Add vacation days
             print("Writing vacation days...")
-            vac_rows = [{"Slot": "Vacation Days:"}]
+            worksheet.add_row(**{"Slot": "Vacation Days:"})
             for vac_day in vacation_days:
-                vac_rows.append({"Slot": str(vac_day)})
-            worksheet.add_rows(vac_rows)
+                worksheet.add_row(**{"Slot": str(vac_day)})
             print("Vacation days written")
 
             print(
