@@ -346,15 +346,15 @@ def generate_capacity_report(days=180):
 
 
 @anvil.server.callable
-def generate_seven_month_availability(instructor):
+def generate_seven_month_availability(instructor=None):
     """
     Generate seven-month availability object for an instructor.
-    Link this to anu UI updates of availability so if an instructor schedule changes, gthsi will autoimatically re-run their avaiability.
-    
+    This function should only be run during system setup or when adding a new instructor.
+    It will append new dates to existing availability, ensuring 8 months of forward-looking availability.
     """
-    #if instructor is None:
-        #instructor = app_tables.users.get(firstName="Steve")
-        #print(instructor)
+    if instructor is None:
+        instructor = app_tables.users.get(firstName="Steve")
+        print(instructor)
     print(f"Generating seven-month availability for {instructor['firstName']}")
 
     # Get instructor's weekly availability
@@ -363,13 +363,29 @@ def generate_seven_month_availability(instructor):
         print(f"No weekly availability found for {instructor['firstName']}")
         return None
 
+    # Get existing availability
+    existing_availability = (
+        instructor_schedule["current_seven_month_availability"] or {}
+    )
+
+    # Find the last date in existing availability
+    last_date = None
+    if existing_availability:
+        try:
+            last_date = max(
+                datetime.strptime(date, "%Y-%m-%d").date()
+                for date in existing_availability.keys()
+            )
+            print(f"Last date in existing availability: {last_date}")
+        except (ValueError, TypeError) as e:
+            print(f"Error finding last date: {e}")
+            last_date = None
+
     # Save current schedule as previous before updating
-    if instructor_schedule["current_seven_month_availability"] is not None:
+    if existing_availability:
         print(f"Saving previous schedule for {instructor['firstName']}")
         instructor_schedule.update(
-            previous_seven_month_availability=instructor_schedule[
-                "current_seven_month_availability"
-            ]
+            previous_seven_month_availability=existing_availability
         )
 
     weekly_data = instructor_schedule["weekly_availability"]["weekly_availability"]
@@ -406,15 +422,15 @@ def generate_seven_month_availability(instructor):
                 print(f"Error processing vacation date range: {e}")
                 continue
 
-    # Create date range
-    start_date = datetime.now().date()
-    end_date = start_date + timedelta(days=210)  # 7 months
+    # Create date range - start from last date if it exists, otherwise from today
+    start_date = last_date + timedelta(days=1) if last_date else datetime.now().date()
+    end_date = start_date + timedelta(days=240)  # 8 months
     date_range = [
         start_date + timedelta(days=x) for x in range((end_date - start_date).days)
     ]
 
-    # Initialize availability object
-    availability = {}
+    # Initialize new availability object
+    new_availability = {}
 
     # Process each day
     for date in date_range:
@@ -423,7 +439,7 @@ def generate_seven_month_availability(instructor):
 
         # Check if it's a vacation day
         if date_str in vacation_ranges:
-            availability[date_str] = {
+            new_availability[date_str] = {
                 slot: availability_mapping["Vacation"] for slot in LESSON_SLOTS.keys()
             }
             continue
@@ -432,14 +448,19 @@ def generate_seven_month_availability(instructor):
         day_availability = weekly_data.get(day_name, {})
 
         # Create day's availability using existing mapping
-        availability[date_str] = {
+        new_availability[date_str] = {
             slot: availability_mapping.get(day_availability.get(slot, "No"), 0)
             for slot in LESSON_SLOTS.keys()
         }
 
-    print(f"Generated availability for {len(availability)} days")
-    instructor_schedule.update(current_seven_month_availability=availability)
-    return availability
+    # Merge existing and new availability
+    merged_availability = {**existing_availability, **new_availability}
+
+    print(f"Generated availability for {len(new_availability)} new days")
+    print(f"Total availability now covers {len(merged_availability)} days")
+    instructor_schedule.update(current_seven_month_availability=merged_availability)
+    return merged_availability
+
 
 # updated to go through all instructors and update their availability
 # run this on a schedule
@@ -452,6 +473,6 @@ def update_all_instructor_seven_month_availability():
     if not instructors:
         return False
     for instructor in instructors:
-      generate_seven_month_availability(instructor)
-      print(f"Updated availability for {instructor['firstName']}")
+        generate_seven_month_availability(instructor)
+        print(f"Updated availability for {instructor['firstName']}")
     return True
