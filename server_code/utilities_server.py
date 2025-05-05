@@ -200,61 +200,62 @@ def sync_instructor_availability_to_sheets():
             print(f"Error accessing worksheet {sheet_name}: {str(e)}")
             continue
 
-        # Prepare data
-        days = [
-            "monday",
-            "tuesday",
-            "wednesday",
-            "thursday",
-            "friday",
-            "saturday",
-            "sunday",
-        ]
-        slots = [
-            "lesson_slot_1",
-            "lesson_slot_2",
-            "lesson_slot_3",
-            "lesson_slot_4",
-            "lesson_slot_5",
-        ]
-
         try:
-            # Write headers
-            print("Writing headers...")
-            worksheet[0, 0] = "Slot"
-            for i, day in enumerate(days):
-                worksheet[0, i + 1] = day.capitalize()
-            print("Headers written successfully")
+            # Clear existing data
+            print("Clearing existing data...")
+            for row in worksheet.rows:
+                row.delete()
+            print("Existing data cleared")
 
-            # Write slot names
-            print("Writing slot names...")
-            for i, slot in enumerate(slots):
-                worksheet[i + 1, 0] = slot
-            print("Slot names written successfully")
+            # Prepare data
+            days = [
+                "monday",
+                "tuesday",
+                "wednesday",
+                "thursday",
+                "friday",
+                "saturday",
+                "sunday",
+            ]
+            slots = [
+                "lesson_slot_1",
+                "lesson_slot_2",
+                "lesson_slot_3",
+                "lesson_slot_4",
+                "lesson_slot_5",
+            ]
 
-            # Write availability data
-            print("Writing availability data...")
-            for i, slot in enumerate(slots):
-                for j, day in enumerate(days):
+            # Add headers
+            print("Adding headers...")
+            header_data = {"Slot": "Slot"}
+            for day in days:
+                header_data[day.capitalize()] = day.capitalize()
+            worksheet.add_row(**header_data)
+            print("Headers added")
+
+            # Add availability data
+            print("Adding availability data...")
+            for slot in slots:
+                row_data = {"Slot": slot}
+                for day in days:
                     day_data = availability.get(day, {})
                     status = day_data.get(slot, "No")
-                    worksheet[i + 1, j + 1] = status
-            print("Availability data written successfully")
+                    row_data[day.capitalize()] = status
+                worksheet.add_row(**row_data)
+            print("Availability data added")
 
             # Add school preferences
-            pref_row = len(slots) + 3
-            print("Writing school preferences...")
-            worksheet[pref_row, 0] = "School Preferences:"
-            worksheet[pref_row + 1, 0] = str(school_prefs)
-            print("School preferences written successfully")
+            print("Adding school preferences...")
+            worksheet.add_row({"Slot": "School Preferences:"})
+            worksheet.add_row({"Slot": str(school_prefs)})
+            print("School preferences added")
 
             # Add vacation days
-            vac_row = len(slots) + 6
-            print("Writing vacation days...")
-            worksheet[vac_row, 0] = "Vacation Days:"
-            for i, vac_day in enumerate(vacation_days):
-                worksheet[vac_row + 1 + i, 0] = str(vac_day)
-            print("Vacation days written successfully")
+            print("Adding vacation days...")
+            worksheet.add_row({"Slot": "Vacation Days:"})
+            for vac_day in vacation_days:
+                worksheet.add_row({"Slot": str(vac_day)})
+            print("Vacation days added")
 
             print(
                 f"Successfully updated availability for {instructor['firstName']} {instructor['surname']}"
