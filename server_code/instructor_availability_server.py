@@ -343,7 +343,7 @@ def generate_seven_month_availability(instructor=None):
     """
     if instructor is None:
       instructor = app_tables.users.get(firstName='Steve')
-      pri
+      print(instructor)
     print(f"Generating seven-month availability for {instructor['firstName']}")
 
     # Get instructor's weekly availability
@@ -388,6 +388,7 @@ def generate_seven_month_availability(instructor=None):
         }
 
     print(f"Generated availability for {len(availability)} days")
+    instructor_schedule.update(seven_month_availability=availability)
     return availability
 
 
@@ -396,7 +397,6 @@ def update_instructor_seven_month_availability(instructor):
     """
     Update instructor's seven-month availability in the database.
     """
-    print(f"Updating seven-month availability for {instructor['firstName']}")
 
     availability = generate_seven_month_availability(instructor)
     if not availability:
