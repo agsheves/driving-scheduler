@@ -436,7 +436,9 @@ def export_instructor_eight_monthavailability():
                 for date in all_dates:
                     # Get the value directly from the availability data
                     value = availability[date].get(slot, 0)
-                    row_data[date] = value
+                    # Convert numeric value to text using AVAILABILITY_MAPPING
+                    text_value = AVAILABILITY_MAPPING.get(value, "Unknown")
+                    row_data[date] = text_value
                 data.append(row_data)
 
             df = pd.DataFrame(data)
