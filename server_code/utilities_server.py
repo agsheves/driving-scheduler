@@ -426,30 +426,17 @@ def export_instructor_eight_monthavailability():
                 "lesson_slot_5",
             ]
 
-            # Get all unique dates from the availability data
-            all_dates = set()
-            for day_data in availability.values():
-                for date_data in day_data.values():
-                    if isinstance(date_data, dict) and "date" in date_data:
-                        all_dates.add(date_data["date"])
-
-            all_dates = sorted(list(all_dates))
+            # Get all dates (they are the top-level keys)
+            all_dates = sorted(list(availability.keys()))
 
             # Create data structure
             data = []
             for slot in slots:
                 row_data = {"Lesson": slot}
                 for date in all_dates:
-                    # Find the status for this slot and date
-                    status = "No"
-                    for day_data in availability.values():
-                        for slot_data in day_data.values():
-                            if (
-                                isinstance(slot_data, dict)
-                                and slot_data.get("date") == date
-                            ):
-                                status = slot_data.get("result", "No")
-                    row_data[date] = status
+                    # Get the value directly from the availability data
+                    value = availability[date].get(slot, 0)
+                    row_data[date] = value
                 data.append(row_data)
 
             df = pd.DataFrame(data)
