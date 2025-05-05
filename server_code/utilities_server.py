@@ -219,42 +219,42 @@ def sync_instructor_availability_to_sheets():
         ]
 
         try:
-            # Write headers (row 0)
-            print("Writing headers...")
-            worksheet[0, 0].value = "Slot"
-            for i, day in enumerate(days):
-                worksheet[0, i + 1].value = day.capitalize()
-            print("Headers written successfully")
+            # Prepare all data first
+            data = []
 
-            # Write slot names (column 0)
-            print("Writing slot names...")
-            for i, slot in enumerate(slots):
-                worksheet[i + 1, 0].value = slot
-            print("Slot names written successfully")
+            # Headers row
+            header_row = ["Slot"] + [day.capitalize() for day in days]
+            data.append(header_row)
 
-            # Write availability data
-            print("Writing availability data...")
-            for i, slot in enumerate(slots):
-                for j, day in enumerate(days):
+            # Availability data
+            for slot in slots:
+                row = [slot]
+                for day in days:
                     day_data = availability.get(day, {})
                     status = day_data.get(slot, "No")
-                    worksheet[i + 1, j + 1].value = status
-            print("Availability data written successfully")
+                    row.append(status)
+                data.append(row)
 
             # Add school preferences
-            pref_row = len(slots) + 3
-            print("Writing school preferences...")
-            worksheet[pref_row, 0].value = "School Preferences:"
-            worksheet[pref_row + 1, 0].value = str(school_prefs)
-            print("School preferences written successfully")
+            data.append([])  # Empty row
+            data.append(["School Preferences:"])
+            data.append([str(school_prefs)])
 
             # Add vacation days
-            vac_row = len(slots) + 6
-            print("Writing vacation days...")
-            worksheet[vac_row, 0].value = "Vacation Days:"
-            for i, vac_day in enumerate(vacation_days):
-                worksheet[vac_row + 1 + i, 0].value = str(vac_day)
-            print("Vacation days written successfully")
+            data.append([])  # Empty row
+            data.append(["Vacation Days:"])
+            for vac_day in vacation_days:
+                data.append([str(vac_day)])
+
+            # Write all data at once
+            print("Writing data to worksheet...")
+            for row_idx, row_data in enumerate(data):
+                for col_idx, value in enumerate(row_data):
+                    try:
+                        worksheet[row_idx, col_idx].value = value
+                    except Exception as e:
+                        print(f"Error writing cell [{row_idx}, {col_idx}]: {str(e)}")
+                        raise
 
             print(
                 f"Successfully updated availability for {instructor['firstName']} {instructor['surname']}"
