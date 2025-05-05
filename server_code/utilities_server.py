@@ -159,34 +159,45 @@ def sync_instructor_availability_to_sheets():
     """
     # Get all instructors
     instructors = app_tables.users.search(is_instructor=True)
+    print(f"Found {len(instructors)} instructors")
 
     # Get the spreadsheet from app_files
     try:
         spreadsheet = app_files.current_availability
-    except:
-        print("Error: current_availability spreadsheet not found in app_files")
+        print("Successfully accessed spreadsheet")
+        print(f"Available worksheets: {list(spreadsheet.worksheets)}")
+    except Exception as e:
+        print(f"Error accessing spreadsheet: {str(e)}")
         return False
 
     # Process each instructor
     for instructor in instructors:
+        print(
+            f"\nProcessing instructor: {instructor['firstName']} {instructor['surname']}"
+        )
+
         # Get instructor schedule
         instructor_row = app_tables.instructor_schedules.get(instructor=instructor)
         if not instructor_row:
+            print(f"No schedule found for {instructor['firstName']}")
             continue
 
         # Get availability data
         availability = instructor_row["weekly_availability"]["weekly_availability"]
         school_prefs = instructor_row["school_preferences"]
         vacation_days = instructor_row["vacation_days"]
+        print(f"Retrieved availability data for {instructor['firstName']}")
 
         # Create sheet name (using underscore to avoid spaces)
         sheet_name = f"{instructor['firstName']}_{instructor['surname']}"
+        print(f"Attempting to access worksheet: {sheet_name}")
 
         # Get worksheet
         try:
             worksheet = spreadsheet[sheet_name]
-        except:
-            print(f"Error: Worksheet {sheet_name} not found")
+            print(f"Successfully accessed worksheet: {sheet_name}")
+        except Exception as e:
+            print(f"Error accessing worksheet {sheet_name}: {str(e)}")
             continue
 
         # Prepare data
@@ -207,36 +218,50 @@ def sync_instructor_availability_to_sheets():
             "lesson_slot_5",
         ]
 
-        # Write headers (row 0)
-        worksheet[0, 0].value = "Slot"
-        for i, day in enumerate(days):
-            worksheet[0, i + 1].value = day.capitalize()
+        try:
+            # Write headers (row 0)
+            print("Writing headers...")
+            worksheet[0, 0].value = "Slot"
+            for i, day in enumerate(days):
+                worksheet[0, i + 1].value = day.capitalize()
+            print("Headers written successfully")
 
-        # Write slot names (column 0)
-        for i, slot in enumerate(slots):
-            worksheet[i + 1, 0].value = slot
+            # Write slot names (column 0)
+            print("Writing slot names...")
+            for i, slot in enumerate(slots):
+                worksheet[i + 1, 0].value = slot
+            print("Slot names written successfully")
 
-        # Write availability data
-        for i, slot in enumerate(slots):
-            for j, day in enumerate(days):
-                day_data = availability.get(day, {})
-                status = day_data.get(slot, "No")
-                worksheet[i + 1, j + 1].value = status
+            # Write availability data
+            print("Writing availability data...")
+            for i, slot in enumerate(slots):
+                for j, day in enumerate(days):
+                    day_data = availability.get(day, {})
+                    status = day_data.get(slot, "No")
+                    worksheet[i + 1, j + 1].value = status
+            print("Availability data written successfully")
 
-        # Add school preferences
-        pref_row = len(slots) + 3
-        worksheet[pref_row, 0].value = "School Preferences:"
-        worksheet[pref_row + 1, 0].value = str(school_prefs)
+            # Add school preferences
+            pref_row = len(slots) + 3
+            print("Writing school preferences...")
+            worksheet[pref_row, 0].value = "School Preferences:"
+            worksheet[pref_row + 1, 0].value = str(school_prefs)
+            print("School preferences written successfully")
 
-        # Add vacation days
-        vac_row = len(slots) + 6
-        worksheet[vac_row, 0].value = "Vacation Days:"
-        for i, vac_day in enumerate(vacation_days):
-            worksheet[vac_row + 1 + i, 0].value = str(vac_day)
+            # Add vacation days
+            vac_row = len(slots) + 6
+            print("Writing vacation days...")
+            worksheet[vac_row, 0].value = "Vacation Days:"
+            for i, vac_day in enumerate(vacation_days):
+                worksheet[vac_row + 1 + i, 0].value = str(vac_day)
+            print("Vacation days written successfully")
 
-        print(
-            f"Updated availability for {instructor['firstName']} {instructor['surname']}"
-        )
+            print(
+                f"Successfully updated availability for {instructor['firstName']} {instructor['surname']}"
+            )
+        except Exception as e:
+            print(f"Error writing data to worksheet: {str(e)}")
+            continue
 
     return True
 
