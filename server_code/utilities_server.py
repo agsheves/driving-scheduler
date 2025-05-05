@@ -169,10 +169,14 @@ def sync_instructor_availability_to_sheets():
 
         # Clear existing data - skip if sheet is empty
         try:
+            print("Checking for existing rows")
             rows = list(worksheet.rows)
+            print(len(rows))
             for row in rows:
+                print("Deleting existing rows")
                 row.delete()
         except:
+            print("No existing rows")
             pass  # Just continue if there's an error with empty sheet
 
         # Prepare data
@@ -201,7 +205,6 @@ def sync_instructor_availability_to_sheets():
             )  # Use lowercase for keys to match sheet columns
         print("Adding header:", header)
         worksheet.add_row(**header)
-
         # Add availability rows
         for slot in slots:
             row_data = {"Slot": slot}
