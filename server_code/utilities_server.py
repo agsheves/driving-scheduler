@@ -160,13 +160,12 @@ def sync_instructor_availability_to_sheets():
     # Get all instructors
     instructors = app_tables.users.search(is_instructor=True)
 
-    # Get or create the spreadsheet
+    # Get the spreadsheet from app_files
     try:
-        # Try to get existing spreadsheet
         spreadsheet = app_files.current_availability
     except:
-        # Create new spreadsheet if it doesn't exist
-      pass
+        print("Error: current_availability spreadsheet not found in app_files")
+        return False
 
     # Process each instructor
     for instructor in instructors:
@@ -183,11 +182,12 @@ def sync_instructor_availability_to_sheets():
         # Create sheet name
         sheet_name = f"{instructor['firstName']} {instructor['surname']}"
 
-        # Get or create worksheet
+        # Get worksheet
         try:
-            worksheet = spreadsheet.get_worksheet(sheet_name)
+            worksheet = spreadsheet[sheet_name]
         except:
-            worksheet = spreadsheet.worksheets
+            print(f"Error: Worksheet {sheet_name} not found")
+            continue
 
         # Prepare data
         days = [
@@ -208,34 +208,31 @@ def sync_instructor_availability_to_sheets():
         ]
 
         # Write headers
-        worksheet.write_row(0, 0, ["Slot"] + [day.capitalize() for day in days])
-        worksheet.write_column(1, 0, slots)
+        worksheet[0, 0].value = "Slot"
+        for i, day in enumerate(days):
+            worksheet[0, i + 1].value = day.capitalize()
+
+        # Write slot names
+        for i, slot in enumerate(slots):
+            worksheet[i + 1, 0].value = slot
 
         # Write availability data
         for i, slot in enumerate(slots):
-            row_data = []
-            for day in days:
+            for j, day in enumerate(days):
                 day_data = availability.get(day, {})
                 status = day_data.get(slot, "No")
-                row_data.append(status)
-            worksheet.write_row(i + 1, 1, row_data)
+                worksheet[i + 1, j + 1].value = status
 
         # Add school preferences
         pref_row = len(slots) + 3
-        worksheet.write(pref_row, 0, "School Preferences:")
-        worksheet.write(pref_row + 1, 0, str(school_prefs))
+        worksheet[pref_row, 0].value = "School Preferences:"
+        worksheet[pref_row + 1, 0].value = str(school_prefs)
 
         # Add vacation days
         vac_row = len(slots) + 6
-        worksheet.write(vac_row, 0, "Vacation Days:")
+        worksheet[vac_row, 0].value = "Vacation Days:"
         for i, vac_day in enumerate(vacation_days):
-            worksheet.write(vac_row + 1 + i, 0, str(vac_day))
-
-        # Format the sheet
-        worksheet.format("A1:G1", {"bold": True, "backgroundColor": "#D9E1F2"})
-        worksheet.format("A1:A6", {"bold": True, "backgroundColor": "#D9E1F2"})
-        worksheet.set_column_width(0, 150)  # Set first column width
-        worksheet.set_column_widths(1, 7, 100)  # Set other columns width
+            worksheet[vac_row + 1 + i, 0].value = str(vac_day)
 
     return True
 
