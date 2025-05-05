@@ -2,6 +2,7 @@
 Instructor Availability Server Module
 This module handles instructor availability processing and scheduling.
 """
+
 import anvil.files
 from anvil.files import data_files
 import anvil.users
@@ -342,3 +343,78 @@ def generate_capacity_report(days=180):
     app_tables.files.add_row(filename=filename, file=excel_media, file_type="Excel")
 
     return excel_media
+
+
+@anvil.server.callable
+def generate_seven_month_availability(instructor):
+    """
+    Generate seven-month availability object for an instructor.
+    """
+    print(f"Generating seven-month availability for {instructor['firstName']}")
+
+    # Get instructor's weekly availability
+    instructor_schedule = app_tables.instructor_schedules.get(instructor=instructor)
+    if not instructor_schedule or not instructor_schedule["weekly_availability"]:
+        print(f"No weekly availability found for {instructor['firstName']}")
+        return None
+
+    weekly_data = instructor_schedule["weekly_availability"]["weekly_availability"]
+
+    # Get vacation days
+    vacation_days = app_tables.no_class_days.search()
+    vacation_dict = {str(day["date"]): day["Event"] for day in vacation_days}
+
+    # Create date range
+    start_date = datetime.now().date()
+    end_date = start_date + timedelta(days=210)  # 7 months
+    date_range = [
+        start_date + timedelta(days=x) for x in range((end_date - start_date).days)
+    ]
+
+    # Initialize availability object
+    availability = {}
+
+    # Process each day
+    for date in date_range:
+        date_str = str(date)
+        day_name = date.strftime("%A").lower()
+
+        # Check if it's a vacation day
+        if date_str in vacation_dict:
+            availability[date_str] = {slot: "0" for slot in LESSON_SLOTS.keys()}
+            continue
+
+        # Get day's availability from weekly schedule
+        day_availability = weekly_data.get(day_name, {})
+
+        # Create day's availability using existing mapping
+        availability[date_str] = {
+            slot: availability_mapping.get(day_availability.get(slot, "No"), 0)
+            for slot in LESSON_SLOTS.keys()
+        }
+
+    print(f"Generated availability for {len(availability)} days")
+    return availability
+
+
+@anvil.server.callable
+def update_instructor_seven_month_availability(instructor):
+    """
+    Update instructor's seven-month availability in the database.
+    """
+    print(f"Updating seven-month availability for {instructor['firstName']}")
+
+    availability = generate_seven_month_availability(instructor)
+    if not availability:
+        return False
+
+    instructor_schedule = app_tables.instructor_schedules.get(instructor=instructor)
+    if instructor_schedule:
+        instructor_schedule.update(seven_month_availability=availability)
+    else:
+        app_tables.instructor_schedules.add_row(
+            instructor=instructor, seven_month_availability=availability
+        )
+
+    print(f"Updated availability for {instructor['firstName']}")
+    return True
