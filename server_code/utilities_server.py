@@ -164,6 +164,8 @@ def sync_instructor_availability_to_sheets():
     # Get all instructors
     instructors = app_tables.users.search(is_instructor=True)
     print(f"Found {len(instructors)} instructors")
+    for inst in instructors:
+        print(f"Instructor found: {inst['firstName']} {inst['surname']}")
 
     # Get the spreadsheet from app_files
     try:
@@ -184,6 +186,7 @@ def sync_instructor_availability_to_sheets():
         instructor_row = app_tables.instructor_schedules.get(instructor=instructor)
         if not instructor_row:
             print(f"No schedule found for {instructor['firstName']}")
+            print(f"Checking instructor data: {instructor}")
             continue
 
         # Get availability data
@@ -191,6 +194,7 @@ def sync_instructor_availability_to_sheets():
         school_prefs = instructor_row["school_preferences"]
         vacation_days = instructor_row["vacation_days"]
         print(f"Retrieved availability data for {instructor['firstName']}")
+        print(f"Vacation days data: {vacation_days}")
 
         # Create sheet name (using underscore to avoid spaces)
         sheet_name = f"{instructor['firstName']}_{instructor['surname']}"
@@ -265,8 +269,13 @@ def sync_instructor_availability_to_sheets():
             # Add vacation days
             print("Writing vacation days...")
             worksheet.add_row(**{"Slot": "Vacation Days:"})
-            for vac_day in vacation_days:
-                worksheet.add_row(**{"Slot": str(vac_day)})
+            if vacation_days:
+                for vac_day in vacation_days:
+                    # Format: "Reason: Personal Day (2025-05-06 to 2025-05-07)"
+                    vac_text = f"{vac_day['reason']} ({vac_day['start_date']} to {vac_day['end_date']})"
+                    worksheet.add_row(**{"Slot": vac_text})
+            else:
+                worksheet.add_row(**{"Slot": "No vacation days scheduled"})
             print("Vacation days written")
 
             print(
