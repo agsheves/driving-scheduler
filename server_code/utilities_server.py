@@ -151,7 +151,7 @@ def convert_JSON_to_csv_and_save(json_data, filename):
 # Excel export functions
 
 
-@anvil.server.callable
+@anvil.server.background_task
 def sync_instructor_availability_to_sheets():
     """
     Sync instructor availability to Google Sheets.
