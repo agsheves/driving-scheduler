@@ -223,9 +223,12 @@ def sync_instructor_availability_to_sheets():
                 "lesson_slot_5",
             ]
 
-            # Clear existing data
+            # Clear existing data by deleting rows
             print("Clearing existing data...")
-            worksheet.clear()
+            rows = list(worksheet.rows)
+            print(f"Found {len(rows)} rows to delete")
+            for row in rows:
+                row.delete()
             print("Existing data cleared")
 
             # Prepare all rows at once
