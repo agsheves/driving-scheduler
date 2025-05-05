@@ -193,9 +193,13 @@ def sync_instructor_availability_to_sheets():
             "lesson_slot_5",
         ]
 
-        # Create header row
+        # Create header row - must match column names exactly
         header = {"Slot": "Slot"}
-        header.update({day.capitalize(): day.capitalize() for day in days})
+        for day in days:
+            header[day] = (
+                day.capitalize()
+            )  # Use lowercase for keys to match sheet columns
+        print("Adding header:", header)
         worksheet.add_row(**header)
 
         # Add availability rows
@@ -203,7 +207,10 @@ def sync_instructor_availability_to_sheets():
             row_data = {"Slot": slot}
             for day in days:
                 day_data = availability.get(day, {})
-                row_data[day.capitalize()] = day_data.get(slot, "")
+                row_data[day] = day_data.get(
+                    slot, ""
+                )  # Use lowercase for keys to match sheet columns
+            print("Adding row:", row_data)
             worksheet.add_row(**row_data)
 
     return True
