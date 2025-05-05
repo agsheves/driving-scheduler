@@ -337,10 +337,13 @@ def generate_capacity_report(days=180):
 
 
 @anvil.server.callable
-def generate_seven_month_availability(instructor):
+def generate_seven_month_availability(instructor=None):
     """
     Generate seven-month availability object for an instructor.
     """
+    if instructor is None:
+      instructor = app_tables.users.get(firstName='Steve')
+      pri
     print(f"Generating seven-month availability for {instructor['firstName']}")
 
     # Get instructor's weekly availability
