@@ -179,7 +179,7 @@ def sync_instructor_availability_to_sheets():
         school_prefs = instructor_row["school_preferences"]
         vacation_days = instructor_row["vacation_days"]
 
-        # Create sheet name
+        # Create sheet name (using underscore to avoid spaces)
         sheet_name = f"{instructor['firstName']}_{instructor['surname']}"
 
         # Get worksheet
@@ -187,7 +187,7 @@ def sync_instructor_availability_to_sheets():
             worksheet = spreadsheet[sheet_name]
         except:
             print(f"Error: Worksheet {sheet_name} not found")
-            spreadsheet
+            continue
 
         # Prepare data
         days = [
@@ -207,12 +207,12 @@ def sync_instructor_availability_to_sheets():
             "lesson_slot_5",
         ]
 
-        # Write headers
+        # Write headers (row 0)
         worksheet[0, 0].value = "Slot"
         for i, day in enumerate(days):
             worksheet[0, i + 1].value = day.capitalize()
 
-        # Write slot names
+        # Write slot names (column 0)
         for i, slot in enumerate(slots):
             worksheet[i + 1, 0].value = slot
 
@@ -233,6 +233,10 @@ def sync_instructor_availability_to_sheets():
         worksheet[vac_row, 0].value = "Vacation Days:"
         for i, vac_day in enumerate(vacation_days):
             worksheet[vac_row + 1 + i, 0].value = str(vac_day)
+
+        print(
+            f"Updated availability for {instructor['firstName']} {instructor['surname']}"
+        )
 
     return True
 
