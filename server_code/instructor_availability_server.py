@@ -356,20 +356,34 @@ def generate_seven_month_availability(instructor=None):
 
     # Get instructor's weekly availability
     instructor_schedule = app_tables.instructor_schedules.get(instructor=instructor)
-    if instructor_schedule['current_seven_month_availability'] is not None:
-      # need to save the current schedule as "previous_seven_month_availability" before updating
-      pass
     if not instructor_schedule or not instructor_schedule["weekly_availability"]:
         print(f"No weekly availability found for {instructor['firstName']}")
         return None
 
+    # Save current schedule as previous before updating
+    if instructor_schedule["current_seven_month_availability"] is not None:
+        print(f"Saving previous schedule for {instructor['firstName']}")
+        instructor_schedule.update(
+            previous_seven_month_availability=instructor_schedule[
+                "current_seven_month_availability"
+            ]
+        )
+
     weekly_data = instructor_schedule["weekly_availability"]["weekly_availability"]
 
-    # Get personal vacation days, not organization holidays
-    vacation_days = instructor_schedule['vacation_days']
-    print(vacation_days)
-    #vacation days are in this frmat Generating seven-month availability for Steve{'vacation_days': [{'reason': 'Long weekend', 'end_date': '2024-05-11', 'start_date': '2024-05-09'}, {'reason': 'Summer vacation', 'end_date': '2024-05-30', 'start_date': '2024-05-23'}]}
-    vacation_dict = {str(day["date"]): day["Event"] for day in vacation_days}
+    # Get personal vacation days
+    vacation_days = instructor_schedule["vacation_days"]
+    print(f"Processing vacation days: {vacation_days}")
+
+    # Create vacation date ranges
+    vacation_ranges = []
+    for vacation in vacation_days:
+        start_date = datetime.strptime(vacation["start_date"], "%Y-%m-%d").date()
+        end_date = datetime.strptime(vacation["end_date"], "%Y-%m-%d").date()
+        current_date = start_date
+        while current_date <= end_date:
+            vacation_ranges.append(str(current_date))
+            current_date += timedelta(days=1)
 
     # Create date range
     start_date = datetime.now().date()
@@ -387,7 +401,7 @@ def generate_seven_month_availability(instructor=None):
         day_name = date.strftime("%A").lower()
 
         # Check if it's a vacation day
-        if date_str in vacation_dict:
+        if date_str in vacation_ranges:
             availability[date_str] = {
                 slot: availability_mapping["Vacation"] for slot in LESSON_SLOTS.keys()
             }
