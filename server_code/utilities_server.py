@@ -166,10 +166,8 @@ def sync_instructor_availability_to_sheets():
         worksheet = spreadsheet[sheet_name]
 
         # Clear existing data
-        rows = list(worksheet.rows)
-        if rows:
-            for row in rows:
-                row.delete()
+        for row in list(worksheet.rows):
+            row.delete()
 
         # Prepare data
         days = [
