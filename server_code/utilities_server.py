@@ -156,6 +156,10 @@ def sync_instructor_availability_to_sheets():
     """
     Sync instructor availability to Google Sheets.
     Creates one sheet per instructor with their weekly availability.
+    Structure:
+    - First row (row 0): Days of the week
+    - First column (column 0): Lesson slots
+    - Data grid: Availability for each slot/day combination
     """
     # Get all instructors
     instructors = app_tables.users.search(is_instructor=True)
@@ -187,9 +191,6 @@ def sync_instructor_availability_to_sheets():
         school_prefs = instructor_row["school_preferences"]
         vacation_days = instructor_row["vacation_days"]
         print(f"Retrieved availability data for {instructor['firstName']}")
-        print(f"Availability data: {availability}")
-        print(f"School prefs: {school_prefs}")
-        print(f"Vacation days: {vacation_days}")
 
         # Create sheet name (using underscore to avoid spaces)
         sheet_name = f"{instructor['firstName']}_{instructor['surname']}"
@@ -199,22 +200,11 @@ def sync_instructor_availability_to_sheets():
         try:
             worksheet = spreadsheet[sheet_name]
             print(f"Successfully accessed worksheet: {sheet_name}")
-            print(f"Worksheet fields: {worksheet.fields}")
-            print(f"Number of rows: {len(list(worksheet.rows))}")
         except Exception as e:
             print(f"Error accessing worksheet {sheet_name}: {str(e)}")
             continue
 
         try:
-            # Clear existing data
-            print("Clearing existing data...")
-            rows = list(worksheet.rows)
-            print(f"Found {len(rows)} rows to clear")
-            for row in rows:
-                print(f"Deleting row: {row}")
-                row.delete()
-            print("Existing data cleared")
-
             # Prepare data
             days = [
                 "monday",
@@ -233,39 +223,42 @@ def sync_instructor_availability_to_sheets():
                 "lesson_slot_5",
             ]
 
-            # Add headers
-            print("Adding headers...")
-            header_data = {"Slot": "Slot"}
-            for day in days:
-                header_data[day.capitalize()] = day.capitalize()
-            print(f"Header data: {header_data}")
-            worksheet.add_row(**header_data)
-            print("Headers added")
+            # Write headers (row 0) - Days of the week
+            print("Writing day headers...")
+            worksheet[0, 0].value = "Slot"  # First cell is "Slot"
+            for i, day in enumerate(days):
+                worksheet[0, i + 1].value = day.capitalize()
+            print("Day headers written")
 
-            # Add availability data
-            print("Adding availability data...")
-            for slot in slots:
-                row_data = {"Slot": slot}
-                for day in days:
+            # Write slot names (column 0) - Lesson slots
+            print("Writing slot names...")
+            for i, slot in enumerate(slots):
+                worksheet[i + 1, 0].value = slot
+            print("Slot names written")
+
+            # Write availability data in the grid
+            print("Writing availability data...")
+            for i, slot in enumerate(slots):
+                for j, day in enumerate(days):
                     day_data = availability.get(day, {})
                     status = day_data.get(slot, "No")
-                    row_data[day.capitalize()] = status
-                print(f"Adding row data: {row_data}")
-                worksheet.add_row(**row_data)
-            print("Availability data added")
+                    worksheet[i + 1, j + 1].value = status
+            print("Availability data written")
 
             # Add school preferences
-            print("Adding school preferences...")
-            worksheet.add_row({"Slot": "School Preferences:"})
-            worksheet.add_row({"Slot": str(school_prefs)})
-            print("School preferences added")
+            pref_row = len(slots) + 3
+            print("Writing school preferences...")
+            worksheet[pref_row, 0].value = "School Preferences:"
+            worksheet[pref_row + 1, 0].value = str(school_prefs)
+            print("School preferences written")
 
             # Add vacation days
-            print("Adding vacation days...")
-            worksheet.add_row({"Slot": "Vacation Days:"})
-            for vac_day in vacation_days:
-                worksheet.add_row({"Slot": str(vac_day)})
-            print("Vacation days added")
+            vac_row = len(slots) + 6
+            print("Writing vacation days...")
+            worksheet[vac_row, 0].value = "Vacation Days:"
+            for i, vac_day in enumerate(vacation_days):
+                worksheet[vac_row + 1 + i, 0].value = str(vac_day)
+            print("Vacation days written")
 
             print(
                 f"Successfully updated availability for {instructor['firstName']} {instructor['surname']}"
