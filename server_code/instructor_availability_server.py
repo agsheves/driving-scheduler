@@ -349,6 +349,8 @@ def generate_capacity_report(days=180):
 def generate_seven_month_availability(instructor):
     """
     Generate seven-month availability object for an instructor.
+    Link this to anu UI updates of availability so if an instructor schedule changes, gthsi will autoimatically re-run their avaiability.
+    
     """
     #if instructor is None:
         #instructor = app_tables.users.get(firstName="Steve")
@@ -440,7 +442,8 @@ def generate_seven_month_availability(instructor):
     return availability
 
 # updated to go through all instructors and update their availability
-@anvil.server.callable
+# run this on a schedule
+@anvil.server.background_task
 def update_all_instructor_seven_month_availability():
     """
     Update all instructor seven-month availability in the database.
