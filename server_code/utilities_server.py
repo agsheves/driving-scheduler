@@ -19,7 +19,6 @@ from .globals import LESSON_SLOTS
 ###########################################################
 # General data import function to take CSV data and convert to JSON.
 
-
 @anvil.server.callable
 def csv_to_structured_json(csv_file):
     if isinstance(csv_file, str):
