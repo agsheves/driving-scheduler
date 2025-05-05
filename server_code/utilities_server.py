@@ -163,16 +163,13 @@ def sync_instructor_availability_to_sheets():
 
         availability = instructor_row["weekly_availability"]["weekly_availability"]
         sheet_name = f"{instructor['firstName']}_{instructor['surname']}"
+        worksheet = spreadsheet[sheet_name]
 
-        try:
-            worksheet = spreadsheet[sheet_name]
-            # Clear existing data
-            rows = list(worksheet.rows)
-            if rows:
-                for row in rows:
-                    row.delete()
-        except:
-            continue
+        # Clear existing data
+        rows = list(worksheet.rows)
+        if rows:  # Only try to delete if there are rows
+            for row in rows:
+                row.delete()
 
         # Prepare data
         days = [
