@@ -163,11 +163,10 @@ def sync_instructor_availability_to_sheets():
     # Get or create the spreadsheet
     try:
         # Try to get existing spreadsheet
-        spreadsheet = app_files.get_by_name("instructor_availability")
+        spreadsheet = app_files.current_availability
     except:
         # Create new spreadsheet if it doesn't exist
-        spreadsheet = anvil.google.drive.create_spreadsheet("instructor_availability")
-        app_files.add_file(spreadsheet)
+      pass
 
     # Process each instructor
     for instructor in instructors:
@@ -182,13 +181,13 @@ def sync_instructor_availability_to_sheets():
         vacation_days = instructor_row["vacation_days"]
 
         # Create sheet name
-        sheet_name = f"{instructor['firstName']} {instructor['lastName']}"
+        sheet_name = f"{instructor['firstName']} {instructor['surname']}"
 
         # Get or create worksheet
         try:
             worksheet = spreadsheet.get_worksheet(sheet_name)
         except:
-            worksheet = spreadsheet.add_worksheet(sheet_name)
+            worksheet = spreadsheet.worksheets
 
         # Prepare data
         days = [
