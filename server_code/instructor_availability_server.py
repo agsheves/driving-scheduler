@@ -353,7 +353,7 @@ def generate_seven_month_availability(instructor=None):
     It will append new dates to existing availability, ensuring 8 months of forward-looking availability.
     """
     if instructor is None:
-        instructor = app_tables.users.get(firstName="Steve")
+        instructor = app_tables.users.get(firstName="Natasha")
         print(instructor)
     print(f"Generating seven-month availability for {instructor['firstName']}")
 
