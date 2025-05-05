@@ -157,8 +157,8 @@ def sync_instructor_availability_to_sheets():
     Sync instructor availability to Google Sheets.
     Creates one sheet per instructor with their weekly availability.
     Structure:
-    - First row (row 0): Days of the week
-    - First column (column 0): Lesson slots
+    - First row (row 1): Days of the week
+    - First column (column 1): Lesson slots
     - Data grid: Availability for each slot/day combination
     """
     # Get all instructors
@@ -223,17 +223,17 @@ def sync_instructor_availability_to_sheets():
                 "lesson_slot_5",
             ]
 
-            # Write headers (row 0) - Days of the week
+            # Write headers (row 1) - Days of the week
             print("Writing day headers...")
-            worksheet[0, 0].value = "Slot"  # First cell is "Slot"
+            worksheet[1, 1].value = "Slot"  # First cell is "Slot"
             for i, day in enumerate(days):
-                worksheet[0, i + 1].value = day.capitalize()
+                worksheet[1, i + 2].value = day.capitalize()
             print("Day headers written")
 
-            # Write slot names (column 0) - Lesson slots
+            # Write slot names (column 1) - Lesson slots
             print("Writing slot names...")
             for i, slot in enumerate(slots):
-                worksheet[i + 1, 0].value = slot
+                worksheet[i + 2, 1].value = slot
             print("Slot names written")
 
             # Write availability data in the grid
@@ -242,22 +242,24 @@ def sync_instructor_availability_to_sheets():
                 for j, day in enumerate(days):
                     day_data = availability.get(day, {})
                     status = day_data.get(slot, "No")
-                    worksheet[i + 1, j + 1].value = status
+                    worksheet[i + 2, j + 2].value = status
             print("Availability data written")
 
             # Add school preferences
-            pref_row = len(slots) + 3
+            pref_row = (
+                len(slots) + 4
+            )  # +4 because we start at row 1 and need space after data
             print("Writing school preferences...")
-            worksheet[pref_row, 0].value = "School Preferences:"
-            worksheet[pref_row + 1, 0].value = str(school_prefs)
+            worksheet[pref_row, 1].value = "School Preferences:"
+            worksheet[pref_row + 1, 1].value = str(school_prefs)
             print("School preferences written")
 
             # Add vacation days
-            vac_row = len(slots) + 6
+            vac_row = len(slots) + 7  # +7 to account for starting at row 1 and spacing
             print("Writing vacation days...")
-            worksheet[vac_row, 0].value = "Vacation Days:"
+            worksheet[vac_row, 1].value = "Vacation Days:"
             for i, vac_day in enumerate(vacation_days):
-                worksheet[vac_row + 1 + i, 0].value = str(vac_day)
+                worksheet[vac_row + 1 + i, 1].value = str(vac_day)
             print("Vacation days written")
 
             print(
