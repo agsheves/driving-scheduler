@@ -16,6 +16,7 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 from .globals import LESSON_SLOTS
 import io
+import json
 
 # Define availability mapping
 availability_mapping = {
@@ -371,19 +372,33 @@ def generate_seven_month_availability(instructor=None):
 
     weekly_data = instructor_schedule["weekly_availability"]["weekly_availability"]
 
-    # Get personal vacation days
+    # Get personal vacation days and parse from JSON string if needed
     vacation_days = instructor_schedule["vacation_days"]
+    if isinstance(vacation_days, str):
+        try:
+            vacation_days = json.loads(vacation_days)
+        except json.JSONDecodeError:
+            print(f"Error parsing vacation days JSON for {instructor['firstName']}")
+            vacation_days = []
+
     print(f"Processing vacation days: {vacation_days}")
 
     # Create vacation date ranges
     vacation_ranges = []
-    for vacation in vacation_days:
-        start_date = datetime.strptime(vacation["start_date"], "%Y-%m-%d").date()
-        end_date = datetime.strptime(vacation["end_date"], "%Y-%m-%d").date()
-        current_date = start_date
-        while current_date <= end_date:
-            vacation_ranges.append(str(current_date))
-            current_date += timedelta(days=1)
+    if vacation_days:  # Only process if we have vacation days
+        for vacation in vacation_days:
+            try:
+                start_date = datetime.strptime(
+                    vacation["start_date"], "%Y-%m-%d"
+                ).date()
+                end_date = datetime.strptime(vacation["end_date"], "%Y-%m-%d").date()
+                current_date = start_date
+                while current_date <= end_date:
+                    vacation_ranges.append(str(current_date))
+                    current_date += timedelta(days=1)
+            except (KeyError, ValueError) as e:
+                print(f"Error processing vacation date range: {e}")
+                continue
 
     # Create date range
     start_date = datetime.now().date()
