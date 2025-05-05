@@ -169,7 +169,7 @@ def sync_instructor_availability_to_sheets():
 
     # Get the spreadsheet from app_files
     try:
-        spreadsheet = app_files.current_availability
+        spreadsheet = app_files.availability_new
         print("Successfully accessed spreadsheet")
         print(f"Available worksheets: {list(spreadsheet.worksheets)}")
     except Exception as e:
