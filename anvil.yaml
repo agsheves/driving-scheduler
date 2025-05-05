@@ -250,7 +250,7 @@ services:
       createdDate: '2025-05-05T15:51:03.302Z'
       editable: true
       embedLink: https://docs.google.com/spreadsheets/d/1_kUHcjbIimgdUsbNBXaiScK1ETRHgen1UzjbgBHU8QA/htmlembed?ouid=105749649116749768227
-      etag: '"MTc0NjQ2MDMzODMwNg"'
+      etag: '"MTc0NjQ2OTk3ODEyMQ"'
       explicitlyTrashed: false
       exportLinks: {application/pdf: 'https://docs.google.com/spreadsheets/export?id=1_kUHcjbIimgdUsbNBXaiScK1ETRHgen1UzjbgBHU8QA&exportFormat=pdf', application/vnd.oasis.opendocument.spreadsheet: 'https://docs.google.com/spreadsheets/export?id=1_kUHcjbIimgdUsbNBXaiScK1ETRHgen1UzjbgBHU8QA&exportFormat=ods', application/vnd.openxmlformats-officedocument.spreadsheetml.sheet: 'https://docs.google.com/spreadsheets/export?id=1_kUHcjbIimgdUsbNBXaiScK1ETRHgen1UzjbgBHU8QA&exportFormat=xlsx', application/x-vnd.oasis.opendocument.spreadsheet: 'https://docs.google.com/spreadsheets/export?id=1_kUHcjbIimgdUsbNBXaiScK1ETRHgen1UzjbgBHU8QA&exportFormat=ods', application/zip: 'https://docs.google.com/spreadsheets/export?id=1_kUHcjbIimgdUsbNBXaiScK1ETRHgen1UzjbgBHU8QA&exportFormat=zip', text/csv: 'https://docs.google.com/spreadsheets/export?id=1_kUHcjbIimgdUsbNBXaiScK1ETRHgen1UzjbgBHU8QA&exportFormat=csv', text/tab-separated-values: 'https://docs.google.com/spreadsheets/export?id=1_kUHcjbIimgdUsbNBXaiScK1ETRHgen1UzjbgBHU8QA&exportFormat=tsv'}
       fileSize: '1024'
@@ -266,11 +266,11 @@ services:
         permissionId: '13960866872567285789'
         picture: {url: 'https://lh3.googleusercontent.com/a/ACg8ocKOUVU5Gi6JlbuT0CcnaYs6E1WSfxH2-elyPxCtN_H0q8jVCm0=s64'}
       lastModifyingUserName: Andrew Sheves
-      lastViewedByMeDate: '2025-05-05T15:52:18.306Z'
+      lastViewedByMeDate: '2025-05-05T18:36:19.478Z'
       markedViewedByMeDate: '1970-01-01T00:00:00.000Z'
       mimeType: application/vnd.google-apps.spreadsheet
-      modifiedByMeDate: '2025-05-05T15:52:18.306Z'
-      modifiedDate: '2025-05-05T15:52:18.306Z'
+      modifiedByMeDate: '2025-05-05T18:32:58.121Z'
+      modifiedDate: '2025-05-05T18:32:58.121Z'
       ownerNames: [Andrew Sheves]
       owners:
       - displayName: Andrew Sheves
@@ -286,10 +286,10 @@ services:
       selfLink: https://www.googleapis.com/drive/v2/files/1_kUHcjbIimgdUsbNBXaiScK1ETRHgen1UzjbgBHU8QA
       shared: false
       spaces: [drive]
-      thumbnailLink: https://lh3.googleusercontent.com/drive-storage/AJQWtBPXKDfO3hiKT1_khAZW1om2yH2AAxHdL_eeiFBHfdaB2Ih8UFTzrHMeY2lr43SueXLzdjFWdRZ-9Q9v7oCKHoGi62m1UMcEfMr8tp_qr4sAjS44lInhoZdR1C8gdA=s220
+      thumbnailLink: https://lh3.googleusercontent.com/drive-storage/AJQWtBOEt4Q7zH-EqCQYcYcnVKN1IosFpAbepV-0XnxQ5MBlullgvMkGM18MnTtL1CCVFFQLPYdmnHt8aggadsja0sWEPaebg3i837_pQAowoI7871HocqkgW0EAsBSQsg=s220
       title: current_availability
       userPermission: {etag: '"6gEtJdMCiYhbffOCuP9j1bxvfqI"', id: me, kind: drive#permission, pendingOwner: false, role: owner, selfLink: 'https://www.googleapis.com/drive/v2/files/1_kUHcjbIimgdUsbNBXaiScK1ETRHgen1UzjbgBHU8QA/permissions/me', type: user}
-      version: '7'
+      version: '78'
       writersCanShare: true
   server_config: {enc_delegation_refresh_token: TCXo9emya2IuagKVPShorPFRjNhARhDmsEstAC2teRog5mr/4uodwP9q+S9yfQ8bX2inszkcwhG5U8jU+047uDww66KW3mBfSPWYwKL8uAjgvSKiKUP+z2DsHZIteInCG4k3aGcAH1lrDIk1sGr3t5iFVp89LXdxTqkdPgSbv7u27ELWY3aVJhD5KJlfQI/OjU5t+yJJkO9e22Cmm+1j7pV/TAgPcwYJDOEXgH/IWkp8fPNFaX04mdrzdMx8hyIuSu1fkOMzi6WC4u1nR+cjB/ozZ5AbKU0IY3DE6Tlc3sN3uGQXlfbUhatrRpry1w==}
   source: /runtime/services/google.yml
