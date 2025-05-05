@@ -357,7 +357,8 @@ def generate_seven_month_availability(instructor=None):
     # Get instructor's weekly availability
     instructor_schedule = app_tables.instructor_schedules.get(instructor=instructor)
     if instructor_schedule['current_seven_month_availability'] is not None:
-      instructor_schedule.update()
+      # need to save the current schedule as "previous_seven_month_availability" before updating
+      pass
     if not instructor_schedule or not instructor_schedule["weekly_availability"]:
         print(f"No weekly availability found for {instructor['firstName']}")
         return None
@@ -366,6 +367,8 @@ def generate_seven_month_availability(instructor=None):
 
     # Get personal vacation days, not organization holidays
     vacation_days = instructor_schedule['vacation_days']
+    print(vacation_days)
+    #vacation days are in this frmat Generating seven-month availability for Steve{'vacation_days': [{'reason': 'Long weekend', 'end_date': '2024-05-11', 'start_date': '2024-05-09'}, {'reason': 'Summer vacation', 'end_date': '2024-05-30', 'start_date': '2024-05-23'}]}
     vacation_dict = {str(day["date"]): day["Event"] for day in vacation_days}
 
     # Create date range
