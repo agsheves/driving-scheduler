@@ -94,6 +94,9 @@ db_schema:
     - admin_ui: {width: 200}
       name: school_preferences
       type: simpleObject
+    - admin_ui: {order: 4, width: 200}
+      name: Column5
+      type: simpleObject
     server: full
     title: instructor_schedules
   no_class_days:
