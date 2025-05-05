@@ -223,43 +223,47 @@ def sync_instructor_availability_to_sheets():
                 "lesson_slot_5",
             ]
 
-            # Write headers (row 1) - Days of the week
-            print("Writing day headers...")
-            worksheet[1, 1].value = "Slot"  # First cell is "Slot"
-            for i, day in enumerate(days):
-                worksheet[1, i + 2].value = day.capitalize()
-            print("Day headers written")
+            # Clear existing data
+            print("Clearing existing data...")
+            worksheet.clear()
+            print("Existing data cleared")
 
-            # Write slot names (column 1) - Lesson slots
-            print("Writing slot names...")
-            for i, slot in enumerate(slots):
-                worksheet[i + 2, 1].value = slot
-            print("Slot names written")
+            # Prepare all rows at once
+            print("Preparing data rows...")
+            rows = []
 
-            # Write availability data in the grid
-            print("Writing availability data...")
-            for i, slot in enumerate(slots):
-                for j, day in enumerate(days):
+            # Header row
+            header_row = {"Slot": "Slot"}
+            for day in days:
+                header_row[day.capitalize()] = day.capitalize()
+            rows.append(header_row)
+
+            # Availability rows
+            for slot in slots:
+                row_data = {"Slot": slot}
+                for day in days:
                     day_data = availability.get(day, {})
                     status = day_data.get(slot, "No")
-                    worksheet[i + 2, j + 2].value = status
-            print("Availability data written")
+                    row_data[day.capitalize()] = status
+                rows.append(row_data)
+
+            # Add all rows at once
+            print("Writing all rows...")
+            worksheet.add_rows(rows)
+            print("Main data written")
 
             # Add school preferences
-            pref_row = (
-                len(slots) + 4
-            )  # +4 because we start at row 1 and need space after data
             print("Writing school preferences...")
-            worksheet[pref_row, 1].value = "School Preferences:"
-            worksheet[pref_row + 1, 1].value = str(school_prefs)
+            pref_rows = [{"Slot": "School Preferences:"}, {"Slot": str(school_prefs)}]
+            worksheet.add_rows(pref_rows)
             print("School preferences written")
 
             # Add vacation days
-            vac_row = len(slots) + 7  # +7 to account for starting at row 1 and spacing
             print("Writing vacation days...")
-            worksheet[vac_row, 1].value = "Vacation Days:"
-            for i, vac_day in enumerate(vacation_days):
-                worksheet[vac_row + 1 + i, 1].value = str(vac_day)
+            vac_rows = [{"Slot": "Vacation Days:"}]
+            for vac_day in vacation_days:
+                vac_rows.append({"Slot": str(vac_day)})
+            worksheet.add_rows(vac_rows)
             print("Vacation days written")
 
             print(
