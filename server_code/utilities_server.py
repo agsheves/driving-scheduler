@@ -436,8 +436,11 @@ def export_instructor_eight_monthavailability():
                 for date in all_dates:
                     # Get the value directly from the availability data
                     value = availability[date].get(slot, 0)
-                    # Convert numeric value to text using AVAILABILITY_MAPPING
-                    text_value = AVAILABILITY_MAPPING.get(value, "Unknown")
+                    # Convert numeric value to text using reverse mapping
+                    text_value = next(
+                        (k for k, v in AVAILABILITY_MAPPING.items() if v == value),
+                        "Unknown",
+                    )
                     row_data[date] = text_value
                 data.append(row_data)
 
