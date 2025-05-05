@@ -150,51 +150,7 @@ def convert_JSON_to_csv_and_save(json_data, filename):
 ###########################################################
 # Export functions
 # For testing sheet access
-@anvil.server.callable
-def test_write_to_sheet():
-  sheet = app_files.availability_new
-  try:
-    ws = sheet["test_sheet"]  # Replace with a known tab name if needed
-    ws.add_row(Slot="TEST", Monday="✓")
-    print("✅ Write succeeded")
-    return True
-  except Exception as e:
-    print(f"❌ Write failed: {e}")
-    return False
 
-@anvil.server.callable
-def test_read_from_sheet():
-    sheet = app_files.availability_new
-    try:
-      ws = sheet["test_sheet"]
-      rows = list(ws.rows)
-      data = [{k: row[k] for k in row.keys()} for row in rows]
-      print(f"✅ Retrieved {len(data)} rows")
-      return data
-    except Exception as e:
-      print(f"❌ Read failed: {e}")
-      return []
-
-@anvil.server.callable
-def test_write_and_read():
-  sheet = app_files.availability_new
-  ws = sheet["test_sheet"]
-
-  ws.add_row(Slot="TEST", Monday="✓")
-
-  # Now try to read back
-  rows = list(ws.rows)
-  data = [{k: row[k] for k in row.keys()} for row in rows]
-  print(f"✅ Read {len(data)} rows after write")
-  return data
-
-
-@anvil.server.callable
-def sanity_check_write():
-  sheet = app_files.availability_fresh_test
-  ws = sheet["Sheet1"]  # Or whatever the default tab is
-  ws.add_row(Slot="Hello", Monday="World")
-  return "✅ Write succeeded"
 
 
 
