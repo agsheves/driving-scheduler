@@ -14,7 +14,7 @@ import anvil.media
 from collections import OrderedDict
 import pandas as pd
 from datetime import datetime, timedelta
-from .globals import LESSON_SLOTS
+from .globals import LESSON_SLOTS, AVAILABILITY_MAPPING
 
 ###########################################################
 # General data import function to take CSV data and convert to JSON.

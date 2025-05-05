@@ -26,6 +26,16 @@ days_full = [
 days_short = ["mon", "tues", "wed", "thurs", "fri", "sat", "sun"]
 availability_codes = ["Unavailable", "Yes - Drive", "Yes - Class", "Yes - Any"]
 
+AVAILABILITY_MAPPING = {
+  "No": 0,  # Not available
+  "Yes": 1,  # Available for both
+  "Drive Only": 2,  # Available for drives only
+  "Class Only": 3,  # Available for classes only
+  "Scheduled": 4,  # Allocated to cohort slot (could be booked)
+  "Booked": 5,  # Scheduled slot has student booking
+  "Vacation": 6,  # Personal vacation day
+}
+
 current_teen_driving_schedule = {
     "Drive 1": {
         "start_time": "08:00",

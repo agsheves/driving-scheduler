@@ -16,20 +16,12 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
-from .globals import LESSON_SLOTS
+from .globals import LESSON_SLOTS, AVAILABILITY_MAPPING
 import io
 import json
 
 # Define availability mapping
-availability_mapping = {
-    "No": 0,  # Not available
-    "Yes": 1,  # Available for both
-    "Drive Only": 2,  # Available for drives only
-    "Class Only": 3,  # Available for classes only
-    "Scheduled": 4,  # Allocated to cohort slot (could be booked)
-    "Booked": 5,  # Scheduled slot has student booking
-    "Vacation": 6,  # Personal vacation day
-}
+availability_mapping = AVAILABILITY_MAPPING
 
 
 @anvil.server.callable
