@@ -148,7 +148,20 @@ def convert_JSON_to_csv_and_save(json_data, filename):
 
 
 ###########################################################
-# Excel export functions
+# Export functions
+# For testing sheet access
+@anvil.server.callable
+def test_write_to_sheet():
+  sheet = app_files.availability_new
+  try:
+    ws = sheet["test_sheet"]  # Replace with a known tab name if needed
+    ws.add_row(Slot="TEST", Monday="✓")
+    print("✅ Write succeeded")
+    return True
+  except Exception as e:
+    print(f"❌ Write failed: {e}")
+    return False
+
 
 
 @anvil.server.background_task

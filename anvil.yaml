@@ -291,6 +291,55 @@ services:
       userPermission: {etag: '"6gEtJdMCiYhbffOCuP9j1bxvfqI"', id: me, kind: drive#permission, pendingOwner: false, role: owner, selfLink: 'https://www.googleapis.com/drive/v2/files/1_kUHcjbIimgdUsbNBXaiScK1ETRHgen1UzjbgBHU8QA/permissions/me', type: user}
       version: '92'
       writersCanShare: true
+    - alternateLink: https://docs.google.com/spreadsheets/d/1ttMQKY8pBwS-qlXz68ti36FI6F3wjPfahOVKyDcvJsE/edit?usp=drivesdk
+      appDataContents: false
+      capabilities: {canCopy: true, canEdit: true}
+      copyRequiresWriterPermission: false
+      copyable: true
+      createdDate: '2025-05-05T18:50:06.300Z'
+      editable: true
+      embedLink: https://docs.google.com/spreadsheets/d/1ttMQKY8pBwS-qlXz68ti36FI6F3wjPfahOVKyDcvJsE/htmlembed?ouid=105749649116749768227
+      etag: '"MTc0NjQ3MTA0MjA4Nw"'
+      explicitlyTrashed: false
+      exportLinks: {application/pdf: 'https://docs.google.com/spreadsheets/export?id=1ttMQKY8pBwS-qlXz68ti36FI6F3wjPfahOVKyDcvJsE&exportFormat=pdf', application/vnd.oasis.opendocument.spreadsheet: 'https://docs.google.com/spreadsheets/export?id=1ttMQKY8pBwS-qlXz68ti36FI6F3wjPfahOVKyDcvJsE&exportFormat=ods', application/vnd.openxmlformats-officedocument.spreadsheetml.sheet: 'https://docs.google.com/spreadsheets/export?id=1ttMQKY8pBwS-qlXz68ti36FI6F3wjPfahOVKyDcvJsE&exportFormat=xlsx', application/x-vnd.oasis.opendocument.spreadsheet: 'https://docs.google.com/spreadsheets/export?id=1ttMQKY8pBwS-qlXz68ti36FI6F3wjPfahOVKyDcvJsE&exportFormat=ods', application/zip: 'https://docs.google.com/spreadsheets/export?id=1ttMQKY8pBwS-qlXz68ti36FI6F3wjPfahOVKyDcvJsE&exportFormat=zip', text/csv: 'https://docs.google.com/spreadsheets/export?id=1ttMQKY8pBwS-qlXz68ti36FI6F3wjPfahOVKyDcvJsE&exportFormat=csv', text/tab-separated-values: 'https://docs.google.com/spreadsheets/export?id=1ttMQKY8pBwS-qlXz68ti36FI6F3wjPfahOVKyDcvJsE&exportFormat=tsv'}
+      fileSize: '1024'
+      iconLink: https://drive-thirdparty.googleusercontent.com/16/type/application/vnd.google-apps.spreadsheet
+      id: 1ttMQKY8pBwS-qlXz68ti36FI6F3wjPfahOVKyDcvJsE
+      kind: drive#file
+      labels: {hidden: false, restricted: false, starred: false, trashed: false, viewed: true}
+      lastModifyingUser:
+        displayName: Andrew Sheves
+        emailAddress: andrew@decis.ai
+        isAuthenticatedUser: true
+        kind: drive#user
+        permissionId: '13960866872567285789'
+        picture: {url: 'https://lh3.googleusercontent.com/a/ACg8ocKOUVU5Gi6JlbuT0CcnaYs6E1WSfxH2-elyPxCtN_H0q8jVCm0=s64'}
+      lastModifyingUserName: Andrew Sheves
+      lastViewedByMeDate: '2025-05-05T19:05:11.665Z'
+      markedViewedByMeDate: '1970-01-01T00:00:00.000Z'
+      mimeType: application/vnd.google-apps.spreadsheet
+      modifiedByMeDate: '2025-05-05T18:50:42.087Z'
+      modifiedDate: '2025-05-05T18:50:42.087Z'
+      ownerNames: [Andrew Sheves]
+      owners:
+      - displayName: Andrew Sheves
+        emailAddress: andrew@decis.ai
+        isAuthenticatedUser: true
+        kind: drive#user
+        permissionId: '13960866872567285789'
+        picture: {url: 'https://lh3.googleusercontent.com/a/ACg8ocKOUVU5Gi6JlbuT0CcnaYs6E1WSfxH2-elyPxCtN_H0q8jVCm0=s64'}
+      parents:
+      - {id: 1mIX2giLYgOYYDLTZerR4cGJUm7R1E2pA, isRoot: false, kind: drive#parentReference, parentLink: 'https://www.googleapis.com/drive/v2/files/1mIX2giLYgOYYDLTZerR4cGJUm7R1E2pA', selfLink: 'https://www.googleapis.com/drive/v2/files/1ttMQKY8pBwS-qlXz68ti36FI6F3wjPfahOVKyDcvJsE/parents/1mIX2giLYgOYYDLTZerR4cGJUm7R1E2pA'}
+      python_name: availability_new
+      quotaBytesUsed: '1024'
+      selfLink: https://www.googleapis.com/drive/v2/files/1ttMQKY8pBwS-qlXz68ti36FI6F3wjPfahOVKyDcvJsE
+      shared: false
+      spaces: [drive]
+      thumbnailLink: https://lh3.googleusercontent.com/drive-storage/AJQWtBMXJNISvk9Ee6Kd5CoBA4_nJ_bD-z5HDYxaKejnpX9PkkthMK_TogtVLc3w8rQnetqGB-0s0Po0m8fU4Jw3-WOg1LtXM4uaQ2tZI3eZpOV7ZM7DAp5kggDGR1AZ=s220
+      title: availability_new
+      userPermission: {etag: '"9So7x78qUfo6lcOpg98ujvPHjf0"', id: me, kind: drive#permission, pendingOwner: false, role: owner, selfLink: 'https://www.googleapis.com/drive/v2/files/1ttMQKY8pBwS-qlXz68ti36FI6F3wjPfahOVKyDcvJsE/permissions/me', type: user}
+      version: '18'
+      writersCanShare: true
   server_config: {enc_delegation_refresh_token: TCXo9emya2IuagKVPShorPFRjNhARhDmsEstAC2teRog5mr/4uodwP9q+S9yfQ8bX2inszkcwhG5U8jU+047uDww66KW3mBfSPWYwKL8uAjgvSKiKUP+z2DsHZIteInCG4k3aGcAH1lrDIk1sGr3t5iFVp89LXdxTqkdPgSbv7u27ELWY3aVJhD5KJlfQI/OjU5t+yJJkO9e22Cmm+1j7pV/TAgPcwYJDOEXgH/IWkp8fPNFaX04mdrzdMx8hyIuSu1fkOMzi6WC4u1nR+cjB/ozZ5AbKU0IY3DE6Tlc3sN3uGQXlfbUhatrRpry1w==}
   source: /runtime/services/google.yml
 startup: {module: Frame, type: form}
