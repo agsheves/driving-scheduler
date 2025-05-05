@@ -162,8 +162,10 @@ def sync_instructor_availability_to_sheets():
             continue
 
         availability = instructor_row["weekly_availability"]["weekly_availability"]
+        print(availability)
         sheet_name = f"{instructor['firstName']}_{instructor['surname']}"
         worksheet = spreadsheet[sheet_name]
+        print(worksheet)
 
         # Clear existing data
         try:
