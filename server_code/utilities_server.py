@@ -231,10 +231,10 @@ def sync_instructor_availability_to_sheets():
             print("Clearing existing data...")
             rows = list(worksheet.rows)
             if rows is not None:
-              print(f"Found {len(rows)} rows to delete")
-              for row in rows:
-                  row.delete()
-              print("Existing data cleared")
+                print(f"Found {len(rows)} rows to delete")
+                for row in rows:
+                    row.delete()
+                print("Existing data cleared")
 
             # Prepare all rows at once
             print("Preparing data rows...")
@@ -270,9 +270,9 @@ def sync_instructor_availability_to_sheets():
             # Add vacation days
             print("Writing vacation days...")
             worksheet.add_row(**{"Slot": "Vacation Days:"})
-            if vacation_days:
-                print(vacation_days)
-                for vac_day in vacation_days:
+            if vacation_days and "vacation_days" in vacation_days:
+                print(vacation_days["vacation_days"])
+                for vac_day in vacation_days["vacation_days"]:
                     # Format: "Reason: Personal Day (2025-05-06 to 2025-05-07)"
                     vac_text = f"{vac_day['reason']} ({vac_day['start_date']} to {vac_day['end_date']})"
                     worksheet.add_row(**{"Slot": vac_text})
