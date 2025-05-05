@@ -346,13 +346,13 @@ def generate_capacity_report(days=180):
 
 
 @anvil.server.callable
-def generate_seven_month_availability(instructor=None):
+def generate_seven_month_availability(instructor):
     """
     Generate seven-month availability object for an instructor.
     """
-    if instructor is None:
-        instructor = app_tables.users.get(firstName="Steve")
-        print(instructor)
+    #if instructor is None:
+        #instructor = app_tables.users.get(firstName="Steve")
+        #print(instructor)
     print(f"Generating seven-month availability for {instructor['firstName']}")
 
     # Get instructor's weekly availability
@@ -439,24 +439,16 @@ def generate_seven_month_availability(instructor=None):
     instructor_schedule.update(current_seven_month_availability=availability)
     return availability
 
-
+# updated to go through all instructors and update their availability
 @anvil.server.callable
-def update_instructor_seven_month_availability(instructor):
+def update_all_instructor_seven_month_availability():
     """
-    Update instructor's seven-month availability in the database.
+    Update all instructor seven-month availability in the database.
     """
-
-    availability = generate_seven_month_availability(instructor)
-    if not availability:
+    instructors = app_tables.users.search(is_instructor=True)
+    if not instructors:
         return False
-
-    instructor_schedule = app_tables.instructor_schedules.get(instructor=instructor)
-    if instructor_schedule:
-        instructor_schedule.update(seven_month_availability=availability)
-    else:
-        app_tables.instructor_schedules.add_row(
-            instructor=instructor, seven_month_availability=availability
-        )
-
-    print(f"Updated availability for {instructor['firstName']}")
+    for instructor in instructors:
+      generate_seven_month_availability(instructor)
+      print(f"Updated availability for {instructor['firstName']}")
     return True
