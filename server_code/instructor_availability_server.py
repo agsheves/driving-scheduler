@@ -18,7 +18,15 @@ from .globals import LESSON_SLOTS
 import io
 
 # Define availability mapping
-availability_mapping = {"No": 0, "Yes": 1, "Drive Only": 2, "Class Only": 3}
+availability_mapping = {
+    "No": 0,  # Not available
+    "Yes": 1,  # Available for both
+    "Drive Only": 2,  # Available for drives only
+    "Class Only": 3,  # Available for classes only
+    "Scheduled": 4,  # Allocated to cohort slot (could be booked)
+    "Booked": 5,  # Scheduled slot has student booking
+    "Vacation": 6,  # Personal vacation day
+}
 
 
 @anvil.server.callable
@@ -342,8 +350,8 @@ def generate_seven_month_availability(instructor=None):
     Generate seven-month availability object for an instructor.
     """
     if instructor is None:
-      instructor = app_tables.users.get(firstName='Steve')
-      print(instructor)
+        instructor = app_tables.users.get(firstName="Steve")
+        print(instructor)
     print(f"Generating seven-month availability for {instructor['firstName']}")
 
     # Get instructor's weekly availability
@@ -375,7 +383,9 @@ def generate_seven_month_availability(instructor=None):
 
         # Check if it's a vacation day
         if date_str in vacation_dict:
-            availability[date_str] = {slot: "0" for slot in LESSON_SLOTS.keys()}
+            availability[date_str] = {
+                slot: availability_mapping["Vacation"] for slot in LESSON_SLOTS.keys()
+            }
             continue
 
         # Get day's availability from weekly schedule
