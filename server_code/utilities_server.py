@@ -449,7 +449,7 @@ def export_instructor_eight_monthavailability():
             print(df.columns[:5])  # Show first 5 dates
 
             # Write to Excel
-            sheet_name = f"{instructor['firstName']} {instructor['lastName']}"
+            sheet_name = f"{instructor['firstName']} {instructor['surname']}"
             df.to_excel(writer, sheet_name=sheet_name)
 
     # Create media object and save to database
