@@ -153,141 +153,52 @@ def convert_JSON_to_csv_and_save(json_data, filename):
 
 @anvil.server.background_task
 def sync_instructor_availability_to_sheets():
-    """
-    Sync instructor availability to Google Sheets.
-    Creates one sheet per instructor with their weekly availability.
-    Structure:
-    - First row (row 1): Days of the week
-    - First column (column 1): Lesson slots
-    - Data grid: Availability for each slot/day combination
-    """
-    # Get all instructors
     instructors = app_tables.users.search(is_instructor=True)
-    print(f"Found {len(instructors)} instructors")
-    for inst in instructors:
-        print(f"Instructor found: {inst['firstName']} {inst['surname']}")
+    spreadsheet = app_files.current_availability
 
-    # Get the spreadsheet from app_files
-    try:
-        spreadsheet = app_files.current_availability
-        print("Successfully accessed spreadsheet")
-        print(f"Available worksheets: {list(spreadsheet.worksheets)}")
-    except Exception as e:
-        print(f"Error accessing spreadsheet: {str(e)}")
-        return False
-
-    # Process each instructor
     for instructor in instructors:
-        print(
-            f"\nProcessing instructor: {instructor['firstName']} {instructor['surname']}"
-        )
-
-        # Get instructor schedule
         instructor_row = app_tables.instructor_schedules.get(instructor=instructor)
         if not instructor_row:
-            print(f"No schedule found for {instructor['firstName']}")
-            print(f"Checking instructor data: {instructor}")
             continue
 
-        # Get availability data
         availability = instructor_row["weekly_availability"]["weekly_availability"]
-        school_prefs = instructor_row["school_preferences"]
-        vacation_days = instructor_row["vacation_days"]
-        print(f"Retrieved availability data for {instructor['firstName']}")
-        print(f"Vacation days data: {vacation_days}")
-
-        # Create sheet name (using underscore to avoid spaces)
         sheet_name = f"{instructor['firstName']}_{instructor['surname']}"
-        print(f"Attempting to access worksheet: {sheet_name}")
+        worksheet = spreadsheet[sheet_name]
 
-        # Get worksheet
-        try:
-            worksheet = spreadsheet[sheet_name]
-            print(f"Successfully accessed worksheet: {sheet_name}")
-        except Exception as e:
-            print(f"Error accessing worksheet {sheet_name}: {str(e)}")
-            continue
+        # Clear existing data
+        for row in list(worksheet.rows):
+            row.delete()
 
-        try:
-            # Prepare data
-            days = [
-                "monday",
-                "tuesday",
-                "wednesday",
-                "thursday",
-                "friday",
-                "saturday",
-                "sunday",
-            ]
-            slots = [
-                "lesson_slot_1",
-                "lesson_slot_2",
-                "lesson_slot_3",
-                "lesson_slot_4",
-                "lesson_slot_5",
-            ]
+        # Prepare data
+        days = [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday",
+        ]
+        slots = [
+            "lesson_slot_1",
+            "lesson_slot_2",
+            "lesson_slot_3",
+            "lesson_slot_4",
+            "lesson_slot_5",
+        ]
 
-            # Clear existing data by deleting rows
-            print("Clearing existing data...")
-            rows = list(worksheet.rows)
-            print(f"Found {len(rows)} rows to delete")
-            for row in rows:
-                row.delete()
-            print("Existing data cleared")
+        # Create header row
+        header = {"Slot": "Slot"}
+        header.update({day.capitalize(): day.capitalize() for day in days})
+        worksheet.add_row(**header)
 
-            # Prepare all rows at once
-            print("Preparing data rows...")
-            rows = []
-
-            # Header row
-            header_row = {"Slot": "Slot"}
+        # Add availability rows
+        for slot in slots:
+            row_data = {"Slot": slot}
             for day in days:
-                header_row[day.capitalize()] = day.capitalize()
-            rows.append(header_row)
-
-            # Availability rows
-            for slot in slots:
-                row_data = {"Slot": slot}
-                for day in days:
-                    day_data = availability.get(day, {})
-                    status = day_data.get(slot, "No")
-                    row_data[day.capitalize()] = status
-                rows.append(row_data)
-
-            # Add all rows one by one
-            print("Writing all rows...")
-            for row in rows:
-                worksheet.add_row(**row)
-            print("Main data written")
-
-            # Add school preferences
-            print("Writing school preferences...")
-            worksheet.add_row(**{"Slot": "School Preferences:"})
-            worksheet.add_row(**{"Slot": str(school_prefs)})
-            print("School preferences written")
-
-            # Add vacation days
-            print("Writing vacation days...")
-            worksheet.add_row(**{"Slot": "Vacation Days:"})
-            if vacation_days:
-                for vac_day in vacation_days:
-                    # Format: "Reason: Personal Day (2025-05-06 to 2025-05-07)"
-                    vac_text = f"{vac_day['reason']} ({vac_day['start_date']} to {vac_day['end_date']})"
-                    worksheet.add_row(**{"Slot": vac_text})
-            else:
-                worksheet.add_row(**{"Slot": "No vacation days scheduled"})
-            print("Vacation days written")
-
-            print(
-                f"Successfully updated availability for {instructor['firstName']} {instructor['surname']}"
-            )
-        except Exception as e:
-            print(f"Error writing data to worksheet: {str(e)}")
-            print(f"Error type: {type(e)}")
-            import traceback
-
-            print(f"Traceback: {traceback.format_exc()}")
-            continue
+                day_data = availability.get(day, {})
+                row_data[day.capitalize()] = day_data.get(slot, "")
+            worksheet.add_row(**row_data)
 
     return True
 
