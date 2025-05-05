@@ -17,6 +17,9 @@ from datetime import datetime, timedelta
 from .globals import LESSON_SLOTS
 import io
 
+# Define availability mapping
+availability_mapping = {"No": 0, "Yes": 1, "Drive Only": 2, "Class Only": 3}
+
 
 @anvil.server.callable
 def process_instructor_availability(instructors, start_date=None):
@@ -48,18 +51,6 @@ def process_instructor_availability(instructors, start_date=None):
             weekly_data = {}
             # print(f"Error getting data for {instructor['firstName']}: {e}")
             continue
-
-        availability_mapping = {"No": 0, "Yes": 1, "Drive Only": 2, "Class Only": 3}
-
-        days_of_week = [
-            "monday",
-            "tuesday",
-            "wednesday",
-            "thursday",
-            "friday",
-            "saturday",
-            "sunday",
-        ]
 
         for day_index, day_name in enumerate(days_of_week):
             try:
