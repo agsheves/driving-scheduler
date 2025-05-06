@@ -132,9 +132,7 @@ class Scheduler(SchedulerTemplate):
       if self.instructor_filter_drop_down.selected_value:
         selected_instructors = [self.instructor_filter_drop_down.selected_value]
         self.instructor_list.visible = False
-      else:
   
-        return
     else:
       # When filter is off, get all instructors
       selected_instructors = list(app_tables.users.search(is_instructor=True))

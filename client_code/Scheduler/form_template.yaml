@@ -136,7 +136,7 @@ components:
         - event_bindings: {click: refresh_schedule_button_click}
           layout_properties: {grid_position: 'ALHZIE,KQTDQG'}
           name: refresh_schedule_button
-          properties: {role: filled-button, text: Refresh Schedule, visible: false}
+          properties: {enabled: true, role: filled-button, text: Refresh Schedule, visible: true}
           type: Button
         - event_bindings: {click: create_availability_report_button_click}
           layout_properties: {grid_position: 'ALHZIE,LGSQGZ'}
