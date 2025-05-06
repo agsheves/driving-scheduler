@@ -583,7 +583,11 @@ def export_merged_cohort_schedule(cohort_name):
                         "holiday_name"
                     ]
                 elif slot_data["type"]:
-                    data[slot_to_time[slot]][date_str] = slot_data["title"]
+                    # Add instructor name to title if it exists
+                    title = slot_data["title"]
+                    if "instructor" in slot_data:
+                        title = f"{title} | Inst: ({slot_data['instructor']})"
+                    data[slot_to_time[slot]][date_str] = title
                 else:
                     data[slot_to_time[slot]][date_str] = ""
 
