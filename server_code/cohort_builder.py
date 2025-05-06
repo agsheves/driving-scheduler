@@ -479,6 +479,9 @@ def schedule_drives(cohort_name, start_date, num_students):
         # Track drives that need rescheduling due to vacation days
         drives_to_reschedule = []
 
+        # Get the drive numbers for this week
+        drive_numbers = COURSE_STRUCTURE["driving_sessions"]["pairs"][week_num - 2]
+
         # Apply master schedule to this week
         for master_drive in master_schedule:
             pair_letter = master_drive["pair_letter"]
@@ -497,6 +500,7 @@ def schedule_drives(cohort_name, start_date, num_students):
                 drive_slot = {
                     "cohort": cohort_name,
                     "pair_letter": pair_letter,
+                    "drive_numbers": drive_numbers,
                     "date": target_date.isoformat(),
                     "slot": master_slot,
                     "week": week_num,
@@ -548,6 +552,7 @@ def schedule_drives(cohort_name, start_date, num_students):
                                     drive_slot = {
                                         "cohort": cohort_name,
                                         "pair_letter": drive["pair_letter"],
+                                        "drive_numbers": drive_numbers,
                                         "date": week_day.isoformat(),
                                         "slot": slot,
                                         "week": drive["week"],
@@ -577,6 +582,7 @@ def schedule_drives(cohort_name, start_date, num_students):
                                     drive_slot = {
                                         "cohort": cohort_name,
                                         "pair_letter": drive["pair_letter"],
+                                        "drive_numbers": drive_numbers,
                                         "date": week_day.isoformat(),
                                         "slot": slot,
                                         "week": drive["week"],
