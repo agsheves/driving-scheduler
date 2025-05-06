@@ -599,8 +599,10 @@ def export_merged_cohort_schedule(cohort_name):
             for t in df.index
         ]
 
-        # Write to Excel
-        df.to_excel(writer, sheet_name="Schedule", startrow=2)  # Start data at row 2
+        # Write to Excel without headers since we write them manually
+        df.to_excel(
+            writer, sheet_name="Schedule", startrow=2, header=False
+        )  # Start data at row 2
 
         # Get workbook and worksheet
         workbook = writer.book
