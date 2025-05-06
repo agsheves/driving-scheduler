@@ -152,10 +152,11 @@ def convert_JSON_to_csv_and_save(json_data, filename):
 # For testing sheet access
 @anvil.server.callable
 def sanity_check_write():
-  sheet = app_files.drive_schedule_test
-  ws = sheet["Sheet1"]
+    sheet = app_files.drive_schedule_test
+    ws = sheet["Sheet1"]
 
-  ws.rows[:] = []
+    ws.rows[:] = []
+
 
 @anvil.server.background_task
 def sync_instructor_availability_to_sheets():
@@ -592,6 +593,12 @@ def export_merged_cohort_schedule(cohort_name):
         # Sort columns by date
         df = df.sort_index(axis=1)
 
+        # Format the index (times) to be more readable
+        df.index = [
+            datetime.strptime(t, "%H:%M").strftime("%I:%M %p").lstrip("0")
+            for t in df.index
+        ]
+
         # Write to Excel
         df.to_excel(writer, sheet_name="Schedule", startrow=2)  # Start data at row 2
 
@@ -623,21 +630,10 @@ def export_merged_cohort_schedule(cohort_name):
             date_obj = datetime.strptime(value, "%Y-%m-%d")
             worksheet.write(1, col_num + 1, date_obj.strftime("%A"), header_format)
 
-        # Format row headers (times)
-        for row_num, value in enumerate(df.index.values):
+        # Format the time column (first column of data)
+        worksheet.set_column(0, 0, 8, time_format)  # Time column
 
-            try:
-                # Try to parse as time
-                t = datetime.strptime(value, "%H:%M")
-                display_time = t.strftime("%I:%M %p").lstrip("0")  # e.g., "2:00 PM"
-            except Exception:
-                display_time = value  # fallback if not a time string
-
-  
-            worksheet.write(row_num + 2, 0, display_time, time_format)
-
-        # Set column widths
-        worksheet.set_column(0, 0, 8)  # Time column
+        # Set column widths for date columns
         for i in range(1, len(df.columns) + 1):
             worksheet.set_column(i, i, 12)  # Date columns
 
