@@ -1,7 +1,7 @@
 allow_embedding: false
 db_schema:
   cohorts:
-    client: none
+    client: search
     columns:
     - admin_ui: {order: 0, width: 200}
       name: cohort_name

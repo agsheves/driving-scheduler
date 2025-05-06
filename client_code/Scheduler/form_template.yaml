@@ -3,6 +3,39 @@ components:
   name: label_1
   properties: {align: center, role: headline, text: Schedule page}
   type: Label
+- components:
+  - layout_properties: {grid_position: 'DVCXHV,DGGGIR'}
+    name: label_12
+    properties: {align: center, text: Show / Hide}
+    type: Label
+  - layout_properties: {grid_position: 'SALZRG,NGYALA'}
+    name: show_instructor_schedule_button
+    properties:
+      role: filled-button
+      text: |-
+        Instructor
+        Availability
+    type: Button
+  - layout_properties: {grid_position: 'SALZRG,TXVCAC'}
+    name: show_cohort_builder_button
+    properties:
+      role: filled-button
+      text: |
+        Cohort
+        Builder
+    type: Button
+  - layout_properties: {grid_position: 'SALZRG,WSMUEV'}
+    name: instructor_schedulking_button
+    properties:
+      role: filled-button
+      text: |
+        Instructor
+        Scheduling
+    type: Button
+  layout_properties: {grid_position: 'EKDDSC,GWYQQV'}
+  name: column_panel_3
+  properties: {}
+  type: ColumnPanel
 - layout_properties: {grid_position: 'LPPIYF,JCSABL'}
   name: spacer_1
   properties: {height: 32}
@@ -80,11 +113,43 @@ components:
   type: ColumnPanel
 - components:
   - components:
-    - layout_properties: {grid_position: 'PNWRFV,CHLYDZ'}
+    - layout_properties: {grid_position: 'GXNSGS,LNSJGI'}
       name: label_2
       properties: {role: title, text: Availability Schedule}
       type: Label
-    - layout_properties: {grid_position: 'ZAHNZW,FEIECD'}
+    - components:
+      - components:
+        - event_bindings: {change: filter_schedule_switch_change}
+          layout_properties: {grid_position: 'VZFNKB,SVDCRK'}
+          name: filter_schedule_switch
+          properties: {text_post: Filter By Instructor, text_pre: Full Schedule}
+          type: form:dep_nh1j2ue7kdk6d:Switch
+        - event_bindings: {change: instructor_filter_drop_down_change}
+          layout_properties: {grid_position: 'VZFNKB,GDQFQH'}
+          name: instructor_filter_drop_down
+          properties: {visible: false}
+          type: DropDown
+        - layout_properties: {grid_position: 'FOKAUU,ZARXRG'}
+          name: instructor_list
+          properties: {font_size: 16, role: body}
+          type: Label
+        - event_bindings: {click: refresh_schedule_button_click}
+          layout_properties: {grid_position: 'ALHZIE,KQTDQG'}
+          name: refresh_schedule_button
+          properties: {role: filled-button, text: Refresh Schedule, visible: false}
+          type: Button
+        - event_bindings: {click: create_availability_reprot_button_click}
+          layout_properties: {grid_position: 'ALHZIE,LGSQGZ'}
+          name: create_availability_reprot_button
+          properties: {role: filled-button, text: Run Utility Report}
+          type: Button
+        name: schedule_control_column
+        properties: {}
+        type: ColumnPanel
+      - name: schedule_plot_complete
+        properties: {}
+        type: Plot
+      layout_properties: {grid_position: 'YJQYSL,VVAISO'}
       name: rich_text_1
       properties:
         align: center
@@ -93,39 +158,30 @@ components:
           <p><span style="color:DimGrey;">■</span> Unavailable | <span style="color:RebeccaPurple;">■</span> Available - Any Session Type | <span style="color:DeepSkyBlue;">■</span> Available - Drive Sessions Only | <span style="color:Blue;">■</span> Available - Class Sessions Only | <span style="color:Green;">■</span> Booked</p>
         format: restricted_html
       type: RichText
-    - event_bindings: {change: filter_schedule_switch_change}
-      layout_properties: {grid_position: 'VZFNKB,SVDCRK'}
-      name: filter_schedule_switch
-      properties: {text_post: Filter By Instructor, text_pre: Full Schedule}
-      type: form:dep_nh1j2ue7kdk6d:Switch
-    - event_bindings: {change: instructor_filter_drop_down_change}
-      layout_properties: {grid_position: 'VZFNKB,GDQFQH'}
-      name: instructor_filter_drop_down
-      properties: {visible: false}
-      type: DropDown
-    - layout_properties: {grid_position: 'FOKAUU,ZARXRG'}
-      name: instructor_list
-      properties: {font_size: 16, role: body}
-      type: Label
-    - event_bindings: {click: refresh_schedule_button_click}
-      layout_properties: {grid_position: 'ALHZIE,KQTDQG'}
-      name: refresh_schedule_button
-      properties: {role: filled-button, text: Refresh Schedule, visible: false}
-      type: Button
-    - event_bindings: {click: create_availability_reprot_button_click}
-      layout_properties: {grid_position: 'ALHZIE,LGSQGZ'}
-      name: create_availability_reprot_button
-      properties: {role: filled-button, text: Run Utility Report}
-      type: Button
-    layout_properties: {grid_position: 'ZBGTPJ,EMSISF'}
-    name: schedule_control_column
-    properties: {}
+    layout_properties: {grid_position: 'KPQNLJ,COYVXF'}
+    name: outlined_card_3
+    properties: {role: outlined-card}
     type: ColumnPanel
-  - layout_properties: {grid_position: 'ZGNTYQ,SUERLH', row_background: ''}
-    name: schedule_plot_complete
-    properties: {}
-    type: Plot
   - components:
+    - layout_properties: {grid_position: 'NYTNEL,XLRNTR'}
+      name: label_9
+      properties: {role: title, text: Build a Cohort}
+      type: Label
+    - components:
+      - layout_properties: {grid_position: 'ALUXRP,DCGECN'}
+        name: label_10
+        properties:
+          text: |
+            Build a blank cohort of classes and drives for a school
+            Will accept up to 30 students.
+            Cohorts check for availability of instructors generally (i.e, is there sufficient capacity overall for this period) and account for company days off and holidays
+
+            ** Schedule a Monday start date to optimize the schedule**
+        type: Label
+      layout_properties: {grid_position: 'NDUUET,XDOCDG'}
+      name: outlined_card_2
+      properties: {role: tonal-card}
+      type: ColumnPanel
     - components:
       - event_bindings: {change: school_selector_change}
         layout_properties: {grid_position: 'IAMLLD,WXNJVA'}
@@ -144,12 +200,18 @@ components:
         type: Button
       - layout_properties: {grid_position: 'VZYBOC,PMGYED'}
         name: schedule_print_box
-        properties: {format: plain_text}
+        properties: {format: plain_text, visible: true}
         type: RichText
       - event_bindings: {click: export_cohort_button_click}
         layout_properties: {grid_position: 'ISCEWE,EZAIAA'}
         name: export_cohort_button
-        properties: {icon: 'fa:download', role: outlined-button, text: Export}
+        properties:
+          icon: fa:download
+          role: outlined-button
+          text: |-
+            Export Cohort Schedule
+            (Lessons Only)
+          tooltip: Lesson schedule only - does not include instructor allocation
         type: Button
       layout_properties: {grid_position: 'EIZVQB,VPJAFP'}
       name: schedule_builder_panel
@@ -157,6 +219,90 @@ components:
       type: ColumnPanel
     layout_properties: {grid_position: 'JJBCKZ,MHOXOY'}
     name: outlined_card_1
+    properties: {role: outlined-card}
+    type: ColumnPanel
+  - components:
+    - layout_properties: {grid_position: 'QYGMUB,BCPFFB'}
+      name: label_11
+      properties: {role: title, text: Schedule Instructors}
+      type: Label
+    - components:
+      - layout_properties: {grid_position: 'ALUXRP,DCGECN'}
+        name: label_10_copy
+        properties:
+          text: |
+            This allocates instructors to a cohort based on their individual availability
+            Once allocated, they are marked as 'scheduled' and unavailable for other tasks is in that time slot unless removed
+            Status is changed to 'booked' once a student has enrolled in that cohort and been allocated to that class
+        type: Label
+      layout_properties: {grid_position: 'CZKCAC,OJAXPO'}
+      name: outlined_card_2_copy
+      properties: {role: tonal-card}
+      type: ColumnPanel
+    - layout_properties: {grid_position: 'MAOVSG,CJPMGZ'}
+      name: label_7
+      properties: {text: 1 - Select a cohort}
+      type: Label
+    - event_bindings: {change: cohort_Selector_change}
+      layout_properties: {grid_position: 'TZKDNL,UFWOZH'}
+      name: cohort_Selector
+      properties: {}
+      type: DropDown
+    - layout_properties: {grid_position: 'TZKDNL,ZWBSPP'}
+      name: cohort_name_label
+      properties: {}
+      type: Label
+    - layout_properties: {grid_position: 'FIICYZ,QTHQQO'}
+      name: label_8
+      properties:
+        text: |
+          2 - Select two instructors
+          (Only instructors who are available and who can teach at that school should appear below)
+      type: Label
+    - event_bindings: {change: instructor_1_selector_change}
+      layout_properties: {grid_position: 'IPKNTL,QQITPO'}
+      name: instructor_1_selector
+      properties: {}
+      type: DropDown
+    - event_bindings: {change: instructor_2_selector_change}
+      layout_properties: {grid_position: 'IPKNTL,VUYFAF'}
+      name: instructor_2_selector
+      properties: {}
+      type: DropDown
+    - layout_properties: {grid_position: 'NSOURB,OGDUIG'}
+      name: task_summary_label
+      properties: {}
+      type: Label
+    - event_bindings: {click: schedule_instructors_button_click}
+      layout_properties: {grid_position: 'EQBNIB,SUDLLL'}
+      name: schedule_instructors_button
+      properties:
+        role: outlined-button
+        text: |
+          Add Instructors to
+          Cohort Schedule
+      type: Button
+    - layout_properties: {grid_position: 'MNTPXS,SBWUAU'}
+      name: scheduling_text_box
+      properties: {}
+      type: Label
+    - event_bindings: {}
+      layout_properties: {grid_position: 'ZEJRYM,WUHAZJ'}
+      name: export_cohort_button_copy
+      properties:
+        icon: fa:download
+        role: outlined-button
+        text: |-
+          Export Full Cohort Schedule
+          (Lesson & Instructors)
+        tooltip: ''
+      type: Button
+    - layout_properties: {grid_position: 'JOJXUZ,LQOFPA'}
+      name: column_panel_2
+      properties: {}
+      type: ColumnPanel
+    layout_properties: {grid_position: 'XFROKB,DWMCTK'}
+    name: instructor_allocation_card
     properties: {role: outlined-card}
     type: ColumnPanel
   layout_properties: {full_width_row: true, grid_position: 'NEDZDU,SPKYRK'}

@@ -62,8 +62,24 @@ class Scheduler(SchedulerTemplate):
     school_list = app_tables.schools.search()
     self.school_selector.items = [(s['school_name'], s['abbreviation']) for s in school_list]
     self.filter_instructors = False
+
+    cohort_placeholder = [("Select a cohort", None)]
+    current_cohorts = app_tables.cohorts.search()
+    cohort_items = [(c['cohort_name'], c['cohort_name']) for c in current_cohorts]
+    self.cohort_Selector.items = cohort_placeholder + cohort_items
+    self.cohort_Selector.selected_value = None
+    
+    instructor_placeholder = [("Select an instructor", None)]
+    self.instructors = app_tables.users.search(is_instructor=True)
+    instructor_items = [(i['firstName'] + ' ' + i['surname'], i) for i in self.instructors]
+    self.instructor_1_selector.items = instructor_placeholder + instructor_items
+    self.instructor_2_selector.items = instructor_placeholder + instructor_items
+    self.instructor_1_selector.selected_value = None
+    self.instructor_2_selector.selected_value = None
+    
     self.populate_instructor_filter_drop_down()
     self.refresh_schedule_display()
+
 
   def export_schedule_button_click(self, **event_args):
     filename = f"Teen Schedule - version {date.today()}.csv"
@@ -234,13 +250,13 @@ class Scheduler(SchedulerTemplate):
         self.cohort_name = self.cohort_schedule['cohort_name']
         formatted_output = f"Cohort Schedule: {self.cohort_schedule['cohort_name']}\n\n"
         
-        formatted_output += "Class Schedule:\n"
-        for class_slot in self.cohort_schedule['classes']:
-            formatted_output += f"Class {class_slot['class_number']}: {class_slot['date']} ({class_slot['day']})\n"
+        #formatted_output += "Class Schedule:\n"
+       # for class_slot in self.cohort_schedule['classes']:
+            #formatted_output += f"Class {class_slot['class_number']}: {class_slot['date']} ({class_slot['day']})\n"
         
-        formatted_output += "\nDrive Schedule:\n"
-        for drive in self.cohort_schedule['drives']:
-            formatted_output += f"Pair {drive['pair_letter']}: {drive['date']} - Slot {drive['slot']} (Week {drive['week']})\n"
+        #formatted_output += "\nDrive Schedule:\n"
+        #for drive in self.cohort_schedule['drives']:
+            #formatted_output += f"Pair {drive['pair_letter']}: {drive['date']} - Slot {drive['slot']} (Week {drive['week']})\n"
         
         formatted_output += f"\nSummary:\n"
         formatted_output += f"Number of Students: {self.cohort_schedule['num_students']}\n"
@@ -266,6 +282,17 @@ class Scheduler(SchedulerTemplate):
   def create_availability_reprot_button_click(self, **event_args):
     anvil.server.call('generate_capacity_report')
     Notification("Your report is available in the file downloader")
-    
-    
 
+  def cohort_Selector_change(self, **event_args):
+    cohort = app_tables.cohorts.get(cohort_name=self.cohort_Selector.selected_value)
+    self.cohort_name_label.text = f"Cohort selected: School - {cohort['school']}, Start date - {cohort['start_date']}"
+    self.cohort = cohort
+
+  def instructor_1_selector_change(self, **event_args):
+    self.instructor1 = self.instructor_1_selector.selected_value
+    
+  def instructor_2_selector_change(self, **event_args):
+    self.instructor2 = self.instructor_2_selector.selected_value
+
+  def schedule_instructors_button_click(self, **event_args):
+    anvil.server.call('schedule_instructors_for_cohort', self.cohort, self.instructor1, self.instructor2)

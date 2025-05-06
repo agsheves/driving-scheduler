@@ -7,7 +7,7 @@ from .globals import LESSON_SLOTS, AVAILABILITY_MAPPING
 
 
 @anvil.server.callable
-def schedule_instructors_for_cohort(cohort_name, instructor1_name, instructor2_name):
+def schedule_instructors_for_cohort(cohort_name, instructor1, instructor2):
     """
     Schedule instructors for a cohort's lessons based on availability.
     Alternates primary instructor by week.
@@ -21,19 +21,23 @@ def schedule_instructors_for_cohort(cohort_name, instructor1_name, instructor2_n
         dict: Updated cohort schedule with instructor assignments
     """
     # Get cohort data
-    cohort = app_tables.cohorts.get(cohort_name=cohort_name)
+    print("Checking for cohort")
+    cohort = app_tables.cohorts.get(cohort_name=cohort_name['cohort_name'])
+    print(cohort_name)
     if not cohort:
         raise ValueError(f"Cohort {cohort_name} not found")
 
     # Get instructor data
     # UI will retutn a row for instructor
-    instructor1 = self.instructor1_selector.selected_value
-    instructor2 = self.instructor2_selector.selected_value
+    print("Checking for instructors")
+    print(instructor1['firstName'])
+    print(instructor2['firstName'])
 
     if not instructor1 or not instructor2:
         raise ValueError("One or both instructors not found")
 
     # Get instructor schedules
+    print("Checking for instructor schedules")
     instructor1_schedule = app_tables.instructor_schedules.get(instructor=instructor1)
     instructor2_schedule = app_tables.instructor_schedules.get(instructor=instructor2)
 
@@ -46,6 +50,7 @@ def schedule_instructors_for_cohort(cohort_name, instructor1_name, instructor2_n
 
     # Get the complete schedule
     daily_schedules = cohort["complete_schedule"]
+    print("Checked initial info collection - ending here for tesing")
 
     # First pass: Schedule classes
     daily_schedules = _schedule_classes(
