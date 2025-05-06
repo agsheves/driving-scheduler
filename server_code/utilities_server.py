@@ -585,12 +585,18 @@ def export_merged_cohort_schedule(cohort_name):
                 elif slot_data["type"]:
                     # Add instructor name to title if it exists
                     title = slot_data["title"]
+
                     if "instructor" in slot_data:
-                        title = f"{title} | Inst: ({slot_data['instructor']})"
+                        title = f"{title} | Inst: {slot_data['instructor']}"
+                        has_instructor = True
                     data[slot_to_time[slot]][date_str] = title
                 else:
                     data[slot_to_time[slot]][date_str] = ""
-
+                  
+        if has_instructor:
+          filename = f"{cohort_name}_merged_schedule_lessons_instructors.xlsx"
+        else:
+          filename = f"{cohort_name}_merged_schedule_lessons.xlsx"
         # Create DataFrame
         df = pd.DataFrame(data).T
 
@@ -621,6 +627,9 @@ def export_merged_cohort_schedule(cohort_name):
             {"num_format": "yyyy-mm-dd", "align": "center"}
         )
 
+        cell_format = workbook.add_format({"align": "center", "valign": "vcenter","text_wrap": True, "border": 1})
+
+
         time_format = workbook.add_format(
             {"bold": True, "bg_color": "#F2F2F2", "border": 1, "align": "center"}
         )
@@ -642,6 +651,11 @@ def export_merged_cohort_schedule(cohort_name):
         # Set column widths for date columns
         for i in range(1, len(df.columns) + 1):
             worksheet.set_column(i, i, 12)  # Date columns
+          
+        for row_num, (index, row) in enumerate(df.iterrows(), start=2):  # Start from row 2 (after headers)
+          worksheet.write(row_num, 0, index, time_format)  # First column: time slot
+          for col_num, value in enumerate(row, start=1):   # Data cells
+            worksheet.write(row_num, col_num, value, cell_format)
 
     # Create media object and save to database
     excel_media = anvil.BlobMedia(
@@ -651,7 +665,7 @@ def export_merged_cohort_schedule(cohort_name):
     )
 
     app_tables.files.add_row(
-        filename=f"{cohort_name}_merged_schedule.xlsx",
+        filename=filename,
         file=excel_media,
         file_type="Excel",
     )

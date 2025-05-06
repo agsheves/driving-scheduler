@@ -279,7 +279,7 @@ class Scheduler(SchedulerTemplate):
     anvil.server.call('export_merged_cohort_schedule', name)
     self.cohort_name = ""
 
-  def create_availability_reprot_button_click(self, **event_args):
+  def create_availability_report_button_click(self, **event_args):
     anvil.server.call('generate_capacity_report')
     Notification("Your report is available in the file downloader")
 
@@ -295,9 +295,10 @@ class Scheduler(SchedulerTemplate):
     self.instructor2 = self.instructor_2_selector.selected_value
 
   def schedule_instructors_button_click(self, **event_args):
-    anvil.server.call('schedule_instructors_for_cohort', self.cohort, self.instructor1, self.instructor2)
+    instructor_allocation = anvil.server.call('schedule_instructors_for_cohort', self.cohort, self.instructor1, self.instructor2)
+    self.scheduling_text_box.text = instructor_allocation
 
-  def export_cohort_button_copy_click(self, **event_args):
-    name = self.cohort_name
-    anvil.server.call('export_merged_cohort_schedule_with_instructors', name)
-    self.cohort_name = ""
+  def export_cohort_and_schedule_button_click(self, **event_args):
+    name = self.cohort['cohort_name']
+    anvil.server.call('export_merged_cohort_schedule', name)
+    self.cohort = ""
