@@ -431,8 +431,8 @@ def schedule_drives(cohort_name, start_date, num_students):
         # Drives A to n are actuallty stident pairings. So we nee to say Pair A, Pair B, etc.
         # Then we need to add the drive numbers from globals / COURSE_STRUCTURE / driving_sessions
         # So the entry will show 'Pair A - Drives 1 & 2', 'Pair C - Drives 3 & 4' Etc...
-        drive_letter = chr(65 + pair)  # A, B, C, etc.
-        print(f"\nScheduling Drive {drive_letter}")
+        pair_letter = chr(65 + pair)  # A, B, C, etc.
+        print(f"\nScheduling Drive {pair_letter}")
 
         # Try to schedule on primary day first
         scheduled = False
@@ -450,7 +450,7 @@ def schedule_drives(cohort_name, start_date, num_students):
             for slot in weekly_slots[day]:
                 if slot not in used_slots[day]:
                     master_schedule.append(
-                        {"drive_letter": drive_letter, "day": day, "slot": slot}
+                        {"pair_letter": pair_letter, "day": day, "slot": slot}
                     )
                     used_slots[day].append(slot)
                     print(f"  Scheduled for {day} at {slot}")
@@ -459,7 +459,7 @@ def schedule_drives(cohort_name, start_date, num_students):
 
     print("\nMaster Schedule Summary:")
     for drive in master_schedule:
-        print(f"Drive {drive['drive_letter']}: {drive['day']} at {drive['slot']}")
+        print(f"Drive {drive['pair_letter']}: {drive['day']} at {drive['slot']}")
 
     # Step 2: Apply master schedule to all weeks, adjusting for vacation days
     for week in range(5):
@@ -480,7 +480,7 @@ def schedule_drives(cohort_name, start_date, num_students):
 
         # Apply master schedule to this week
         for master_drive in master_schedule:
-            drive_letter = master_drive["drive_letter"]
+            pair_letter = master_drive["pair_letter"]
             master_day = master_drive["day"]
             master_slot = master_drive["slot"]
 
@@ -495,7 +495,7 @@ def schedule_drives(cohort_name, start_date, num_students):
             if target_date and target_date not in vacation_days:
                 drive_slot = {
                     "cohort": cohort_name,
-                    "drive_letter": drive_letter,
+                    "pair_letter": pair_letter,
                     "date": target_date.isoformat(),
                     "slot": master_slot,
                     "week": week_num,
@@ -506,19 +506,19 @@ def schedule_drives(cohort_name, start_date, num_students):
                 }
                 drives.append(drive_slot)
                 print(
-                    f"  Scheduled Drive {drive_letter} for {target_date} at {master_slot}"
+                    f"  Scheduled pair {pair_letter} for {target_date} at {master_slot}"
                 )
             else:
                 # Drive falls on vacation day, add to reschedule list
                 drives_to_reschedule.append(
                     {
-                        "drive_letter": drive_letter,
+                        "pair_letter": pair_letter,
                         "week": week_num,
                         "original_day": master_day,
                         "original_slot": master_slot,
                     }
                 )
-                print(f"  Drive {drive_letter} needs rescheduling (vacation day)")
+                print(f"  Pair {pair_letter} needs rescheduling (vacation day)")
 
         # Reschedule drives that fell on vacation days
         if drives_to_reschedule:
@@ -526,7 +526,7 @@ def schedule_drives(cohort_name, start_date, num_students):
                 f"\nRescheduling {len(drives_to_reschedule)} drives for week {week_num}:"
             )
             for drive in drives_to_reschedule:
-                print(f"  Attempting to reschedule Drive {drive['drive_letter']}")
+                print(f"  Attempting to reschedule Pair {drive['pair_letter']}")
                 rescheduled = False
                 # Try spare slots first
                 for day, slot in spare_slots.items():
@@ -546,7 +546,7 @@ def schedule_drives(cohort_name, start_date, num_students):
                                 if not slot_used:
                                     drive_slot = {
                                         "cohort": cohort_name,
-                                        "drive_letter": drive["drive_letter"],
+                                        "pair_letter": drive["pair_letter"],
                                         "date": week_day.isoformat(),
                                         "slot": slot,
                                         "week": drive["week"],
@@ -575,7 +575,7 @@ def schedule_drives(cohort_name, start_date, num_students):
                                 if not slot_used:
                                     drive_slot = {
                                         "cohort": cohort_name,
-                                        "drive_letter": drive["drive_letter"],
+                                        "pair_letter": drive["pair_letter"],
                                         "date": week_day.isoformat(),
                                         "slot": slot,
                                         "week": drive["week"],
@@ -591,7 +591,7 @@ def schedule_drives(cohort_name, start_date, num_students):
 
                 if not rescheduled:
                     print(
-                        f"WARNING: Could not reschedule Drive {drive['drive_letter']} in week {week_num}"
+                        f"WARNING: Could not reschedule Pair {drive['pair_letter']} in week {week_num}"
                     )
                     print(
                         f"Original schedule: {drive['original_day']} at {drive['original_slot']}"
@@ -651,7 +651,7 @@ def create_full_cohort_schedule(school, start_date, num_students=None):
     # print("Drive schedule:")
     # for drive in drives:
     # print(
-    #     f"  • Drive {drive['drive_letter']} on {drive['date']} (Slot: {drive['slot']})"
+    #     f"  • Drive {drive['pair_letter']} on {drive['date']} (Slot: {drive['slot']})"
     # )
     complete_schedule = anvil.server.call("create_merged_schedule", cohort_name)
     # 6. Store everything in the cohort record
@@ -744,14 +744,14 @@ def test_capacity_calculation(start_date=None, school=None):
     # Debug printing for drives
     print("\nDebug - All drives:")
     for drive in drives:
-        print(f"  • Drive {drive['drive_letter']} on {drive['date']}")
+        print(f"  • Drive {drive['pair_letter']} on {drive['date']}")
 
     print("\nDebug - First week calculation:")
     for drive in drives:
         drive_date = datetime.fromisoformat(drive["date"]).date()
         days_diff = (drive_date - start_date).days
         print(
-            f"  • Drive {drive['drive_letter']} on {drive['date']} (days from start: {days_diff})"
+            f"  • Drive {drive['pair_letter']} on {drive['date']} (days from start: {days_diff})"
         )
 
     print("\nFirst week drives:")
@@ -763,7 +763,7 @@ def test_capacity_calculation(start_date=None, school=None):
     ]
     print(f"Found {len(first_week_drives)} drives in first week")
     for drive in first_week_drives:
-        print(f"  • Drive {drive['drive_letter']} on {drive['date']}")
+        print(f"  • Drive {drive['pair_letter']} on {drive['date']}")
 
     return {
         "start_date": start_date,
@@ -856,7 +856,7 @@ def create_merged_schedule(cohort_name):
                 if drive_slot["date"] == date_str:
                     day_schedule["slots"][drive_slot["slot"]] = {
                         "type": "drive",
-                        "title": f"Drive {drive_slot['drive_letter']}",
+                        "title": f"Drive {drive_slot['pair_letter']}",
                         "details": {
                             "week": drive_slot["week"],
                             "is_backup_slot": drive_slot["is_backup_slot"],

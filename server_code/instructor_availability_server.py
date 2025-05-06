@@ -16,12 +16,13 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
-from .globals import LESSON_SLOTS, AVAILABILITY_MAPPING
+from .globals import LESSON_SLOTS, AVAILABILITY_MAPPING, days_full
 import io
 import json
 
 # Define availability mapping
 availability_mapping = AVAILABILITY_MAPPING
+days_of_week = days_full
 
 
 @anvil.server.callable

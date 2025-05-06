@@ -240,7 +240,7 @@ class Scheduler(SchedulerTemplate):
         
         formatted_output += "\nDrive Schedule:\n"
         for drive in self.cohort_schedule['drives']:
-            formatted_output += f"Drive {drive['drive_letter']}: {drive['date']} - Slot {drive['slot']} (Week {drive['week']})\n"
+            formatted_output += f"Pair {drive['pair_letter']}: {drive['date']} - Slot {drive['slot']} (Week {drive['week']})\n"
         
         formatted_output += f"\nSummary:\n"
         formatted_output += f"Number of Students: {self.cohort_schedule['num_students']}\n"
