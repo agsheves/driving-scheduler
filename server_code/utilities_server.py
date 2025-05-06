@@ -562,9 +562,7 @@ def export_merged_cohort_schedule(cohort_name):
         # Create DataFrame with slots as index and days as columns
         data = {}
         slot_order = [
-            # **EDITS**
-            # Amend this to show breaks
-            slot for slot in LESSON_SLOTS.keys() # if not slot.startswith("break_")
+            slot for slot in LESSON_SLOTS.keys() if not slot.startswith("break_")
         ]
 
         # Create slot to time mapping
