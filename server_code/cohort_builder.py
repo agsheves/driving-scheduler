@@ -863,7 +863,7 @@ def create_merged_schedule(cohort_name):
                 if drive_slot["date"] == date_str:
                     day_schedule["slots"][drive_slot["slot"]] = {
                         "type": "drive",
-                        "title": f"Pair {drive_slot['pair_letter']} - {drive_slot['drive_numbers']}",
+                        "title": f"Pair {drive_slot['pair_letter']}: Drives {drive_slot['drive_numbers']}",
                         "details": {
                             "week": drive_slot["week"],
                             "is_backup_slot": drive_slot["is_backup_slot"],
