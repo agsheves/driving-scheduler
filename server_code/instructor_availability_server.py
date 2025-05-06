@@ -16,7 +16,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
-from .globals import LESSON_SLOTS, AVAILABILITY_MAPPING
+from .globals import LESSON_SLOTS, AVAILABILITY_MAPPING, days_full
 import io
 import json
 
@@ -55,7 +55,7 @@ def process_instructor_availability(instructors, start_date=None):
             # print(f"Error getting data for {instructor['firstName']}: {e}")
             continue
 
-        for day_index, day_name in enumerate(days_of_week):
+        for day_index, day_name in enumerate(days_full):
             try:
                 # print("==Debug== Trying to access:", day_name)  # Debug print
                 # print("==Debug== Weekly data structure:", weekly_data)  # Debug print
