@@ -1,0 +1,1848 @@
+[
+    {
+      "day": "Monday",
+      "date": "2025-05-19",
+      "week": 1,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_5": {
+          "type": "class",
+          "title": "Class 1",
+          "details": {
+            "week": 1,
+            "status": "scheduled"
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Tuesday",
+      "date": "2025-05-20",
+      "week": 1,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_5": {
+          "type": null,
+          "title": null,
+          "details": null
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Wednesday",
+      "date": "2025-05-21",
+      "week": 1,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_5": {
+          "type": "class",
+          "title": "Class 2",
+          "details": {
+            "week": 1,
+            "status": "scheduled"
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Thursday",
+      "date": "2025-05-22",
+      "week": 1,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_5": {
+          "type": null,
+          "title": null,
+          "details": null
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Friday",
+      "date": "2025-05-23",
+      "week": 1,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_5": {
+          "type": "class",
+          "title": "Class 3",
+          "details": {
+            "week": 1,
+            "status": "scheduled"
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Saturday",
+      "date": "2025-05-24",
+      "week": 1,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_5": {
+          "type": null,
+          "title": null,
+          "details": null
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Sunday",
+      "date": "2025-05-25",
+      "week": 1,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_5": {
+          "type": null,
+          "title": null,
+          "details": null
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Monday",
+      "date": "2025-05-26",
+      "week": 2,
+      "slots": {
+        "lesson_slot_1": {
+          "type": "vacation",
+          "title": "Vacation",
+          "details": {
+            "holiday_name": "Memorial Day"
+          }
+        },
+        "lesson_slot_2": {
+          "type": "vacation",
+          "title": "Vacation",
+          "details": {
+            "holiday_name": "Memorial Day"
+          }
+        },
+        "lesson_slot_3": {
+          "type": "vacation",
+          "title": "Vacation",
+          "details": {
+            "holiday_name": "Memorial Day"
+          }
+        },
+        "lesson_slot_4": {
+          "type": "vacation",
+          "title": "Vacation",
+          "details": {
+            "holiday_name": "Memorial Day"
+          }
+        },
+        "lesson_slot_5": {
+          "type": "vacation",
+          "title": "Vacation",
+          "details": {
+            "holiday_name": "Memorial Day"
+          }
+        }
+      },
+      "is_vacation": true
+    },
+    {
+      "day": "Tuesday",
+      "date": "2025-05-27",
+      "week": 2,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair B: Drives [1, 2]",
+          "details": {
+            "week": 2,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_5": {
+          "type": "drive",
+          "title": "Pair C: Drives [1, 2]",
+          "details": {
+            "week": 2,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Wednesday",
+      "date": "2025-05-28",
+      "week": 2,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair D: Drives [1, 2]",
+          "details": {
+            "week": 2,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": "class",
+          "title": "Class 5",
+          "details": {
+            "week": 2,
+            "status": "scheduled"
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Thursday",
+      "date": "2025-05-29",
+      "week": 2,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair E: Drives [1, 2]",
+          "details": {
+            "week": 2,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_5": {
+          "type": "drive",
+          "title": "Pair F: Drives [1, 2]",
+          "details": {
+            "week": 2,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Friday",
+      "date": "2025-05-30",
+      "week": 2,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair G: Drives [1, 2]",
+          "details": {
+            "week": 2,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": "class",
+          "title": "Class 6",
+          "details": {
+            "week": 2,
+            "status": "scheduled"
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Saturday",
+      "date": "2025-05-31",
+      "week": 2,
+      "slots": {
+        "lesson_slot_1": {
+          "type": "drive",
+          "title": "Pair H: Drives [1, 2]",
+          "details": {
+            "week": 2,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_2": {
+          "type": "drive",
+          "title": "Pair I: Drives [1, 2]",
+          "details": {
+            "week": 2,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_3": {
+          "type": "drive",
+          "title": "Pair J: Drives [1, 2]",
+          "details": {
+            "week": 2,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair K: Drives [1, 2]",
+          "details": {
+            "week": 2,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": "drive",
+          "title": "Pair L: Drives [1, 2]",
+          "details": {
+            "week": 2,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Sunday",
+      "date": "2025-06-01",
+      "week": 2,
+      "slots": {
+        "lesson_slot_1": {
+          "type": "drive",
+          "title": "Pair M: Drives [1, 2]",
+          "details": {
+            "week": 2,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_2": {
+          "type": "drive",
+          "title": "Pair N: Drives [1, 2]",
+          "details": {
+            "week": 2,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_3": {
+          "type": "drive",
+          "title": "Pair O: Drives [1, 2]",
+          "details": {
+            "week": 2,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_4": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_5": {
+          "type": "drive",
+          "title": "Pair A: Drives [1, 2]",
+          "details": {
+            "week": 2,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": true
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Monday",
+      "date": "2025-06-02",
+      "week": 3,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair A: Drives [3, 4]",
+          "details": {
+            "week": 3,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": "class",
+          "title": "Class 7",
+          "details": {
+            "week": 3,
+            "status": "scheduled"
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Tuesday",
+      "date": "2025-06-03",
+      "week": 3,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair B: Drives [3, 4]",
+          "details": {
+            "week": 3,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_5": {
+          "type": "drive",
+          "title": "Pair C: Drives [3, 4]",
+          "details": {
+            "week": 3,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Wednesday",
+      "date": "2025-06-04",
+      "week": 3,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair D: Drives [3, 4]",
+          "details": {
+            "week": 3,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": "class",
+          "title": "Class 8",
+          "details": {
+            "week": 3,
+            "status": "scheduled"
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Thursday",
+      "date": "2025-06-05",
+      "week": 3,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair E: Drives [3, 4]",
+          "details": {
+            "week": 3,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_5": {
+          "type": "drive",
+          "title": "Pair F: Drives [3, 4]",
+          "details": {
+            "week": 3,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Friday",
+      "date": "2025-06-06",
+      "week": 3,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair G: Drives [3, 4]",
+          "details": {
+            "week": 3,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": "class",
+          "title": "Class 9",
+          "details": {
+            "week": 3,
+            "status": "scheduled"
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Saturday",
+      "date": "2025-06-07",
+      "week": 3,
+      "slots": {
+        "lesson_slot_1": {
+          "type": "drive",
+          "title": "Pair H: Drives [3, 4]",
+          "details": {
+            "week": 3,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_2": {
+          "type": "drive",
+          "title": "Pair I: Drives [3, 4]",
+          "details": {
+            "week": 3,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_3": {
+          "type": "drive",
+          "title": "Pair J: Drives [3, 4]",
+          "details": {
+            "week": 3,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair K: Drives [3, 4]",
+          "details": {
+            "week": 3,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": "drive",
+          "title": "Pair L: Drives [3, 4]",
+          "details": {
+            "week": 3,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Sunday",
+      "date": "2025-06-08",
+      "week": 3,
+      "slots": {
+        "lesson_slot_1": {
+          "type": "drive",
+          "title": "Pair M: Drives [3, 4]",
+          "details": {
+            "week": 3,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_2": {
+          "type": "drive",
+          "title": "Pair N: Drives [3, 4]",
+          "details": {
+            "week": 3,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_3": {
+          "type": "drive",
+          "title": "Pair O: Drives [3, 4]",
+          "details": {
+            "week": 3,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_4": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_5": {
+          "type": null,
+          "title": null,
+          "details": null
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Monday",
+      "date": "2025-06-09",
+      "week": 4,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair A: Drives [5, 6]",
+          "details": {
+            "week": 4,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": "class",
+          "title": "Class 10",
+          "details": {
+            "week": 4,
+            "status": "scheduled"
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Tuesday",
+      "date": "2025-06-10",
+      "week": 4,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair B: Drives [5, 6]",
+          "details": {
+            "week": 4,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_5": {
+          "type": "drive",
+          "title": "Pair C: Drives [5, 6]",
+          "details": {
+            "week": 4,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Wednesday",
+      "date": "2025-06-11",
+      "week": 4,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair D: Drives [5, 6]",
+          "details": {
+            "week": 4,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": "class",
+          "title": "Class 11",
+          "details": {
+            "week": 4,
+            "status": "scheduled"
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Thursday",
+      "date": "2025-06-12",
+      "week": 4,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair E: Drives [5, 6]",
+          "details": {
+            "week": 4,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_5": {
+          "type": "drive",
+          "title": "Pair F: Drives [5, 6]",
+          "details": {
+            "week": 4,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Friday",
+      "date": "2025-06-13",
+      "week": 4,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair G: Drives [5, 6]",
+          "details": {
+            "week": 4,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": "class",
+          "title": "Class 12",
+          "details": {
+            "week": 4,
+            "status": "scheduled"
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Saturday",
+      "date": "2025-06-14",
+      "week": 4,
+      "slots": {
+        "lesson_slot_1": {
+          "type": "drive",
+          "title": "Pair H: Drives [5, 6]",
+          "details": {
+            "week": 4,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_2": {
+          "type": "drive",
+          "title": "Pair I: Drives [5, 6]",
+          "details": {
+            "week": 4,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_3": {
+          "type": "drive",
+          "title": "Pair J: Drives [5, 6]",
+          "details": {
+            "week": 4,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair K: Drives [5, 6]",
+          "details": {
+            "week": 4,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": "drive",
+          "title": "Pair L: Drives [5, 6]",
+          "details": {
+            "week": 4,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Sunday",
+      "date": "2025-06-15",
+      "week": 4,
+      "slots": {
+        "lesson_slot_1": {
+          "type": "drive",
+          "title": "Pair M: Drives [5, 6]",
+          "details": {
+            "week": 4,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_2": {
+          "type": "drive",
+          "title": "Pair N: Drives [5, 6]",
+          "details": {
+            "week": 4,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_3": {
+          "type": "drive",
+          "title": "Pair O: Drives [5, 6]",
+          "details": {
+            "week": 4,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_4": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_5": {
+          "type": null,
+          "title": null,
+          "details": null
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Monday",
+      "date": "2025-06-16",
+      "week": 5,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair A: Drives [7, 8]",
+          "details": {
+            "week": 5,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": "class",
+          "title": "Class 13",
+          "details": {
+            "week": 5,
+            "status": "scheduled"
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Tuesday",
+      "date": "2025-06-17",
+      "week": 5,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair B: Drives [7, 8]",
+          "details": {
+            "week": 5,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_5": {
+          "type": "drive",
+          "title": "Pair C: Drives [7, 8]",
+          "details": {
+            "week": 5,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Wednesday",
+      "date": "2025-06-18",
+      "week": 5,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair D: Drives [7, 8]",
+          "details": {
+            "week": 5,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": "class",
+          "title": "Class 14",
+          "details": {
+            "week": 5,
+            "status": "scheduled"
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Thursday",
+      "date": "2025-06-19",
+      "week": 5,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair E: Drives [7, 8]",
+          "details": {
+            "week": 5,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_5": {
+          "type": "drive",
+          "title": "Pair F: Drives [7, 8]",
+          "details": {
+            "week": 5,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Friday",
+      "date": "2025-06-20",
+      "week": 5,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair G: Drives [7, 8]",
+          "details": {
+            "week": 5,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": "class",
+          "title": "Class 15",
+          "details": {
+            "week": 5,
+            "status": "scheduled"
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Saturday",
+      "date": "2025-06-21",
+      "week": 5,
+      "slots": {
+        "lesson_slot_1": {
+          "type": "drive",
+          "title": "Pair H: Drives [7, 8]",
+          "details": {
+            "week": 5,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_2": {
+          "type": "drive",
+          "title": "Pair I: Drives [7, 8]",
+          "details": {
+            "week": 5,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_3": {
+          "type": "drive",
+          "title": "Pair J: Drives [7, 8]",
+          "details": {
+            "week": 5,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair K: Drives [7, 8]",
+          "details": {
+            "week": 5,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": "drive",
+          "title": "Pair L: Drives [7, 8]",
+          "details": {
+            "week": 5,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Sunday",
+      "date": "2025-06-22",
+      "week": 5,
+      "slots": {
+        "lesson_slot_1": {
+          "type": "drive",
+          "title": "Pair M: Drives [7, 8]",
+          "details": {
+            "week": 5,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_2": {
+          "type": "drive",
+          "title": "Pair N: Drives [7, 8]",
+          "details": {
+            "week": 5,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_3": {
+          "type": "drive",
+          "title": "Pair O: Drives [7, 8]",
+          "details": {
+            "week": 5,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_4": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_5": {
+          "type": null,
+          "title": null,
+          "details": null
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Monday",
+      "date": "2025-06-23",
+      "week": 6,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair A: Drives [9, 10]",
+          "details": {
+            "week": 6,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": null,
+          "title": null,
+          "details": null
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Tuesday",
+      "date": "2025-06-24",
+      "week": 6,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair B: Drives [9, 10]",
+          "details": {
+            "week": 6,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_5": {
+          "type": "drive",
+          "title": "Pair C: Drives [9, 10]",
+          "details": {
+            "week": 6,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Wednesday",
+      "date": "2025-06-25",
+      "week": 6,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair D: Drives [9, 10]",
+          "details": {
+            "week": 6,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": null,
+          "title": null,
+          "details": null
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Thursday",
+      "date": "2025-06-26",
+      "week": 6,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair E: Drives [9, 10]",
+          "details": {
+            "week": 6,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_5": {
+          "type": "drive",
+          "title": "Pair F: Drives [9, 10]",
+          "details": {
+            "week": 6,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": true
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Friday",
+      "date": "2025-06-27",
+      "week": 6,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair G: Drives [9, 10]",
+          "details": {
+            "week": 6,
+            "status": "scheduled",
+            "is_weekend": false,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": null,
+          "title": null,
+          "details": null
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Saturday",
+      "date": "2025-06-28",
+      "week": 6,
+      "slots": {
+        "lesson_slot_1": {
+          "type": "drive",
+          "title": "Pair H: Drives [9, 10]",
+          "details": {
+            "week": 6,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_2": {
+          "type": "drive",
+          "title": "Pair I: Drives [9, 10]",
+          "details": {
+            "week": 6,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_3": {
+          "type": "drive",
+          "title": "Pair J: Drives [9, 10]",
+          "details": {
+            "week": 6,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_4": {
+          "type": "drive",
+          "title": "Pair K: Drives [9, 10]",
+          "details": {
+            "week": 6,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        },
+        "lesson_slot_5": {
+          "type": "drive",
+          "title": "Pair L: Drives [9, 10]",
+          "details": {
+            "week": 6,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": false
+          }
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Sunday",
+      "date": "2025-06-29",
+      "week": 6,
+      "slots": {
+        "lesson_slot_1": {
+          "type": "drive",
+          "title": "Pair M: Drives [9, 10]",
+          "details": {
+            "week": 6,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_2": {
+          "type": "drive",
+          "title": "Pair N: Drives [9, 10]",
+          "details": {
+            "week": 6,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_3": {
+          "type": "drive",
+          "title": "Pair O: Drives [9, 10]",
+          "details": {
+            "week": 6,
+            "status": "scheduled",
+            "is_weekend": true,
+            "is_backup_slot": true
+          }
+        },
+        "lesson_slot_4": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_5": {
+          "type": null,
+          "title": null,
+          "details": null
+        }
+      },
+      "is_vacation": false
+    },
+    {
+      "day": "Monday",
+      "date": "2025-06-30",
+      "week": 7,
+      "slots": {
+        "lesson_slot_1": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_2": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_3": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_4": {
+          "type": null,
+          "title": null,
+          "details": null
+        },
+        "lesson_slot_5": {
+          "type": null,
+          "title": null,
+          "details": null
+        }
+      },
+      "is_vacation": false
+    }
+  ]
