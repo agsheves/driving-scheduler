@@ -153,9 +153,9 @@ def convert_JSON_to_csv_and_save(json_data, filename):
 @anvil.server.callable
 def sanity_check_write():
   sheet = app_files.drive_schedule_test
-  ws = sheet["Sheet1"]  # Or whatever the default tab is
-  ws.add_row(Slot="Hello", Monday="World")
-  return "✅ Write succeeded"
+  ws = sheet["Sheet1"]
+
+  ws.rows[:] = []
 
 @anvil.server.background_task
 def sync_instructor_availability_to_sheets():
