@@ -286,7 +286,7 @@ components:
       name: scheduling_text_box
       properties: {}
       type: Label
-    - event_bindings: {}
+    - event_bindings: {click: export_cohort_button_copy_click}
       layout_properties: {grid_position: 'ZEJRYM,WUHAZJ'}
       name: export_cohort_button_copy
       properties:

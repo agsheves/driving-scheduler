@@ -296,3 +296,8 @@ class Scheduler(SchedulerTemplate):
 
   def schedule_instructors_button_click(self, **event_args):
     anvil.server.call('schedule_instructors_for_cohort', self.cohort, self.instructor1, self.instructor2)
+
+  def export_cohort_button_copy_click(self, **event_args):
+    name = self.cohort_name
+    anvil.server.call('export_merged_cohort_schedule_with_instructors', name)
+    self.cohort_name = ""

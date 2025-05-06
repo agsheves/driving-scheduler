@@ -23,7 +23,6 @@ def schedule_instructors_for_cohort(cohort_name, instructor1, instructor2):
     # Get cohort data
     print("Checking for cohort")
     cohort = app_tables.cohorts.get(cohort_name=cohort_name['cohort_name'])
-    print(cohort_name)
     if not cohort:
         raise ValueError(f"Cohort {cohort_name} not found")
 
@@ -50,7 +49,7 @@ def schedule_instructors_for_cohort(cohort_name, instructor1, instructor2):
 
     # Get the complete schedule
     daily_schedules = cohort["complete_schedule"]
-    print("Checked initial info collection - ending here for tesing")
+    print("Checked initial info collection")
 
     # First pass: Schedule classes
     daily_schedules = _schedule_classes(
