@@ -427,6 +427,10 @@ def schedule_drives(cohort_name, start_date, num_students):
 
     # Schedule each pair in the master week
     for pair in range(num_pairs):
+        # **EDITS**
+        # Drives A to n are actuallty stident pairings. So we nee to say Pair A, Pair B, etc.
+        # Then we need to add the drive numbers from globals / COURSE_STRUCTURE / driving_sessions
+        # So the entry will show 'Pair A - Drives 1 & 2', 'Pair C - Drives 3 & 4' Etc...
         drive_letter = chr(65 + pair)  # A, B, C, etc.
         print(f"\nScheduling Drive {drive_letter}")
 

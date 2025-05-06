@@ -562,6 +562,8 @@ def export_merged_cohort_schedule(cohort_name):
         # Create DataFrame with slots as index and days as columns
         data = {}
         slot_order = [
+            # **EDITS**
+            # Amend this to show breaks
             slot for slot in LESSON_SLOTS.keys() if not slot.startswith("break_")
         ]
 
@@ -625,6 +627,8 @@ def export_merged_cohort_schedule(cohort_name):
 
         # Format row headers (times)
         for row_num, value in enumerate(df.index.values):
+          # **EDITS**
+            # Need to show 12-hour clock in table but keep 24 hour clock in data
             worksheet.write(row_num + 2, 0, value, time_format)
 
         # Set column widths

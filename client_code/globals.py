@@ -126,7 +126,7 @@ COURSE_STRUCTURE = {
         "type": "class",
     },
     "driving_sessions": {
-        "pairs": [
+        "pairs": [ # rename to drive_lesson_pairs to differntiate from student pairs
             (1, 2),  # First pair of drives
             (3, 4),  # Second pair of drives
             (5, 6),  # Third pair of drives
