@@ -428,13 +428,8 @@ def schedule_drives(cohort_name, start_date, num_students):
 
     # Schedule each pair in the master week
     for pair in range(num_pairs):
-        # Get the drive numbers for this pair from COURSE_STRUCTURE
-        drive_numbers = COURSE_STRUCTURE["driving_sessions"]['pairs'][pair]
         pair_letter = chr(65 + pair)  # A, B, C, etc.
-        drive_title = (
-            f"Pair {pair_letter} - Drives {drive_numbers[0]} & {drive_numbers[1]}"
-        )
-        print(f"\nScheduling {drive_title}")
+        print(f"\nScheduling Pair {pair_letter}")
 
         # Try to schedule on primary day first
         scheduled = False
@@ -454,7 +449,6 @@ def schedule_drives(cohort_name, start_date, num_students):
                     master_schedule.append(
                         {
                             "drive_letter": pair_letter,
-                            "drive_title": drive_title,
                             "day": day,
                             "slot": slot,
                         }
@@ -466,7 +460,7 @@ def schedule_drives(cohort_name, start_date, num_students):
 
     print("\nMaster Schedule Summary:")
     for drive in master_schedule:
-        print(f"{drive['drive_title']}: {drive['day']} at {drive['slot']}")
+        print(f"Pair {drive['drive_letter']}: {drive['day']} at {drive['slot']}")
 
     # Step 2: Apply master schedule to all weeks, adjusting for vacation days
     for week in range(5):
@@ -491,6 +485,13 @@ def schedule_drives(cohort_name, start_date, num_students):
             master_day = master_drive["day"]
             master_slot = master_drive["slot"]
 
+            # Get the drive numbers for this pair and week
+            pair_index = ord(drive_letter) - 65  # Convert A->0, B->1, etc.
+            drive_numbers = COURSE_STRUCTURE["driving_sessions"]["pairs"][pair_index]
+            drive_title = (
+                f"Pair {drive_letter} - Drives {drive_numbers[0]} & {drive_numbers[1]}"
+            )
+
             # Find the corresponding date in this week
             target_date = None
             for day in week_days:
@@ -503,7 +504,7 @@ def schedule_drives(cohort_name, start_date, num_students):
                 drive_slot = {
                     "cohort": cohort_name,
                     "drive_letter": drive_letter,
-                    "drive_title": master_drive["drive_title"],
+                    "drive_title": drive_title,
                     "date": target_date.isoformat(),
                     "slot": master_slot,
                     "week": week_num,
@@ -513,23 +514,19 @@ def schedule_drives(cohort_name, start_date, num_students):
                     "status": "scheduled",
                 }
                 drives.append(drive_slot)
-                print(
-                    f"  Scheduled {master_drive['drive_title']} for {target_date} at {master_slot}"
-                )
+                print(f"  Scheduled {drive_title} for {target_date} at {master_slot}")
             else:
                 # Drive falls on vacation day, add to reschedule list
                 drives_to_reschedule.append(
                     {
                         "drive_letter": drive_letter,
-                        "drive_title": master_drive["drive_title"],
+                        "drive_title": drive_title,
                         "week": week_num,
                         "original_day": master_day,
                         "original_slot": master_slot,
                     }
                 )
-                print(
-                    f"  {master_drive['drive_title']} needs rescheduling (vacation day)"
-                )
+                print(f"  {drive_title} needs rescheduling (vacation day)")
 
         # Reschedule drives that fell on vacation days
         if drives_to_reschedule:
