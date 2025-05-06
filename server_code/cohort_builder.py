@@ -429,7 +429,7 @@ def schedule_drives(cohort_name, start_date, num_students):
     # Schedule each pair in the master week
     for pair in range(num_pairs):
         # Get the drive numbers for this pair from COURSE_STRUCTURE
-        drive_numbers = COURSE_STRUCTURE["driving_sessions"]["driving_sessions"][pair]
+        drive_numbers = COURSE_STRUCTURE["driving_sessions"]['pairs'][pair]
         pair_letter = chr(65 + pair)  # A, B, C, etc.
         drive_title = (
             f"Pair {pair_letter} - Drives {drive_numbers[0]} & {drive_numbers[1]}"
