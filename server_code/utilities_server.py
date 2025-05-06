@@ -1,3 +1,5 @@
+import anvil.google.auth, anvil.google.drive, anvil.google.mail
+from anvil.google.drive import app_files
 import anvil.files
 from anvil.files import data_files
 import anvil.users
@@ -148,7 +150,12 @@ def convert_JSON_to_csv_and_save(json_data, filename):
 ###########################################################
 # Export functions
 # For testing sheet access
-
+@anvil.server.callable
+def sanity_check_write():
+  sheet = app_files.drive_schedule_test
+  ws = sheet["Sheet1"]  # Or whatever the default tab is
+  ws.add_row(Slot="Hello", Monday="World")
+  return "✅ Write succeeded"
 
 @anvil.server.background_task
 def sync_instructor_availability_to_sheets():
