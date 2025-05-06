@@ -1,5 +1,6 @@
 import anvil.google.auth, anvil.google.drive, anvil.google.mail
 from anvil.google.drive import app_files
+
 """
 Cohort Builder Module
 
@@ -14,7 +15,7 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
 from datetime import datetime, timedelta, date
-from .globals import LESSON_SLOTS
+from .globals import LESSON_SLOTS, COURSE_STRUCTURE
 
 # Schools are referenced by their abbreviation found in app_tables / schools / abbreviation
 
@@ -427,12 +428,13 @@ def schedule_drives(cohort_name, start_date, num_students):
 
     # Schedule each pair in the master week
     for pair in range(num_pairs):
-        # **EDITS**
-        # Drives A to n are actuallty stident pairings. So we nee to say Pair A, Pair B, etc.
-        # Then we need to add the drive numbers from globals / COURSE_STRUCTURE / driving_sessions
-        # So the entry will show 'Pair A - Drives 1 & 2', 'Pair C - Drives 3 & 4' Etc...
-        drive_letter = chr(65 + pair)  # A, B, C, etc.
-        print(f"\nScheduling Drive {drive_letter}")
+        # Get the drive numbers for this pair from COURSE_STRUCTURE
+        drive_numbers = COURSE_STRUCTURE["driving_sessions"]["driving_sessions"][pair]
+        pair_letter = chr(65 + pair)  # A, B, C, etc.
+        drive_title = (
+            f"Pair {pair_letter} - Drives {drive_numbers[0]} & {drive_numbers[1]}"
+        )
+        print(f"\nScheduling {drive_title}")
 
         # Try to schedule on primary day first
         scheduled = False
@@ -450,7 +452,12 @@ def schedule_drives(cohort_name, start_date, num_students):
             for slot in weekly_slots[day]:
                 if slot not in used_slots[day]:
                     master_schedule.append(
-                        {"drive_letter": drive_letter, "day": day, "slot": slot}
+                        {
+                            "drive_letter": pair_letter,
+                            "drive_title": drive_title,
+                            "day": day,
+                            "slot": slot,
+                        }
                     )
                     used_slots[day].append(slot)
                     print(f"  Scheduled for {day} at {slot}")
@@ -459,7 +466,7 @@ def schedule_drives(cohort_name, start_date, num_students):
 
     print("\nMaster Schedule Summary:")
     for drive in master_schedule:
-        print(f"Drive {drive['drive_letter']}: {drive['day']} at {drive['slot']}")
+        print(f"{drive['drive_title']}: {drive['day']} at {drive['slot']}")
 
     # Step 2: Apply master schedule to all weeks, adjusting for vacation days
     for week in range(5):
@@ -496,6 +503,7 @@ def schedule_drives(cohort_name, start_date, num_students):
                 drive_slot = {
                     "cohort": cohort_name,
                     "drive_letter": drive_letter,
+                    "drive_title": master_drive["drive_title"],
                     "date": target_date.isoformat(),
                     "slot": master_slot,
                     "week": week_num,
@@ -506,19 +514,22 @@ def schedule_drives(cohort_name, start_date, num_students):
                 }
                 drives.append(drive_slot)
                 print(
-                    f"  Scheduled Drive {drive_letter} for {target_date} at {master_slot}"
+                    f"  Scheduled {master_drive['drive_title']} for {target_date} at {master_slot}"
                 )
             else:
                 # Drive falls on vacation day, add to reschedule list
                 drives_to_reschedule.append(
                     {
                         "drive_letter": drive_letter,
+                        "drive_title": master_drive["drive_title"],
                         "week": week_num,
                         "original_day": master_day,
                         "original_slot": master_slot,
                     }
                 )
-                print(f"  Drive {drive_letter} needs rescheduling (vacation day)")
+                print(
+                    f"  {master_drive['drive_title']} needs rescheduling (vacation day)"
+                )
 
         # Reschedule drives that fell on vacation days
         if drives_to_reschedule:
@@ -547,6 +558,7 @@ def schedule_drives(cohort_name, start_date, num_students):
                                     drive_slot = {
                                         "cohort": cohort_name,
                                         "drive_letter": drive["drive_letter"],
+                                        "drive_title": drive["drive_title"],
                                         "date": week_day.isoformat(),
                                         "slot": slot,
                                         "week": drive["week"],
@@ -576,6 +588,7 @@ def schedule_drives(cohort_name, start_date, num_students):
                                     drive_slot = {
                                         "cohort": cohort_name,
                                         "drive_letter": drive["drive_letter"],
+                                        "drive_title": drive["drive_title"],
                                         "date": week_day.isoformat(),
                                         "slot": slot,
                                         "week": drive["week"],
@@ -591,7 +604,7 @@ def schedule_drives(cohort_name, start_date, num_students):
 
                 if not rescheduled:
                     print(
-                        f"WARNING: Could not reschedule Drive {drive['drive_letter']} in week {week_num}"
+                        f"WARNING: Could not reschedule {drive['drive_title']} in week {week_num}"
                     )
                     print(
                         f"Original schedule: {drive['original_day']} at {drive['original_slot']}"
@@ -856,7 +869,7 @@ def create_merged_schedule(cohort_name):
                 if drive_slot["date"] == date_str:
                     day_schedule["slots"][drive_slot["slot"]] = {
                         "type": "drive",
-                        "title": f"Drive {drive_slot['drive_letter']}",
+                        "title": drive_slot["drive_title"],
                         "details": {
                             "week": drive_slot["week"],
                             "is_backup_slot": drive_slot["is_backup_slot"],
