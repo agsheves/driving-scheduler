@@ -1,5 +1,6 @@
 import anvil.google.auth, anvil.google.drive, anvil.google.mail
 from anvil.google.drive import app_files
+
 """
 Cohort Builder Module
 
@@ -432,7 +433,7 @@ def schedule_drives(cohort_name, start_date, num_students):
         # Then we need to add the drive numbers from globals / COURSE_STRUCTURE / driving_sessions
         # So the entry will show 'Pair A - Drives 1 & 2', 'Pair C - Drives 3 & 4' Etc...
         pair_letter = chr(65 + pair)  # A, B, C, etc.
-        print(f"\nScheduling Drive {pair_letter}")
+        print(f"\nScheduling Pair {pair_letter}")
 
         # Try to schedule on primary day first
         scheduled = False
@@ -459,7 +460,7 @@ def schedule_drives(cohort_name, start_date, num_students):
 
     print("\nMaster Schedule Summary:")
     for drive in master_schedule:
-        print(f"Drive {drive['pair_letter']}: {drive['day']} at {drive['slot']}")
+        print(f"Pair {drive['pair_letter']}: {drive['day']} at {drive['slot']}")
 
     # Step 2: Apply master schedule to all weeks, adjusting for vacation days
     for week in range(5):
@@ -506,7 +507,7 @@ def schedule_drives(cohort_name, start_date, num_students):
                 }
                 drives.append(drive_slot)
                 print(
-                    f"  Scheduled pair {pair_letter} for {target_date} at {master_slot}"
+                    f"  Scheduled Pair {pair_letter} for {target_date} at {master_slot}"
                 )
             else:
                 # Drive falls on vacation day, add to reschedule list
@@ -744,14 +745,14 @@ def test_capacity_calculation(start_date=None, school=None):
     # Debug printing for drives
     print("\nDebug - All drives:")
     for drive in drives:
-        print(f"  • Drive {drive['pair_letter']} on {drive['date']}")
+        print(f"  • Pair {drive['pair_letter']} on {drive['date']}")
 
     print("\nDebug - First week calculation:")
     for drive in drives:
         drive_date = datetime.fromisoformat(drive["date"]).date()
         days_diff = (drive_date - start_date).days
         print(
-            f"  • Drive {drive['pair_letter']} on {drive['date']} (days from start: {days_diff})"
+            f"  • Pair {drive['pair_letter']} on {drive['date']} (days from start: {days_diff})"
         )
 
     print("\nFirst week drives:")
@@ -763,7 +764,7 @@ def test_capacity_calculation(start_date=None, school=None):
     ]
     print(f"Found {len(first_week_drives)} drives in first week")
     for drive in first_week_drives:
-        print(f"  • Drive {drive['pair_letter']} on {drive['date']}")
+        print(f"  • Pair {drive['pair_letter']} on {drive['date']}")
 
     return {
         "start_date": start_date,
@@ -856,7 +857,7 @@ def create_merged_schedule(cohort_name):
                 if drive_slot["date"] == date_str:
                     day_schedule["slots"][drive_slot["slot"]] = {
                         "type": "drive",
-                        "title": f"Drive {drive_slot['pair_letter']}",
+                        "title": f"Pair {drive_slot['pair_letter']}",
                         "details": {
                             "week": drive_slot["week"],
                             "is_backup_slot": drive_slot["is_backup_slot"],

@@ -564,7 +564,7 @@ def export_merged_cohort_schedule(cohort_name):
         slot_order = [
             # **EDITS**
             # Amend this to show breaks
-            slot for slot in LESSON_SLOTS.keys() if not slot.startswith("break_")
+            slot for slot in LESSON_SLOTS.keys() # if not slot.startswith("break_")
         ]
 
         # Create slot to time mapping
@@ -627,9 +627,16 @@ def export_merged_cohort_schedule(cohort_name):
 
         # Format row headers (times)
         for row_num, value in enumerate(df.index.values):
-          # **EDITS**
-            # Need to show 12-hour clock in table but keep 24 hour clock in data
-            worksheet.write(row_num + 2, 0, value, time_format)
+
+            try:
+                # Try to parse as time
+                t = datetime.strptime(value, "%H:%M")
+                display_time = t.strftime("%I:%M %p").lstrip("0")  # e.g., "2:00 PM"
+            except Exception:
+                display_time = value  # fallback if not a time string
+
+  
+            worksheet.write(row_num + 2, 0, display_time, time_format)
 
         # Set column widths
         worksheet.set_column(0, 0, 8)  # Time column
