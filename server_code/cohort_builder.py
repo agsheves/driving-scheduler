@@ -15,7 +15,7 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
 from datetime import datetime, timedelta, date
-from .globals import LESSON_SLOTS
+from .globals import LESSON_SLOTS, COURSE_STRUCTURE
 
 # Schools are referenced by their abbreviation found in app_tables / schools / abbreviation
 
