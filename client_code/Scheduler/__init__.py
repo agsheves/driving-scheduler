@@ -142,13 +142,13 @@ class Scheduler(SchedulerTemplate):
       x=data['x_labels'],
       y=data['y_labels'],
       colorscale=[
-        [0/6, 'DimGrey'],     # 0: Not available
-        [1/6, 'RebeccaPurple'], # 1: Available for both
-        [2/6, 'RebeccaPurple'], # 2: Available for drives only
-        [3/6, 'RebeccaPurple'], # 3: Available for classes only
-        [4/6, 'DimBlue'],     # 4: Allocated to cohort slot
-        [5/6, 'Blue'],        # 5: Booked
-        [6/6, 'DimGrey']      # 6: Vacation
+        [0 / 6, "grey"],  # 0: Not available
+        [1 / 6, "purple"],  # 1: Available for both
+        [2 / 6, "RebeccaPurple"],  # 2: Available for drives only
+        [3 / 6, "RebeccaPurple"],  # 3: Available for classes only
+        [4 / 6, "orange"],  # 4: Allocated to cohort slot
+        [5 / 6, "red"],  # 5: Booked
+        [6 / 6, "lightgrey"],  # 6: Vacation
       ],
       text=text_matrix,
       texttemplate="%{text}",
