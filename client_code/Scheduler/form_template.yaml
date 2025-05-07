@@ -1,14 +1,15 @@
 components:
 - layout_properties: {grid_position: 'IGJCBD,QIIFKD'}
   name: label_1
-  properties: {align: center, role: headline, text: Schedule page}
+  properties: {align: center, role: headline, text: Scheduling}
   type: Label
 - components:
   - layout_properties: {grid_position: 'DVCXHV,DGGGIR'}
     name: label_12
     properties: {align: center, text: Show / Hide}
     type: Label
-  - layout_properties: {grid_position: 'SALZRG,NGYALA'}
+  - event_bindings: {click: show_instructor_schedule_button_click}
+    layout_properties: {grid_position: 'SALZRG,NGYALA'}
     name: show_instructor_schedule_button
     properties:
       role: filled-button
@@ -33,8 +34,8 @@ components:
         Scheduling
     type: Button
   layout_properties: {grid_position: 'EKDDSC,GWYQQV'}
-  name: column_panel_3
-  properties: {}
+  name: control_panel
+  properties: {visible: false}
   type: ColumnPanel
 - layout_properties: {grid_position: 'LPPIYF,JCSABL'}
   name: spacer_1
@@ -55,57 +56,6 @@ components:
   name: controls_panel
   properties: {visible: false}
   type: ColumnPanel
-- components:
-  - layout_properties: {grid_position: 'TWOCTZ,INDBJS'}
-    name: label_3
-    properties:
-      text: |
-        Lessons and Events available for scheduling are shown below
-      visible: false
-    type: Label
-  - components:
-    - layout_properties: {grid_position: 'SXSNRW,SAMFMT'}
-      name: label_4
-      properties: {align: left, bold: true, text: Drive Sessions}
-      type: Label
-    - layout_properties: {grid_position: 'MEHZAY,DZOCNM'}
-      name: drive_time_list_label
-      properties: {}
-      type: Label
-    layout_properties: {grid_position: 'UGBUHA,IFJVUF'}
-    name: drive_card
-    properties: {role: outlined-card}
-    type: ColumnPanel
-  - components:
-    - layout_properties: {grid_position: 'RMEJVR,UVHTPY'}
-      name: label_5
-      properties: {align: left, bold: true, text: Classes}
-      type: Label
-    - layout_properties: {grid_position: 'ILDXHW,ITPZJR'}
-      name: class_time_list_label
-      properties: {}
-      type: Label
-    layout_properties: {grid_position: 'EBOYZC,PNGYVA'}
-    name: class_card
-    properties: {role: outlined-card}
-    type: ColumnPanel
-  - components:
-    - layout_properties: {grid_position: 'XPTYNW,NJMXXG'}
-      name: label_6
-      properties: {align: left, bold: true, text: Breaks}
-      type: Label
-    - layout_properties: {grid_position: 'ROVGFT,QRCGIM'}
-      name: break_time_list_label
-      properties: {}
-      type: Label
-    layout_properties: {grid_position: 'XXNEUI,BGKYEF'}
-    name: break_card
-    properties: {role: outlined-card}
-    type: ColumnPanel
-  layout_properties: {grid_position: 'PRKSGI,TWXUAV'}
-  name: schedule_card_1
-  properties: {role: tonal-card, visible: false}
-  type: ColumnPanel
 - components: []
   layout_properties: {grid_position: 'GYYNEF,XXVWIP'}
   name: column_panel_1
@@ -118,63 +68,50 @@ components:
       properties: {role: title, text: Availability Schedule}
       type: Label
     - components:
-      - components:
-        - event_bindings: {change: filter_schedule_switch_change}
-          layout_properties: {grid_position: 'VZFNKB,SVDCRK'}
-          name: filter_schedule_switch
-          properties: {text_post: Filter By Instructor, text_pre: Full Schedule}
-          type: form:dep_nh1j2ue7kdk6d:Switch
-        - event_bindings: {change: instructor_filter_drop_down_change}
-          layout_properties: {grid_position: 'VZFNKB,GDQFQH'}
-          name: instructor_filter_drop_down
-          properties: {visible: false}
-          type: DropDown
-        - layout_properties: {grid_position: 'FOKAUU,ZARXRG'}
-          name: instructor_list
-          properties: {font_size: 16, role: body}
-          type: Label
-        - event_bindings: {click: refresh_schedule_button_click}
-          layout_properties: {grid_position: 'ALHZIE,KQTDQG'}
-          name: refresh_schedule_button
-          properties: {enabled: false, role: filled-button, text: Refresh Schedule, visible: false}
-          type: Button
-        - event_bindings: {click: create_availability_report_button_click}
-          layout_properties: {grid_position: 'ALHZIE,LGSQGZ'}
-          name: create_availability_report_button
-          properties:
-            role: filled-button
-            text: |
-              Download Overall
-              Availability Report
-          type: Button
-        - event_bindings: {click: download_availability_button_click}
-          layout_properties: {grid_position: 'ALHZIE,KAJCGS'}
-          name: download_availability_button
-          properties:
-            enabled: true
-            role: filled-button
-            text: |-
-              Download Instructor
-              Availability
-            visible: true
-          type: Button
-        name: schedule_control_column
-        properties: {}
-        type: ColumnPanel
-      - name: schedule_plot_complete
+      - event_bindings: {change: filter_schedule_switch_change}
+        layout_properties: {grid_position: 'UQQBSS,QMHCTK'}
+        name: filter_schedule_switch
+        properties: {text_post: Filter By Instructor, text_pre: Full Schedule}
+        type: form:dep_nh1j2ue7kdk6d:Switch
+      - event_bindings: {change: instructor_filter_drop_down_change}
+        layout_properties: {grid_position: 'UQQBSS,SZNABE'}
+        name: instructor_filter_drop_down
+        properties: {visible: false}
+        type: DropDown
+      - layout_properties: {grid_position: 'JVSXIA,BKPGHJ'}
+        name: instructor_list
+        properties: {font_size: 16, role: body}
+        type: Label
+      - layout_properties: {grid_position: 'NHCIOA,LAESXL'}
+        name: schedule_plot_complete
         properties: {}
         type: Plot
-      layout_properties: {grid_position: 'YJQYSL,VVAISO'}
-      name: rich_text_1
-      properties:
-        align: center
-        content: |-
-          <p>This shows instructor availability as follows:</p>
-          <p><span style="color:DimGrey;">■</span> Unavailable | <span style="color:RebeccaPurple;">■</span> Available - Any Session Type | <span style="color:DeepSkyBlue;">■</span> Available - Drive Sessions Only | <span style="color:Blue;">■</span> Available - Class Sessions Only | <span style="color:Green;">■</span> Booked</p>
-        format: restricted_html
-      type: RichText
+      - event_bindings: {click: create_availability_report_button_click}
+        layout_properties: {grid_position: 'JTUBZG,EUBRPD'}
+        name: create_availability_report_button
+        properties:
+          role: filled-button
+          text: |
+            Download Capacity
+            Report
+        type: Button
+      - event_bindings: {click: download_availability_button_click}
+        layout_properties: {grid_position: 'JTUBZG,MGMJBU'}
+        name: download_availability_button
+        properties:
+          enabled: true
+          role: filled-button
+          text: |-
+            Download Instructor
+            Availability
+          visible: true
+        type: Button
+      layout_properties: {grid_position: 'EAKVPB,HXBBFK'}
+      name: column_panel_3
+      properties: {}
+      type: ColumnPanel
     layout_properties: {grid_position: 'KPQNLJ,COYVXF'}
-    name: outlined_card_3
+    name: availability_card
     properties: {role: outlined-card}
     type: ColumnPanel
   - components:
@@ -211,11 +148,15 @@ components:
       - event_bindings: {click: cohort_builder_button_click}
         layout_properties: {grid_position: 'MUQGCL,QMYFLB'}
         name: cohort_builder_button
-        properties: {role: outlined-button, text: Build a Cohort}
+        properties:
+          role: outlined-button
+          text: |
+            Build a Cohort
+            (Lessons Only)
         type: Button
       - layout_properties: {grid_position: 'VZYBOC,PMGYED'}
         name: schedule_print_box
-        properties: {format: plain_text, visible: true}
+        properties: {format: plain_text, visible: false}
         type: RichText
       - event_bindings: {click: export_cohort_button_click}
         layout_properties: {grid_position: 'ISCEWE,EZAIAA'}
@@ -233,7 +174,7 @@ components:
       properties: {background: ''}
       type: ColumnPanel
     layout_properties: {grid_position: 'JJBCKZ,MHOXOY'}
-    name: outlined_card_1
+    name: cohort_build_card
     properties: {role: outlined-card}
     type: ColumnPanel
   - components:
@@ -256,7 +197,7 @@ components:
       type: ColumnPanel
     - layout_properties: {grid_position: 'MAOVSG,CJPMGZ'}
       name: label_7
-      properties: {text: 1 - Select a cohort}
+      properties: {text: Select an existing  cohort}
       type: Label
     - event_bindings: {change: cohort_Selector_change}
       layout_properties: {grid_position: 'TZKDNL,UFWOZH'}
@@ -271,7 +212,7 @@ components:
       name: label_8
       properties:
         text: |
-          2 - Select two instructors
+          Select two instructors
           (Only instructors who are available and who can teach at that school should appear below)
       type: Label
     - event_bindings: {change: instructor_1_selector_change}
@@ -299,7 +240,7 @@ components:
       type: Button
     - layout_properties: {grid_position: 'MNTPXS,SBWUAU'}
       name: scheduling_text_box
-      properties: {}
+      properties: {visible: false}
       type: Label
     - event_bindings: {click: export_cohort_and_schedule_button_click}
       layout_properties: {grid_position: 'ZEJRYM,WUHAZJ'}

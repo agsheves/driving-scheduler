@@ -18,14 +18,14 @@ class Frame(FrameTemplate):
     # ⚠️  Enable this for testing
     #anvil.users.login_with_form()
     if display_form is None:
-      self.dynamic_panel_1.add_component(Instructors())
+      self.dynamic_panel_1.add_component(Scheduler())
     else:
       self.dynamic_panel_1.add_component(display_form())
 
     #Set the Plotly plots template to match the theme of the app
     Plot.templates.default = "rally"
     
-    #When the app starts up, the Scheduler form is opened by defauly
+    #When the app starts up, the Scheduler form is opened by default
     #self.dynamic_panel_1.add_component(Scheduler())
     #Change the color of the selected page_link to indicate that the page that has been selected
 
