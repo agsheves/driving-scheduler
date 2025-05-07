@@ -138,9 +138,9 @@ components:
         name: label_10
         properties:
           text: |
-            Build a blank cohort of classes and drives for a school
+            Build a blank classroom of classes and drives for a school
             Will accept up to 30 students.
-            Cohorts check for availability of instructors generally (i.e, is there sufficient capacity overall for this period) and account for company days off and holidays
+            Classroom scheduling check for availability of instructors generally (i.e, is there sufficient capacity overall for this period) and account for company days off and holidays
 
             ** Schedule a Monday start date to optimize the schedule**
         type: Label
@@ -205,9 +205,9 @@ components:
         name: label_10_copy
         properties:
           text: |
-            This allocates instructors to a cohort based on their individual availability
+            This allocates instructors to a classroom based on their individual availability
             Once allocated, they are marked as 'scheduled' and unavailable for other tasks is in that time slot unless removed
-            Status is changed to 'booked' once a student has enrolled in that cohort and been allocated to that class
+            Status is changed to 'booked' once a student has enrolled in that classroom and been allocated to a lesson segment
         type: Label
       layout_properties: {grid_position: 'CZKCAC,OJAXPO'}
       name: outlined_card_2_copy
@@ -215,7 +215,7 @@ components:
       type: ColumnPanel
     - layout_properties: {grid_position: 'MAOVSG,CJPMGZ'}
       name: label_7
-      properties: {text: Select an existing  classroom}
+      properties: {text: Select an existing classroom}
       type: Label
     - event_bindings: {change: cohort_Selector_change}
       layout_properties: {grid_position: 'TZKDNL,UFWOZH'}
