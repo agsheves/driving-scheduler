@@ -135,7 +135,7 @@ class Scheduler(SchedulerTemplate):
           text_row.append('Personal Vacation')
         else:
           text_row.append('')
-        text_matrix.append(text_row)
+      text_matrix.append(text_row)
 
     fig = go.Figure(data=go.Heatmap(
       z=data['z_values'],
