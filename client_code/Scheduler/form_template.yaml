@@ -126,7 +126,7 @@ components:
       type: ColumnPanel
     layout_properties: {grid_position: 'KPQNLJ,COYVXF'}
     name: availability_card
-    properties: {role: outlined-card}
+    properties: {role: outlined-card, visible: true}
     type: ColumnPanel
   - components:
     - layout_properties: {grid_position: 'NYTNEL,XLRNTR'}
@@ -165,7 +165,7 @@ components:
         properties:
           role: outlined-button
           text: |
-            Build a Cohort
+            Build a Classroom
             (Lessons Only)
         type: Button
       - layout_properties: {grid_position: 'VZYBOC,PMGYED'}
@@ -179,7 +179,7 @@ components:
           icon: fa:download
           role: outlined-button
           text: |-
-            Export Cohort Schedule
+            Export Classroom Schedule
             (Lessons Only)
           tooltip: Lesson schedule only - does not include instructor allocation
         type: Button
@@ -187,6 +187,10 @@ components:
       name: schedule_builder_panel
       properties: {background: ''}
       type: ColumnPanel
+    - layout_properties: {grid_position: 'CWKDZR,HNBLZN'}
+      name: schedule_export_notice_label
+      properties: {align: center, content: Check the 'File Transfer' panel for your classroom download, format: plain_text, visible: false}
+      type: RichText
     layout_properties: {grid_position: 'JJBCKZ,MHOXOY'}
     name: cohort_build_card
     properties: {role: outlined-card}
@@ -211,7 +215,7 @@ components:
       type: ColumnPanel
     - layout_properties: {grid_position: 'MAOVSG,CJPMGZ'}
       name: label_7
-      properties: {text: Select an existing  cohort}
+      properties: {text: Select an existing  classroom}
       type: Label
     - event_bindings: {change: cohort_Selector_change}
       layout_properties: {grid_position: 'TZKDNL,UFWOZH'}
@@ -250,11 +254,11 @@ components:
         role: outlined-button
         text: |
           Add Instructors to
-          Cohort Schedule
+          Classroom Schedule
       type: Button
     - layout_properties: {grid_position: 'MNTPXS,SBWUAU'}
       name: scheduling_text_box
-      properties: {visible: true}
+      properties: {align: center, visible: true}
       type: Label
     - event_bindings: {click: export_cohort_and_schedule_button_click}
       layout_properties: {grid_position: 'ZEJRYM,WUHAZJ'}
@@ -263,14 +267,14 @@ components:
         icon: fa:download
         role: outlined-button
         text: |-
-          Export Full Cohort Schedule
+          Export Full Classroom Schedule
           (Lesson & Instructors)
         tooltip: ''
       type: Button
-    - layout_properties: {grid_position: 'JOJXUZ,LQOFPA'}
-      name: column_panel_2
-      properties: {}
-      type: ColumnPanel
+    - layout_properties: {grid_position: 'ZOJYIK,IIXKHW'}
+      name: full_classroom_export_notice_label
+      properties: {align: center, text: Check the 'File Transfer' panel for your classroom +  instructor download, visible: false}
+      type: Label
     layout_properties: {grid_position: 'XFROKB,DWMCTK'}
     name: instructor_allocation_card
     properties: {role: outlined-card}

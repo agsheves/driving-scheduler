@@ -11,7 +11,7 @@ components:
       type: Label
     - layout_properties: {grid_position: 'SUOTFS,VCPZIY'}
       name: edit_personal_info_button
-      properties: {align: right, enabled: false, icon: 'fa:edit', text: ' Edit'}
+      properties: {align: right, enabled: false, icon: 'fa:edit', text: ' Edit', visible: false}
       type: Button
     - layout_properties: {grid_position: 'WBHYIU,ZGCYXC'}
       name: full_name_label
@@ -102,8 +102,8 @@ components:
       properties: {col_widths: '{"XPNPVI":30,"JPMKZJ":15,"APGNNF":15}', role: null}
       type: ColumnPanel
     layout_properties: {grid_position: 'EWAYLS,LWOGID'}
-    name: outlined_card_1
-    properties: {col_widths: '{"DSJEHP":35}', role: outlined-card}
+    name: availability_card
+    properties: {col_widths: '{"DSJEHP":35}', role: outlined-card, visible: false}
     type: ColumnPanel
   - components:
     - layout_properties: {grid_position: 'YAIHHJ,LZTHGG'}
@@ -115,8 +115,8 @@ components:
       properties: {align: right, enabled: false, icon: 'fa:edit', text: ' Edit'}
       type: Button
     layout_properties: {grid_position: 'CDYZFO,VQLYDN'}
-    name: outlined_card_2
-    properties: {col_widths: '{"LZTHGG":50,"IERZNL":10}', role: outlined-card}
+    name: vacation_card
+    properties: {col_widths: '{"LZTHGG":50,"IERZNL":10}', role: outlined-card, visible: false}
     type: ColumnPanel
   layout_properties: {grid_position: 'MLUIVF,PRWISQ'}
   name: card_1

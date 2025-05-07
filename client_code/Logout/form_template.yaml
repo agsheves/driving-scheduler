@@ -7,7 +7,7 @@ components:
   - event_bindings: {click: button_1_click}
     layout_properties: {grid_position: 'OHNHTP,TQKEOP'}
     name: button_1
-    properties: {align: center, background: '', bold: false, border: '', enabled: true, font: '', font_size: null, foreground: '', icon: '', icon_align: left, italic: false, role: filled, spacing_above: small, spacing_below: small, text: Sign In, tooltip: '', underline: false, visible: true}
+    properties: {align: center, background: '', bold: false, border: '', enabled: true, font: '', font_size: null, foreground: '', icon: '', icon_align: left, italic: false, role: filled, spacing_above: small, spacing_below: small, text: Sign Back In, tooltip: '', underline: false, visible: true}
     type: Button
   layout_properties: {grid_position: 'NBKVCA,BUNELH'}
   name: card_1

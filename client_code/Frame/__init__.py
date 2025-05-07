@@ -15,8 +15,7 @@ class Frame(FrameTemplate):
   def __init__(self, display_form=None, **properties):
     self.init_components(**properties)
     
-    # ⚠️  Enable this for testing
-    #anvil.users.login_with_form()
+    anvil.users.login_with_form()
     if display_form is None:
       self.dynamic_panel_1.add_component(Scheduler())
     else:
@@ -30,13 +29,9 @@ class Frame(FrameTemplate):
     #Change the color of the selected page_link to indicate that the page that has been selected
 
 
-
-  # ⚠️ If using the Users service, uncomment this code to log out the user:
   def signout_link_click(self, **event_args):
-    pass
-  
-  #   anvil.users.logout()
-  #   open_form('Logout')
+    anvil.users.logout()
+    open_form('Logout')
 
   def schedule_page_link_click(self, **event_args):
     self.dynamic_panel_1.clear()
