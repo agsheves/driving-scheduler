@@ -272,7 +272,6 @@ def _update_instructor_availability(availability, date_str, slot, instructor):
         availability[date_str][slot] = AVAILABILITY_MAPPING["Scheduled"]
 
 
-
 def _persist_instructor_availability(instructor, availability):
     """
     Persist instructor's availability to the database.
@@ -280,4 +279,4 @@ def _persist_instructor_availability(instructor, availability):
     """
     instructor_schedule = app_tables.instructor_schedules.get(instructor=instructor)
     if instructor_schedule:
-      instructor_schedule.update(current_seven_month_availability=availability)
+        instructor_schedule.update(current_seven_month_availability=availability)

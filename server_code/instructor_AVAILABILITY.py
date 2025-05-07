@@ -1,5 +1,6 @@
 import anvil.google.auth, anvil.google.drive, anvil.google.mail
 from anvil.google.drive import app_files
+
 """
 Instructor Availability Server Module
 This module handles instructor availability processing and scheduling.
@@ -39,6 +40,10 @@ def process_instructor_availability(instructors, start_date=None):
     if start_date is None:
         start_date = datetime.now().date()
 
+    # Calculate the start of the week (Monday) for the given start_date
+    start_of_week = start_date - timedelta(days=start_date.weekday())
+    end_of_week = start_of_week + timedelta(days=6)
+
     all_records = []
 
     for instructor in instructors:
@@ -46,42 +51,30 @@ def process_instructor_availability(instructors, start_date=None):
             instructor_schedule = app_tables.instructor_schedules.get(
                 instructor=instructor
             )
-            weekly_data = instructor_schedule["weekly_availability"]
-            # print("==Debug== Weekly data:", weekly_data)  # Debug print
-            if weekly_data is None or weekly_data == "":
+            # Get the current seven month availability data
+            availability_data = instructor_schedule["current_seven_month_availability"]
+            if availability_data is None or availability_data == "":
                 continue
-            # print(f"Found data for {instructor['firstName']}: {weekly_data.keys()}")
         except (KeyError, TypeError) as e:
-            weekly_data = {}
-            # print(f"Error getting data for {instructor['firstName']}: {e}")
+            availability_data = {}
             continue
 
-        for day_index, day_name in enumerate(days_of_week):
-            try:
-                # print("==Debug== Trying to access:", day_name)  # Debug print
-                # print("==Debug== Weekly data structure:", weekly_data)  # Debug print
-                day_availability = weekly_data["weekly_availability"][
-                    day_name
-                ]  # Fixed access
-                # print(
-                # f"Processing {day_name} for {instructor['firstName']}: {len(day_availability)} time slots"
-                # )
-            except (KeyError, TypeError) as e:
-                # print(f"No data for {day_name}: {e}")
+        # Process each date in the availability data, but only for the target week
+        for date_str, slots in availability_data.items():
+            date = datetime.strptime(date_str, "%Y-%m-%d").date()
+
+            # Skip if date is not in our target week
+            if date < start_of_week or date > end_of_week:
                 continue
 
-            for slot_name, status in day_availability.items():
-                # print(f"{slot_name}: {status}")
+            # Get the day of week (0-6, where 0 is Monday)
+            day_name = date.strftime("%A").lower()
+            day_index = date.weekday()
+
+            for slot_name, status in slots.items():
                 if slot_name in LESSON_SLOTS:
                     try:
-                        # print(
-                        # "==Debug== Processing slot:",
-                        # slot_name,
-                        # "with status:",
-                        # status,
-                        # )  # Debug print
                         value = availability_mapping.get(status, -1)
-                        # print("==Debug== Mapped value:", value)  # Debug print
                         all_records.append(
                             {
                                 "instructor": instructor["firstName"],
@@ -98,15 +91,8 @@ def process_instructor_availability(instructors, start_date=None):
                         print(f"Error with slot {slot_name}: {e}")
                         continue
 
-        # print(f"Added {instructor['firstName']}")
-
     # Process the data with pandas
     df = pd.DataFrame(all_records)
-
-    # Debug print to see sample of the dataframe in terminal
-    # print(f"Total records: {len(df)}")
-    # print("Sample of DataFrame (first 20 records):")
-    print(df.head(20))
 
     if df.empty:
         return None
