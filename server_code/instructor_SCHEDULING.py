@@ -270,10 +270,7 @@ def _update_instructor_availability(availability, date_str, slot, instructor):
     """
     if date_str in availability and slot in availability[date_str]:
         availability[date_str][slot] = AVAILABILITY_MAPPING["Scheduled"]
-        # Log the update instead of writing to database
-        print(
-            f"TESTING - Would update {instructor['firstName']}'s availability for {date_str} {slot} to Scheduled"
-        )
+
 
 
 def _persist_instructor_availability(instructor, availability):
@@ -281,11 +278,6 @@ def _persist_instructor_availability(instructor, availability):
     Persist instructor's availability to the database.
     Currently just logs the update for testing.
     """
-    print(
-        f"TESTING - Would update {instructor['firstName']}'s schedule in database with new availability"
-    )
-    print(f"TESTING - New availability: {availability}")
-    # Once tested, uncomment this:
-    # instructor_schedule = app_tables.instructor_schedules.get(instructor=instructor)
-    # if instructor_schedule:
-    #     instructor_schedule.update(current_seven_month_availability=availability)
+    instructor_schedule = app_tables.instructor_schedules.get(instructor=instructor)
+    if instructor_schedule:
+      instructor_schedule.update(current_seven_month_availability=availability)
