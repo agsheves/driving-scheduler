@@ -98,9 +98,19 @@ def process_instructor_availability(instructors, start_date=None):
 
     # Process the data with pandas
     df = pd.DataFrame(all_records)
+    print("\n=== SERVER SIDE ===")
+    print("Unique slots in DataFrame:", df["slot"].unique())
+    print("Number of records:", len(df))
 
     if df.empty:
         return None
+
+    # Validate that all values are within expected range (0-6)
+    invalid_values = df[~df["value"].isin(range(7))]["value"].unique()
+    if len(invalid_values) > 0:
+        print(f"Warning: Found invalid availability values: {invalid_values}")
+        # Replace invalid values with 0 (Unavailable)
+        df.loc[~df["value"].isin(range(7)), "value"] = 0
 
     # Create a pivot table for the heatmap: slots vs days
     pivot_df = df.pivot_table(
@@ -109,6 +119,8 @@ def process_instructor_availability(instructors, start_date=None):
         columns=["day_name", "instructor"],
         aggfunc="first",
     )
+    print("\nPivot table index (slots):", [slot for slot, _, _ in pivot_df.index])
+    print("Pivot table shape:", pivot_df.shape)
 
     # Sort by start time
     pivot_df = pivot_df.sort_values(by=["start_time"], ascending=False)
@@ -146,8 +158,8 @@ def process_instructor_availability(instructors, start_date=None):
             new_row.append(row[col_idx])
         z_values_ordered.append(new_row)
 
-    # Return the properly ordered data
-    return {
+    # Convert to the format expected by the client
+    data = {
         "z_values": z_values_ordered,
         "x_labels": flat_labels,
         "y_labels": [
@@ -156,6 +168,8 @@ def process_instructor_availability(instructors, start_date=None):
         ],
         "instructors": [i["firstName"] for i in instructors],
     }
+    print("\nY labels being sent to client:", data["y_labels"])
+    return data
 
 
 @anvil.server.callable
