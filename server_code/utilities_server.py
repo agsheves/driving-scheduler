@@ -553,6 +553,7 @@ def export_merged_cohort_schedule(cohort_name):
     """
 
     # Get merged schedule
+    has_instructor = False
     daily_schedules = app_tables.cohorts.get(cohort_name=cohort_name)[
         "complete_schedule"
     ]
