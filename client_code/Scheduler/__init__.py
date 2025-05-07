@@ -117,39 +117,46 @@ class Scheduler(SchedulerTemplate):
     # Create a simple heatmap
     text_matrix = []
     for row in data['z_values']:
-        text_row = []
-        for val in row:
-            if val == 0:
-                text_row.append('Unavailable')
-            elif val == 1:
-                text_row.append('Any')
-            elif val == 2:
-              text_row.append('Drive Only')
-            elif val == 3:
-              text_row.append('Class Only')
-            else:
-                text_row.append('')
+      text_row = []
+      for val in row:
+        if val == 0:
+          text_row.append('Unavailable')
+        elif val == 1:
+          text_row.append('Any')
+        elif val == 2:
+          text_row.append('Drive Only')
+        elif val == 3:
+          text_row.append('Class Only')
+        elif val == 4:
+          text_row.append('Scheduled')
+        elif val == 5:
+          text_row.append('Booked')
+        elif val == 6:
+          text_row.append('Personal Vacation')
+        else:
+          text_row.append('')
         text_matrix.append(text_row)
 
     fig = go.Figure(data=go.Heatmap(
-        z=data['z_values'],
-        x=data['x_labels'],
-        y=data['y_labels'],
-        # Need to map for all possible conditions as per Globals / AVAILABILITY_MAPPING
-        colorscale=[
-            [0/3, 'DimGrey'],
-            [1/3, 'RebeccaPurple'],
-            [2/3, 'RebeccaPurple'],
-            [3/3, 'RebeccaPurple']
-        ],
-        text=text_matrix,
-        texttemplate="%{text}",
-        showscale=False,
-        bgcolor='white',
-        zmin=0,
-        zmax=3
+      z=data['z_values'],
+      x=data['x_labels'],
+      y=data['y_labels'],
+      colorscale=[
+        [0/6, 'DimGrey'],     # 0: Not available
+        [1/6, 'RebeccaPurple'], # 1: Available for both
+        [2/6, 'RebeccaPurple'], # 2: Available for drives only
+        [3/6, 'RebeccaPurple'], # 3: Available for classes only
+        [4/6, 'DimBlue'],     # 4: Allocated to cohort slot
+        [5/6, 'Blue'],        # 5: Booked
+        [6/6, 'DimGrey']      # 6: Vacation
+      ],
+      text=text_matrix,
+      texttemplate="%{text}",
+      showscale=False,
+      bgcolor='white',
+      zmin=0,
+      zmax=6
     ))
-    
     # Update layout - keeping it very minimal
     title_text = "Weekly Availability"
     if data['instructors']:

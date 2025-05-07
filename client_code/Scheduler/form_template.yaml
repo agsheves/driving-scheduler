@@ -8,7 +8,7 @@ components:
     name: label_12
     properties: {align: center, text: Show / Hide}
     type: Label
-  - event_bindings: {click: show_instructor_schedule_button_click}
+  - event_bindings: {}
     layout_properties: {grid_position: 'SALZRG,NGYALA'}
     name: show_instructor_schedule_button
     properties:
