@@ -119,6 +119,11 @@ def process_instructor_availability(instructors, start_date=None):
         columns=["day_name", "instructor"],
         aggfunc="first",
     )
+
+    # Filter out break slots from the pivot table
+    break_slots = ["break_am", "break_lunch", "break_pm"]
+    pivot_df = pivot_df[~pivot_df.index.get_level_values("slot").isin(break_slots)]
+
     print("\nPivot table index (slots):", [slot for slot, _, _ in pivot_df.index])
     print("Pivot table shape:", pivot_df.shape)
 
