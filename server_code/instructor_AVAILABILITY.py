@@ -168,7 +168,7 @@ def process_instructor_availability(instructors, start_date=None):
         "z_values": z_values_ordered,
         "x_labels": flat_labels,
         "y_labels": [
-            f"{slot} ({start_time}-{end_time})"
+            f"{datetime.strptime(start_time, '%H:%M').strftime('%I:%M %p')}-{datetime.strptime(end_time, '%H:%M').strftime('%I:%M %p')}"
             for slot, start_time, end_time in pivot_df.index
         ],
         "instructors": [i["firstName"] for i in instructors],

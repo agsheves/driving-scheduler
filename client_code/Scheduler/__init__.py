@@ -229,7 +229,7 @@ class Scheduler(SchedulerTemplate):
         formatted_output += f"Start Date: {self.cohort_schedule['start_date']}\n"
         formatted_output += f"End Date: {self.cohort_schedule['end_date']}"
         
-        self.schedule_print_box.content = formatted_output
+        self.schedule_print_box.content = f"The Cohort has been completed successfully:\n\n{formatted_output}\n\n You can export this file now"
     else:
         self.schedule_print_box.content = "Error creating schedule"
 
@@ -262,7 +262,7 @@ class Scheduler(SchedulerTemplate):
 
   def schedule_instructors_button_click(self, **event_args):
     instructor_allocation = anvil.server.call('schedule_instructors_for_cohort', self.cohort, self.instructor1, self.instructor2)
-    self.scheduling_text_box.text = instructor_allocation
+    self.scheduling_text_box.text = f"The instructors ({self.instructor1}, {self.instructor2}) have been successfully added to {self.cohort}. You can export this file now." #instructor_allocation
 
   def export_cohort_and_schedule_button_click(self, **event_args):
     name = self.cohort['cohort_name']
