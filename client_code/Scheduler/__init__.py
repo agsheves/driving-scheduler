@@ -262,7 +262,7 @@ class Scheduler(SchedulerTemplate):
 
   def schedule_instructors_button_click(self, **event_args):
     instructor_allocation = anvil.server.call('schedule_instructors_for_cohort', self.cohort, self.instructor1, self.instructor2)
-    self.scheduling_text_box.text = f"The instructors ({self.instructor1}, {self.instructor2}) have been successfully added to {self.cohort}. You can export this file now." #instructor_allocation
+    self.scheduling_text_box.text = f"The instructors ({self.instructor1['firstName']}, {self.instructor2['firstName']}) have been successfully added to {self.cohort['cohort_name']}. You can export this file now." #instructor_allocation
 
   def export_cohort_and_schedule_button_click(self, **event_args):
     name = self.cohort['cohort_name']
