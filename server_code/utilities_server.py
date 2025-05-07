@@ -360,7 +360,7 @@ def export_instructor_availability():
             df_pivot = df.pivot(index="Slot", columns="Day", values="Status")
 
             # Write to Excel
-            sheet_name = f"{instructor['firstName']} {instructor['lastName']}"
+            sheet_name = f"{instructor['firstName']} {instructor['surname']}"
             df_pivot.to_excel(writer, sheet_name=sheet_name)
 
             # Get workbook and worksheet
@@ -471,7 +471,7 @@ def export_instructor_eight_monthavailability():
     )
 
     app_tables.files.add_row(
-        filename="instructor_availability.xlsx", file=excel_media, file_type="Excel"
+        filename="instructor_availability_240Days.xlsx", file=excel_media, file_type="Excel"
     )
 
     return excel_media

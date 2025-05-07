@@ -38,7 +38,7 @@ db_schema:
   files:
     client: full
     columns:
-    - admin_ui: {order: 0, width: 297}
+    - admin_ui: {order: 0, width: 371}
       name: filename
       type: string
     - admin_ui: {order: 1, width: 341}

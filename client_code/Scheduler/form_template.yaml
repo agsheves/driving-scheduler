@@ -136,12 +136,27 @@ components:
         - event_bindings: {click: refresh_schedule_button_click}
           layout_properties: {grid_position: 'ALHZIE,KQTDQG'}
           name: refresh_schedule_button
-          properties: {role: filled-button, text: Refresh Schedule, visible: false}
+          properties: {enabled: false, role: filled-button, text: Refresh Schedule, visible: false}
           type: Button
         - event_bindings: {click: create_availability_report_button_click}
           layout_properties: {grid_position: 'ALHZIE,LGSQGZ'}
           name: create_availability_report_button
-          properties: {role: filled-button, text: Run Utility Report}
+          properties:
+            role: filled-button
+            text: |
+              Download Overall
+              Availability Report
+          type: Button
+        - event_bindings: {click: download_availability_button_click}
+          layout_properties: {grid_position: 'ALHZIE,KAJCGS'}
+          name: download_availability_button
+          properties:
+            enabled: true
+            role: filled-button
+            text: |-
+              Download Instructor
+              Availability
+            visible: true
           type: Button
         name: schedule_control_column
         properties: {}

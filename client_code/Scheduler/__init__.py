@@ -132,9 +132,7 @@ class Scheduler(SchedulerTemplate):
       if self.instructor_filter_drop_down.selected_value:
         selected_instructors = [self.instructor_filter_drop_down.selected_value]
         self.instructor_list.visible = False
-      else:
   
-        return
     else:
       # When filter is off, get all instructors
       selected_instructors = list(app_tables.users.search(is_instructor=True))
@@ -302,3 +300,6 @@ class Scheduler(SchedulerTemplate):
     name = self.cohort['cohort_name']
     anvil.server.call('export_merged_cohort_schedule', name)
     self.cohort = ""
+
+  def download_availability_button_click(self, **event_args):
+    anvil.server.call('export_instructor_eight_monthavailability')
