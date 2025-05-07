@@ -170,7 +170,7 @@ components:
         type: Button
       - layout_properties: {grid_position: 'VZYBOC,PMGYED'}
         name: schedule_print_box
-        properties: {format: plain_text, visible: false}
+        properties: {format: plain_text, visible: true}
         type: RichText
       - event_bindings: {click: export_cohort_button_click}
         layout_properties: {grid_position: 'ISCEWE,EZAIAA'}
@@ -254,7 +254,7 @@ components:
       type: Button
     - layout_properties: {grid_position: 'MNTPXS,SBWUAU'}
       name: scheduling_text_box
-      properties: {visible: false}
+      properties: {visible: true}
       type: Label
     - event_bindings: {click: export_cohort_and_schedule_button_click}
       layout_properties: {grid_position: 'ZEJRYM,WUHAZJ'}
