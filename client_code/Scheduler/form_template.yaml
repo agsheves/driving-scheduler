@@ -82,6 +82,10 @@ components:
         name: instructor_list
         properties: {font_size: 16, role: body}
         type: Label
+      - layout_properties: {grid_position: 'VUDEQA,KLWGOE'}
+        name: forweard_week_button
+        properties: {align: right, text: button_1}
+        type: Button
       - layout_properties: {grid_position: 'NHCIOA,LAESXL'}
         name: schedule_plot_complete
         properties: {}
