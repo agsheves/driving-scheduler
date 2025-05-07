@@ -22,15 +22,15 @@ def schedule_instructors_for_cohort(cohort_name, instructor1, instructor2):
     """
     # Get cohort data
     print("Checking for cohort")
-    cohort = app_tables.cohorts.get(cohort_name=cohort_name['cohort_name'])
+    cohort = app_tables.cohorts.get(cohort_name=cohort_name["cohort_name"])
     if not cohort:
         raise ValueError(f"Cohort {cohort_name} not found")
 
     # Get instructor data
     # UI will retutn a row for instructor
     print("Checking for instructors")
-    print(instructor1['firstName'])
-    print(instructor2['firstName'])
+    print(instructor1["firstName"])
+    print(instructor2["firstName"])
 
     if not instructor1 or not instructor2:
         raise ValueError("One or both instructors not found")
@@ -71,6 +71,10 @@ def schedule_instructors_for_cohort(cohort_name, instructor1, instructor2):
 
     # Update cohort with new schedule
     cohort.update(complete_schedule=daily_schedules)
+
+    # Log the final availability updates that would be persisted
+    _persist_instructor_availability(instructor1, instructor1_availability)
+    _persist_instructor_availability(instructor2, instructor2_availability)
 
     return daily_schedules
 
@@ -128,6 +132,7 @@ def _schedule_classes(
                         ),
                         date_str,
                         slot,
+                        primary_instructor,
                     )
                 else:
                     # Check secondary instructor
@@ -151,6 +156,7 @@ def _schedule_classes(
                             ),
                             date_str,
                             slot,
+                            secondary_instructor,
                         )
 
     return daily_schedules
@@ -197,6 +203,7 @@ def _schedule_remaining_lessons(
                         ),
                         date_str,
                         slot,
+                        primary_instructor,
                     )
                 else:
                     # Check secondary instructor
@@ -220,6 +227,7 @@ def _schedule_remaining_lessons(
                             ),
                             date_str,
                             slot,
+                            secondary_instructor,
                         )
 
     return daily_schedules
@@ -255,9 +263,29 @@ def _can_teach_drive(availability, date_str, slot):
     ]
 
 
-def _update_instructor_availability(availability, date_str, slot):
+def _update_instructor_availability(availability, date_str, slot, instructor):
     """
     Update instructor's availability to 'Scheduled' for a slot.
+    Logs the update instead of writing to database for testing.
     """
     if date_str in availability and slot in availability[date_str]:
         availability[date_str][slot] = AVAILABILITY_MAPPING["Scheduled"]
+        # Log the update instead of writing to database
+        print(
+            f"TESTING - Would update {instructor['firstName']}'s availability for {date_str} {slot} to Scheduled"
+        )
+
+
+def _persist_instructor_availability(instructor, availability):
+    """
+    Persist instructor's availability to the database.
+    Currently just logs the update for testing.
+    """
+    print(
+        f"TESTING - Would update {instructor['firstName']}'s schedule in database with new availability"
+    )
+    print(f"TESTING - New availability: {availability}")
+    # Once tested, uncomment this:
+    # instructor_schedule = app_tables.instructor_schedules.get(instructor=instructor)
+    # if instructor_schedule:
+    #     instructor_schedule.update(current_seven_month_availability=availability)
