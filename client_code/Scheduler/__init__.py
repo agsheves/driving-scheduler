@@ -8,7 +8,7 @@ import anvil.tables as tables
 import anvil.tables.query as q
 from anvil.tables import app_tables
 import json
-from datetime import date, time, datetime
+from datetime import date, time, datetime, timedelta
 import plotly.graph_objects as go
 from ..globals import current_teen_driving_schedule
 
@@ -19,6 +19,7 @@ class Scheduler(SchedulerTemplate):
 
     self.merged_schedule = ""
     self.cohort_name = ""
+    self.start_date = None
   
     school_list = app_tables.schools.search()
     self.school_selector.items = [(s['school_name'], s['abbreviation']) for s in school_list]
@@ -85,7 +86,10 @@ class Scheduler(SchedulerTemplate):
     # Initially hide the dropdown since filtering is off by default
     self.instructor_filter_drop_down.visible = False
       
-  def refresh_schedule_display(self):
+  def refresh_schedule_display(self, start_date=None):
+    if start_date is None:
+      self.start_date = datetime.now().date()
+    self.week_shown_label.text = f"Showing week commencing {self.start_date}"
 
     # Get selected instructors based on filter status
     if self.filter_instructors:
@@ -101,7 +105,7 @@ class Scheduler(SchedulerTemplate):
     
     # Get data from server
     print("Getting data:\n")
-    data = anvil.server.call('process_instructor_availability', selected_instructors)
+    data = anvil.server.call('process_instructor_availability', selected_instructors, self.start_date)
     print(data)
     
     if not data:
@@ -267,3 +271,13 @@ class Scheduler(SchedulerTemplate):
 
   def download_availability_button_click(self, **event_args):
     anvil.server.call('export_instructor_eight_monthavailability')
+
+  def forward_week_button_click(self, **event_args):
+    new_start_date = self.start_date + timedelta(days=7)
+    self.start_date = new_start_date
+    self.refresh_schedule_display(self.start_date)
+
+  def back_week_button_click(self, **event_args):
+    new_start_date = self.start_date + timedelta(days=-7)
+    self.start_date = new_start_date
+    self.refresh_schedule_display(self.start_date)
