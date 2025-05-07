@@ -74,7 +74,12 @@ def process_instructor_availability(instructors, start_date=None):
             for slot_name, status in slots.items():
                 if slot_name in LESSON_SLOTS:
                     try:
-                        value = availability_mapping.get(status, -1)
+                        # The status is already a numeric value from the seven-month availability
+                        value = (
+                            status
+                            if isinstance(status, (int, float))
+                            else availability_mapping.get(status, -1)
+                        )
                         all_records.append(
                             {
                                 "instructor": instructor["firstName"],
