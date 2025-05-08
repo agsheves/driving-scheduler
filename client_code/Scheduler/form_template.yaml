@@ -18,11 +18,11 @@ components:
         Availability
     type: Button
   - layout_properties: {grid_position: 'SALZRG,TXVCAC'}
-    name: show_cohort_builder_button
+    name: show_classroom_builder_button
     properties:
       role: filled-button
       text: |
-        Cohort
+        Classroom
         Builder
     type: Button
   - layout_properties: {grid_position: 'SALZRG,WSMUEV'}
@@ -131,14 +131,14 @@ components:
   - components:
     - layout_properties: {grid_position: 'NYTNEL,XLRNTR'}
       name: label_9
-      properties: {role: title, text: Build a Cohort}
+      properties: {role: title, text: Build a Classroom}
       type: Label
     - components:
       - layout_properties: {grid_position: 'ALUXRP,DCGECN'}
         name: label_10
         properties:
           text: |
-            Build a blank classroom of classes and drives for a school
+            Build a blank classroom of lessons (classes and drives) for a school
             Will accept up to 30 students.
             Classroom scheduling check for availability of instructors generally (i.e, is there sufficient capacity overall for this period) and account for company days off and holidays
 
@@ -159,10 +159,21 @@ components:
         name: cohort_start_date
         properties: {tooltip: Select a start date that falls on a Monday to optimize scheduling}
         type: DatePicker
-      - event_bindings: {click: cohort_builder_button_click}
+      - layout_properties: {grid_position: 'MUQGCL,AWQMMP'}
+        name: label_3
+        properties: {font_size: 16, text: Schedule Type, underline: false}
+        type: Label
+      - event_bindings: {change: classroom_type_selector_change}
+        layout_properties: {grid_position: 'MUQGCL,KLBFZZ'}
+        name: classroom_type_selector
+        properties: {text_post: Compressed, text_pre: Standard}
+        type: form:dep_nh1j2ue7kdk6d:Switch
+      - event_bindings: {click: classroom_builder_button_click}
         layout_properties: {grid_position: 'MUQGCL,QMYFLB'}
-        name: cohort_builder_button
+        name: classroom_builder_button
         properties:
+          align: right
+          icon: fa:car
           role: outlined-button
           text: |
             Build a Classroom
@@ -172,10 +183,11 @@ components:
         name: schedule_print_box
         properties: {format: plain_text, visible: true}
         type: RichText
-      - event_bindings: {click: export_cohort_button_click}
+      - event_bindings: {click: export_classroom_button_click}
         layout_properties: {grid_position: 'ISCEWE,EZAIAA'}
-        name: export_cohort_button
+        name: export_classroom_button
         properties:
+          align: right
           icon: fa:download
           role: outlined-button
           text: |-
@@ -185,7 +197,7 @@ components:
         type: Button
       layout_properties: {grid_position: 'EIZVQB,VPJAFP'}
       name: schedule_builder_panel
-      properties: {background: ''}
+      properties: {background: '', col_widths: '{"AWQMMP":10,"KLBFZZ":25,"QMYFLB":25}'}
       type: ColumnPanel
     - layout_properties: {grid_position: 'CWKDZR,HNBLZN'}
       name: schedule_export_notice_label
@@ -217,9 +229,9 @@ components:
       name: label_7
       properties: {text: Select an existing classroom}
       type: Label
-    - event_bindings: {change: cohort_Selector_change}
+    - event_bindings: {change: classroom_selector_change}
       layout_properties: {grid_position: 'TZKDNL,UFWOZH'}
-      name: cohort_Selector
+      name: classroom_selector
       properties: {}
       type: DropDown
     - layout_properties: {grid_position: 'TZKDNL,ZWBSPP'}
@@ -251,6 +263,8 @@ components:
       layout_properties: {grid_position: 'EQBNIB,SUDLLL'}
       name: schedule_instructors_button
       properties:
+        align: right
+        icon: fa:users
         role: outlined-button
         text: |
           Add Instructors to
@@ -260,10 +274,11 @@ components:
       name: scheduling_text_box
       properties: {align: center, visible: true}
       type: Label
-    - event_bindings: {click: export_cohort_and_schedule_button_click}
+    - event_bindings: {click: export_classroom_and_schedule_button_click}
       layout_properties: {grid_position: 'ZEJRYM,WUHAZJ'}
-      name: export_cohort_and_schedule_button
+      name: export_classroom_and_schedule_button
       properties:
+        align: right
         icon: fa:download
         role: outlined-button
         text: |-

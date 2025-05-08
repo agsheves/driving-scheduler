@@ -2,9 +2,9 @@ import anvil.google.auth, anvil.google.drive, anvil.google.mail
 from anvil.google.drive import app_files
 
 """
-Cohort Builder Module
+classroom Builder Module
 
-Handles creation and scheduling of driving school cohorts.
+Handles creation and scheduling of driving school classrooms.
 """
 
 import anvil.files
@@ -21,9 +21,9 @@ from .globals import LESSON_SLOTS, COURSE_STRUCTURE
 
 # Constants
 STUDENTS_PER_DRIVE = 2
-MAX_COHORT_SIZE = 30
+MAX_classroom_SIZE = 30
 BUFFER_PERCENTAGE = 0.9
-MIN_COURSE_LENGTH = 42  # cohorts must run for over 42 calendar days to allow sufficient time to sequence all activities.
+MIN_COURSE_LENGTH = 42  # classrooms must run for over 42 calendar days to allow sufficient time to sequence all activities.
 CLASS_DAYS = ["Monday", "Wednedsay", "Friday"]
 
 # Test data for no_class_days if table is empty
@@ -186,7 +186,7 @@ def calculate_weekly_capacity(start_date, school):
 
     max_weekly_slots = max(weekly_slots.values())
     avg_weekly_slots = sum(weekly_slots.values()) / len(weekly_slots)
-    max_students = min(max_weekly_slots * STUDENTS_PER_DRIVE, MAX_COHORT_SIZE)
+    max_students = min(max_weekly_slots * STUDENTS_PER_DRIVE, MAX_classroom_SIZE)
 
     weekly_slots_serialized = {str(k): v for k, v in weekly_slots.items()}
 
@@ -199,17 +199,17 @@ def calculate_weekly_capacity(start_date, school):
 
 
 @anvil.server.callable
-def generate_cohort_name(school, start_date):
+def generate_classroom_name(school, start_date):
     """
-    Generate cohort name in format YEAR-SEQUENCENUMBER-SCHOOL_ABBREVIATION
+    Generate classroom name in format YEAR-SEQUENCENUMBER-SCHOOL_ABBREVIATION
     Example: 2025-11-HSS
-    Also creates the cohort record in the database
+    Also creates the classroom record in the database
     ✅ This has been tested and works as designed
     """
     year = start_date.year
     # Get next sequence number for this year
-    existing_cohorts = app_tables.cohorts.search(school=school)
-    sequence = len(existing_cohorts) + 1
+    existing_classrooms = app_tables.classrooms.search(school=school)
+    sequence = len(existing_classrooms) + 1
     full_name = f"{year}-{sequence:02d}-{school}"
 
     # Calculate end date (6 weeks from start)
@@ -219,9 +219,9 @@ def generate_cohort_name(school, start_date):
     today = datetime.now().date()
     status = "planned" if start_date > today else "active"
 
-    # Create cohort record
-    app_tables.cohorts.add_row(
-        cohort_name=full_name,
+    # Create classroom record
+    app_tables.classrooms.add_row(
+        classroom_name=full_name,
         start_date=start_date,
         end_date=end_date,
         status=status,
@@ -233,25 +233,25 @@ def generate_cohort_name(school, start_date):
 
 
 @anvil.server.callable
-def create_ghost_students(cohort_name, num_students):
+def create_ghost_students(classroom_name, num_students):
     """
-    Create ghost student records for the cohort
+    Create ghost student records for the classroom
     Example IDs: 2025-11-HSS-student01
     ⚠️ Needs testing
     """
     students = []
     for i in range(1, num_students + 1):
-        student_id = f"{cohort_name}-student{i:02d}"
+        student_id = f"{classroom_name}-student{i:02d}"
         students.append(student_id)
-    cohort_record = app_tables.cohorts.get(cohort_name=cohort_name)
-    cohort_record.update(student_list=students)
+    classroom_record = app_tables.classrooms.get(classroom_name=classroom_name)
+    classroom_record.update(student_list=students)
     return students
 
 
 @anvil.server.callable
-def schedule_classes(cohort_name, start_date, num_students):
+def schedule_classes(classroom_name, start_date, num_students):
     """
-    Schedule classes for the cohort.
+    Schedule classes for the classroom.
     Classes must be on specific days of the week as defined in CLASS_DAYS.
     Returns a simplified object format suitable for table storage.
     """
@@ -321,10 +321,10 @@ def schedule_classes(cohort_name, start_date, num_students):
         if current_class % 3 == 1:  # Start new week after every 3 classes
             current_week += 1
 
-    # Store the schedule in the cohort table
-    cohort_data_row = app_tables.cohorts.get(cohort_name=cohort_name)
-    if cohort_data_row:
-        cohort_data_row.update(class_schedule=class_schedule)
+    # Store the schedule in the classroom table
+    classroom_data_row = app_tables.classrooms.get(classroom_name=classroom_name)
+    if classroom_data_row:
+        classroom_data_row.update(class_schedule=class_schedule)
 
     return class_schedule
 
@@ -384,7 +384,7 @@ def get_weekly_lesson_slots(week_number):
 
 
 @anvil.server.callable
-def schedule_drives(cohort_name, start_date, num_students):
+def schedule_drives(classroom_name, start_date, num_students):
     """
     Schedule drives (1 per week for weeks 2-6)
     First creates a master schedule that repeats each week, then adjusts for vacation days
@@ -498,7 +498,7 @@ def schedule_drives(cohort_name, start_date, num_students):
             # If the day is available, schedule the drive
             if target_date and target_date not in vacation_days:
                 drive_slot = {
-                    "cohort": cohort_name,
+                    "classroom": classroom_name,
                     "pair_letter": pair_letter,
                     "drive_numbers": drive_numbers,
                     "date": target_date.isoformat(),
@@ -550,7 +550,7 @@ def schedule_drives(cohort_name, start_date, num_students):
                                 )
                                 if not slot_used:
                                     drive_slot = {
-                                        "cohort": cohort_name,
+                                        "classroom": classroom_name,
                                         "pair_letter": drive["pair_letter"],
                                         "drive_numbers": drive_numbers,
                                         "date": week_day.isoformat(),
@@ -580,7 +580,7 @@ def schedule_drives(cohort_name, start_date, num_students):
                                 )
                                 if not slot_used:
                                     drive_slot = {
-                                        "cohort": cohort_name,
+                                        "classroom": classroom_name,
                                         "pair_letter": drive["pair_letter"],
                                         "drive_numbers": drive_numbers,
                                         "date": week_day.isoformat(),
@@ -604,19 +604,19 @@ def schedule_drives(cohort_name, start_date, num_students):
                         f"Original schedule: {drive['original_day']} at {drive['original_slot']}"
                     )
 
-    # Store the schedule in the cohort table
-    cohort_data_row = app_tables.cohorts.get(cohort_name=cohort_name)
-    if cohort_data_row:
-        cohort_data_row.update(drive_schedule=drives)
+    # Store the schedule in the classroom table
+    classroom_data_row = app_tables.classrooms.get(classroom_name=classroom_name)
+    if classroom_data_row:
+        classroom_data_row.update(drive_schedule=drives)
 
     return drives
 
 
 @anvil.server.callable
-def create_full_cohort_schedule(school, start_date, num_students=None):
+def create_full_classroom_schedule(school, start_date, num_students=None):
     """
-    Create a complete schedule for a new cohort including:
-    - Cohort creation
+    Create a complete schedule for a new classroom including:
+    - classroom creation
     - Student assignment
     - Class scheduling
     - Drive scheduling
@@ -627,44 +627,44 @@ def create_full_cohort_schedule(school, start_date, num_students=None):
         num_students (int, optional): Number of students. If None, will calculate based on capacity
 
     Returns:
-        dict: Complete cohort schedule information
+        dict: Complete classroom schedule information
     """
-    # print(f"\nCreating full schedule for {school} cohort starting {start_date}")
+    # print(f"\nCreating full schedule for {school} classroom starting {start_date}")
 
-    # 1. Generate cohort name
-    cohort_name = generate_cohort_name(school, start_date)
-    # print(f"Cohort name: {cohort_name}")
+    # 1. Generate classroom name
+    classroom_name = generate_classroom_name(school, start_date)
+    # print(f"classroom name: {classroom_name}")
 
     # 2. Calculate capacity if num_students not provided
     if num_students is None:
         capacity = calculate_weekly_capacity(start_date, school)
-        num_students = min(capacity["max_students"], MAX_COHORT_SIZE)
+        num_students = min(capacity["max_students"], MAX_classroom_SIZE)
     # print(f"Number of students: {num_students}")
 
     # 3. Create student records
-    students = create_ghost_students(cohort_name, num_students)
+    students = create_ghost_students(classroom_name, num_students)
     # print(f"Created {len(students)} student records")
 
     # 4. Schedule classes
-    classes = schedule_classes(cohort_name, start_date, num_students)
+    classes = schedule_classes(classroom_name, start_date, num_students)
     # print(f"Scheduled {len(classes)} classes")
     # print("Class schedule:")
     # for class_slot in classes:
     # print(f"  • Class {class_slot['class_number']} on {class_slot['date']}")
 
     # 5. Schedule drives
-    drives = schedule_drives(cohort_name, start_date, num_students)
+    drives = schedule_drives(classroom_name, start_date, num_students)
     # print(f"\nScheduled {len(drives)} drives")
     # print("Drive schedule:")
     # for drive in drives:
     # print(
     #     f"  • Drive {drive['pair_letter']} on {drive['date']} (Slot: {drive['slot']})"
     # )
-    complete_schedule = anvil.server.call("create_merged_schedule", cohort_name)
-    # 6. Store everything in the cohort record
-    cohort_data_row = app_tables.cohorts.get(cohort_name=cohort_name)
-    if cohort_data_row:
-        cohort_data_row.update(
+    complete_schedule = anvil.server.call("create_merged_schedule", classroom_name)
+    # 6. Store everything in the classroom record
+    classroom_data_row = app_tables.classrooms.get(classroom_name=classroom_name)
+    if classroom_data_row:
+        classroom_data_row.update(
             student_list=students,
             class_schedule=classes,
             drive_schedule=drives,
@@ -673,7 +673,7 @@ def create_full_cohort_schedule(school, start_date, num_students=None):
         )
 
     return {
-        "cohort_name": cohort_name,
+        "classroom_name": classroom_name,
         "num_students": num_students,
         "students": students,
         "classes": classes,
@@ -705,7 +705,7 @@ def test_capacity_calculation(start_date=None, school=None):
     if school is None:
         school = "HSS"  # Default to HSS for testing
 
-    print("\n=== Testing Cohort Builder Functions ===")
+    print("\n=== Testing classroom Builder Functions ===")
     print(f"Start Date: {start_date}")
     print(f"School: {school}")
 
@@ -730,14 +730,14 @@ def test_capacity_calculation(start_date=None, school=None):
     print(f"Max weekly slots: {capacity['max_weekly_slots']}")
     print(f"Maximum students: {capacity['max_students']}")
 
-    # Test cohort creation
-    print("\n4. Testing cohort creation...")
-    cohort_name = generate_cohort_name(school, start_date)
-    print(f"Generated cohort name: {cohort_name}")
+    # Test classroom creation
+    print("\n4. Testing classroom creation...")
+    classroom_name = generate_classroom_name(school, start_date)
+    print(f"Generated classroom name: {classroom_name}")
 
     # Test class scheduling
     print("\n5. Testing class scheduling...")
-    classes = schedule_classes(cohort_name, start_date, capacity["max_students"])
+    classes = schedule_classes(classroom_name, start_date, capacity["max_students"])
     print(f"Scheduled {len(classes)} classes")
     print("First week classes:")
     for class_slot in classes[:3]:
@@ -745,7 +745,7 @@ def test_capacity_calculation(start_date=None, school=None):
 
     # Test drive scheduling
     print("\n6. Testing drive scheduling...")
-    drives = schedule_drives(cohort_name, start_date, capacity["max_students"])
+    drives = schedule_drives(classroom_name, start_date, capacity["max_students"])
     print(f"Scheduled {len(drives)} drives")
 
     # Debug printing for drives
@@ -778,37 +778,37 @@ def test_capacity_calculation(start_date=None, school=None):
         "first_day_slots": first_day_slots,
         "last_day_slots": last_day_slots,
         "capacity": capacity,
-        "cohort_name": cohort_name,
+        "classroom_name": classroom_name,
         "num_classes": len(classes),
         "num_drives": len(drives),
     }
 
 
 @anvil.server.callable
-def create_merged_schedule(cohort_name):
+def create_merged_schedule(classroom_name):
     """
-    Create a merged view of the cohort schedule showing all slots and their assignments.
+    Create a merged view of the classroom schedule showing all slots and their assignments.
     Returns a list of daily schedules with all slots and their assignments (classes or drives).
     Vacation days are included with all slots marked as vacation.
 
     Args:
-        cohort_name (str): Name of the cohort
+        classroom_name (str): Name of the classroom
 
     Returns:
         list: List of daily schedules with slot assignments
     """
-    # Get cohort data
-    cohort = app_tables.cohorts.get(cohort_name=cohort_name)
-    if not cohort:
-        raise ValueError(f"Cohort {cohort_name} not found")
+    # Get classroom data
+    classroom = app_tables.classrooms.get(classroom_name=classroom_name)
+    if not classroom:
+        raise ValueError(f"classroom {classroom_name} not found")
 
     # Get class and drive schedules
-    class_schedule = cohort["class_schedule"] or []
-    drive_schedule = cohort["drive_schedule"] or []
+    class_schedule = classroom["class_schedule"] or []
+    drive_schedule = classroom["drive_schedule"] or []
 
-    # Create a dictionary of all dates in the cohort's date range
-    start_date = cohort["start_date"]
-    end_date = cohort["end_date"]
+    # Create a dictionary of all dates in the classroom's date range
+    start_date = classroom["start_date"]
+    end_date = classroom["end_date"]
     current_date = start_date
     daily_schedules = []
 

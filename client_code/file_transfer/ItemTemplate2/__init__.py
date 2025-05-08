@@ -25,6 +25,14 @@ class ItemTemplate2(ItemTemplate2Template):
   def convert_link_click(self, **event_args):
     print(self.item['filename'])
     anvil.server.call('convert_csv_to_json', self.item['file'])
+
+  def delete_file_link_click(self, **event_args):
+    file_name = self.item['filename']
+    file_row = app_tables.files.get(filename=file_name)
+    c = confirm(f"Confirm you want to delete file {file_row['filename']}")
+    if c is True:
+      file_row.delete()
+      open_form('Frame','file_transfer')
     
     
 

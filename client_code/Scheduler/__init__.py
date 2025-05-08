@@ -18,18 +18,18 @@ class Scheduler(SchedulerTemplate):
     self.init_components(**properties)
 
     self.merged_schedule = ""
-    self.cohort_name = ""
+    self.classroom_name = ""
     self.start_date = None
   
     school_list = app_tables.schools.search()
     self.school_selector.items = [(s['school_name'], s['abbreviation']) for s in school_list]
     self.filter_instructors = False
 
-    cohort_placeholder = [("Select a cohort", None)]
-    current_cohorts = app_tables.cohorts.search()
-    cohort_items = [(c['cohort_name'], c['cohort_name']) for c in current_cohorts]
-    self.cohort_Selector.items = cohort_placeholder + cohort_items
-    self.cohort_Selector.selected_value = None
+    classroom_placeholder = [("Select a classroom", None)]
+    current_classrooms = app_tables.classrooms.search()
+    classroom_items = [(c['classroom_name'], c['classroom_name']) for c in current_classrooms]
+    self.classroom_selector.items = classroom_placeholder + classroom_items
+    self.classroom_selector.selected_value = None
     
     instructor_placeholder = [("Select an instructor", None)]
     self.instructors = app_tables.users.search(is_instructor=True)
@@ -150,7 +150,7 @@ class Scheduler(SchedulerTemplate):
         [1 / 6, "purple"],  # 1: Available for both
         [2 / 6, "RebeccaPurple"],  # 2: Available for drives only
         [3 / 6, "RebeccaPurple"],  # 3: Available for classes only
-        [4 / 6, "orange"],  # 4: Allocated to cohort slot
+        [4 / 6, "orange"],  # 4: Allocated to classroom slot
         [5 / 6, "red"],  # 5: Booked
         [6 / 6, "lightgrey"],  # 6: Vacation
       ],
@@ -194,7 +194,7 @@ class Scheduler(SchedulerTemplate):
     self.filter_instructors = True
     self.refresh_schedule_display()
 
-  def cohort_builder_button_click(self, **event_args):
+  def classroom_builder_button_click(self, **event_args):
 
     if not self.school_selector.selected_value:
         self.schedule_print_box.content = "Please select a school"
@@ -207,53 +207,53 @@ class Scheduler(SchedulerTemplate):
     # Convert the string date back to a date object for the API call
     start_date = datetime.strptime(self.start_date, "%m-%d-%Y").date()
     
-    self.cohort_schedule = anvil.server.call('create_full_cohort_schedule', 
+    self.classroom_schedule = anvil.server.call('create_full_classroom_schedule', 
                               self.school_selector.selected_value, 
                               start_date, 
                               None)
     
-    if self.cohort_schedule:
-        self.cohort_name = self.cohort_schedule['cohort_name']
-        formatted_output = f"Cohort Schedule: {self.cohort_schedule['cohort_name']}\n\n"
+    if self.classroom_schedule:
+        self.classroom_name = self.classroom_schedule['classroom_name']
+        formatted_output = f"classroom Schedule: {self.classroom_schedule['classroom_name']}\n\n"
         
         #formatted_output += "Class Schedule:\n"
-       # for class_slot in self.cohort_schedule['classes']:
+       # for class_slot in self.classroom_schedule['classes']:
             #formatted_output += f"Class {class_slot['class_number']}: {class_slot['date']} ({class_slot['day']})\n"
         
         #formatted_output += "\nDrive Schedule:\n"
-        #for drive in self.cohort_schedule['drives']:
+        #for drive in self.classroom_schedule['drives']:
             #formatted_output += f"Pair {drive['pair_letter']}: {drive['date']} - Slot {drive['slot']} (Week {drive['week']})\n"
         
         formatted_output += f"\nSummary:\n"
-        formatted_output += f"Number of Students: {self.cohort_schedule['num_students']}\n"
-        formatted_output += f"Start Date: {self.cohort_schedule['start_date']}\n"
-        formatted_output += f"End Date: {self.cohort_schedule['end_date']}"
+        formatted_output += f"Number of Students: {self.classroom_schedule['num_students']}\n"
+        formatted_output += f"Start Date: {self.classroom_schedule['start_date']}\n"
+        formatted_output += f"End Date: {self.classroom_schedule['end_date']}"
         
-        self.schedule_print_box.content = f"The Cohort has been completed successfully:\n\n{formatted_output}\n\n You can export this file now"
+        self.schedule_print_box.content = f"The classroom has been completed successfully:\n\n{formatted_output}\n\n You can export this file now"
     else:
         self.schedule_print_box.content = "Error creating schedule"
 
   def school_selector_change(self, **event_args):
     self.selected_school = self.school_selector.selected_value
 
-  def cohort_start_date_change(self, **event_args):
-    start_date = self.cohort_start_date.date
+  def classroom_start_date_change(self, **event_args):
+    start_date = self.classroom_start_date.date
     self.start_date = start_date.strftime("%m-%d-%Y")
 
-  def export_cohort_button_click(self, **event_args):
-    name = self.cohort_name
-    anvil.server.call('export_merged_cohort_schedule', name)
-    self.cohort_name = ""
+  def export_classroom_button_click(self, **event_args):
+    name = self.classroom_name
+    anvil.server.call('export_merged_classroom_schedule', name)
+    self.classroom_name = ""
     self.schedule_export_notice_label.visible = True
 
   def create_availability_report_button_click(self, **event_args):
     anvil.server.call('generate_capacity_report')
     Notification("Your report is available in the file downloader")
 
-  def cohort_Selector_change(self, **event_args):
-    cohort = app_tables.cohorts.get(cohort_name=self.cohort_Selector.selected_value)
-    self.cohort_name_label.text = f"Cohort selected: School - {cohort['school']}, Start date - {cohort['start_date']}"
-    self.cohort = cohort
+  def classroom_selector_change(self, **event_args):
+    classroom = app_tables.classrooms.get(classroom_name=self.classroom_selector.selected_value)
+    self.classroom_name_label.text = f"classroom selected: School - {classroom['school']}, Start date - {classroom['start_date']}"
+    self.classroom = classroom
 
   def instructor_1_selector_change(self, **event_args):
     self.instructor1 = self.instructor_1_selector.selected_value
@@ -262,13 +262,13 @@ class Scheduler(SchedulerTemplate):
     self.instructor2 = self.instructor_2_selector.selected_value
 
   def schedule_instructors_button_click(self, **event_args):
-    instructor_allocation = anvil.server.call('schedule_instructors_for_cohort', self.cohort, self.instructor1, self.instructor2)
-    self.scheduling_text_box.text = f"The instructors ({self.instructor1['firstName']}, {self.instructor2['firstName']}) have been successfully added to {self.cohort['cohort_name']}. You can export this file now." #instructor_allocation
+    instructor_allocation = anvil.server.call('schedule_instructors_for_classroom', self.classroom, self.instructor1, self.instructor2)
+    self.scheduling_text_box.text = f"The instructors ({self.instructor1['firstName']}, {self.instructor2['firstName']}) have been successfully added to {self.classroom['classroom_name']}. You can export this file now." #instructor_allocation
 
-  def export_cohort_and_schedule_button_click(self, **event_args):
-    name = self.cohort['cohort_name']
-    anvil.server.call('export_merged_cohort_schedule', name)
-    self.cohort = ""
+  def export_classroom_and_schedule_button_click(self, **event_args):
+    name = self.classroom['classroom_name']
+    anvil.server.call('export_merged_classroom_schedule', name)
+    self.classroom = ""
 
   def download_availability_button_click(self, **event_args):
     anvil.server.call('export_instructor_eight_monthavailability')
@@ -282,3 +282,6 @@ class Scheduler(SchedulerTemplate):
     new_start_date = self.start_date + timedelta(days=-7)
     self.start_date = new_start_date
     self.refresh_schedule_display(self.start_date)
+
+  def classroom_type_selector_change(self, **event_args):
+    Notification('🛠️ Under construction\nThis will toggle between the 2 class per week and 3 class per week schedules').show()
