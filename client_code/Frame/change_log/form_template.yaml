@@ -4,6 +4,10 @@ components:
     name: label_1
     properties: {font: courier, role: headline, text: Changelog}
     type: Label
+  - layout_properties: {grid_position: 'GZASPO,ZSAILN'}
+    name: label_2
+    properties: {italic: true, text: 'A log of changes and updates made to the app, primarily for tracking changes during the development phase. This will be moved to an admin panel later.'}
+    type: Label
   - layout_properties: {grid_position: 'YRLXXR,WRPHLF'}
     name: change_log_panel
     properties: {item_template: Frame.change_log.ItemTemplate3}
