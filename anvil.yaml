@@ -1,10 +1,21 @@
 allow_embedding: false
 db_schema:
-  cohorts:
+  change_log:
     client: search
     columns:
     - admin_ui: {order: 0, width: 200}
-      name: cohort_name
+      name: date
+      type: date
+    - admin_ui: {order: 1, width: 200}
+      name: changes_markdown
+      type: string
+    server: full
+    title: change_Log
+  classrooms:
+    client: search
+    columns:
+    - admin_ui: {order: 0, width: 200}
+      name: classroom_name
       type: string
     - admin_ui: {order: 1, width: 200}
       name: school
@@ -34,7 +45,7 @@ db_schema:
       name: complete_schedule
       type: simpleObject
     server: full
-    title: cohorts
+    title: classrooms
   files:
     client: full
     columns:

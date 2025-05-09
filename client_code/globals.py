@@ -31,7 +31,7 @@ AVAILABILITY_MAPPING = {
   "Yes": 1,  # Available for both
   "Drive Only": 2,  # Available for drives only
   "Class Only": 3,  # Available for classes only
-  "Scheduled": 4,  # Allocated to cohort slot (could be booked)
+  "Scheduled": 4,  # Allocated to classroom slot (could be booked)
   "Booked": 5,  # Scheduled slot has student booking
   "Vacation": 6,  # Personal vacation day
 }

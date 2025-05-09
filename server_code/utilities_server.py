@@ -478,35 +478,35 @@ def export_instructor_eight_monthavailability():
 
 
 @anvil.server.callable
-def export_cohort_schedule(cohort_name):
-    print(cohort_name)
+def export_classroom_schedule(classroom_name):
+    print(classroom_name)
     """
-    Export cohort schedule to Excel.
+    Export classroom schedule to Excel.
     Creates sheets for classes and drives.
     """
-    # Get cohort data
-    cohort = app_tables.cohorts.get(cohort_name=cohort_name)
-    if not cohort:
-        raise ValueError(f"Cohort {cohort_name} not found")
+    # Get classroom data
+    classroom = app_tables.classrooms.get(classroom_name=classroom_name)
+    if not classroom:
+        raise ValueError(f"classroom {classroom_name} not found")
 
     # Create Excel writer
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
         # Classes sheet
-        if cohort["class_schedule"]:
-            classes_df = pd.DataFrame(cohort["class_schedule"])
+        if classroom["class_schedule"]:
+            classes_df = pd.DataFrame(classroom["class_schedule"])
             classes_df.to_excel(writer, sheet_name="Classes", index=False)
 
         # Drives sheet
-        if cohort["drive_schedule"]:
-            drives_df = pd.DataFrame(cohort["drive_schedule"])
+        if classroom["drive_schedule"]:
+            drives_df = pd.DataFrame(classroom["drive_schedule"])
             drives_df.to_excel(writer, sheet_name="Drives", index=False)
 
         # Get workbook
         workbook = writer.book
 
         # Format classes sheet
-        if cohort["class_schedule"]:
+        if classroom["class_schedule"]:
             worksheet = writer.sheets["Classes"]
             header_format = workbook.add_format(
                 {"bold": True, "bg_color": "#D9E1F2", "border": 1}
@@ -517,7 +517,7 @@ def export_cohort_schedule(cohort_name):
                 worksheet.write(0, col_num, value, header_format)
 
         # Format drives sheet
-        if cohort["drive_schedule"]:
+        if classroom["drive_schedule"]:
             worksheet = writer.sheets["Drives"]
             header_format = workbook.add_format(
                 {"bold": True, "bg_color": "#D9E1F2", "border": 1}
@@ -531,30 +531,30 @@ def export_cohort_schedule(cohort_name):
     excel_media = anvil.BlobMedia(
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         output.getvalue(),
-        name=f"{cohort_name}_schedule.xlsx",
+        name=f"{classroom_name}_schedule.xlsx",
     )
 
     app_tables.files.add_row(
-        filename=f"{cohort_name}_schedule.xlsx", file=excel_media, file_type="Excel"
+        filename=f"{classroom_name}_schedule.xlsx", file=excel_media, file_type="Excel"
     )
 
     return excel_media
 
 
 @anvil.server.callable
-def export_merged_cohort_schedule(cohort_name):
+def export_merged_classroom_schedule(classroom_name):
     """
-    Export merged cohort schedule to Excel.
+    Export merged classroom schedule to Excel.
     Creates a single sheet with days as columns and slots as rows.
     Row headers show lesson start times instead of slot names.
 
     Args:
-        cohort_name (str): Name of the cohort to export
+        classroom_name (str): Name of the classroom to export
     """
 
     # Get merged schedule
     has_instructor = False
-    daily_schedules = app_tables.cohorts.get(cohort_name=cohort_name)[
+    daily_schedules = app_tables.classrooms.get(classroom_name=classroom_name)[
         "complete_schedule"
     ]
 
@@ -595,9 +595,9 @@ def export_merged_cohort_schedule(cohort_name):
                     data[slot_to_time[slot]][date_str] = ""
                   
         if has_instructor:
-          filename = f"{cohort_name}_merged_schedule_lessons_instructors.xlsx"
+          filename = f"{classroom_name}_merged_schedule_lessons_instructors.xlsx"
         else:
-          filename = f"{cohort_name}_merged_schedule_lessons.xlsx"
+          filename = f"{classroom_name}_merged_schedule_lessons.xlsx"
         # Create DataFrame
         df = pd.DataFrame(data).T
 
@@ -662,7 +662,7 @@ def export_merged_cohort_schedule(cohort_name):
     excel_media = anvil.BlobMedia(
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         output.getvalue(),
-        name=f"{cohort_name}_merged_schedule.xlsx",
+        name=f"{classroom_name}_merged_schedule.xlsx",
     )
 
     app_tables.files.add_row(

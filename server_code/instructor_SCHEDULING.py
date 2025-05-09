@@ -7,24 +7,24 @@ from .globals import LESSON_SLOTS, AVAILABILITY_MAPPING
 
 
 @anvil.server.callable
-def schedule_instructors_for_cohort(cohort_name, instructor1, instructor2):
+def schedule_instructors_for_classroom(classroom_name, instructor1, instructor2):
     """
-    Schedule instructors for a cohort's lessons based on availability.
+    Schedule instructors for a classroom's lessons based on availability.
     Alternates primary instructor by week.
 
     Args:
-        cohort_name (str): Name of the cohort to schedule
+        classroom_name (str): Name of the classroom to schedule
         instructor1_name (str): First instructor's name
         instructor2_name (str): Second instructor's name
 
     Returns:
-        dict: Updated cohort schedule with instructor assignments
+        dict: Updated classroom schedule with instructor assignments
     """
-    # Get cohort data
-    print("Checking for cohort")
-    cohort = app_tables.cohorts.get(cohort_name=cohort_name["cohort_name"])
-    if not cohort:
-        raise ValueError(f"Cohort {cohort_name} not found")
+    # Get classroom data
+    print("Checking for classroom")
+    classroom = app_tables.classrooms.get(classroom_name=classroom_name["classroom_name"])
+    if not classroom:
+        raise ValueError(f"classroom {classroom_name} not found")
 
     # Get instructor data
     # UI will retutn a row for instructor
@@ -48,7 +48,7 @@ def schedule_instructors_for_cohort(cohort_name, instructor1, instructor2):
     instructor2_availability = instructor2_schedule["current_seven_month_availability"]
 
     # Get the complete schedule
-    daily_schedules = cohort["complete_schedule"]
+    daily_schedules = classroom["complete_schedule"]
     print("Checked initial info collection")
 
     # First pass: Schedule classes
@@ -69,8 +69,8 @@ def schedule_instructors_for_cohort(cohort_name, instructor1, instructor2):
         instructor2_availability,
     )
 
-    # Update cohort with new schedule
-    cohort.update(complete_schedule=daily_schedules)
+    # Update classroom with new schedule
+    classroom.update(complete_schedule=daily_schedules)
 
     # Log the final availability updates that would be persisted
     _persist_instructor_availability(instructor1, instructor1_availability)
