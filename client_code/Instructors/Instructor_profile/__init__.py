@@ -65,8 +65,3 @@ class Instructor_profile(Instructor_profileTemplate):
                 if slot_name
                 not in ["Break - am", "Break - Lunch", "Break - pm"]  # Skip break times
             ]
-
-    def download_term_availability_button_click(self, **event_args):
-        json = self.instructor_availability_row["weekly_availability"]
-        csv_file_name = f"{self.instructor['firstName']}_{self.instructor['surname']}_term_availability.csv"
-        anvil.server.call("convert_JSON_to_csv_and_save", json, csv_file_name)

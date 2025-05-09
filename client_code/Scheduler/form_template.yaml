@@ -41,17 +41,7 @@ components:
   name: spacer_1
   properties: {height: 32}
   type: Spacer
-- components:
-  - event_bindings: {change: upload_new_schedule_button_change}
-    layout_properties: {grid_position: 'ODBQPT,IPMAXR'}
-    name: upload_new_schedule_button
-    properties: {role: elevated-button, text: Upload a New Schedule}
-    type: FileLoader
-  - event_bindings: {click: export_schedule_button_click}
-    layout_properties: {grid_position: 'ODBQPT,XYEZKM'}
-    name: export_schedule_button
-    properties: {align: center, icon: 'fa:download', role: elevated-button, text: Download Schedule}
-    type: Button
+- components: []
   layout_properties: {grid_position: 'LIGOXM,KIBMTQ'}
   name: controls_panel
   properties: {visible: false}

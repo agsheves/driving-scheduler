@@ -43,27 +43,6 @@ class Scheduler(SchedulerTemplate):
     self.refresh_schedule_display()
 
 
-  def export_schedule_button_click(self, **event_args):
-    filename = f"Teen Schedule - version {date.today()}.csv"
-    csv_file = anvil.server.call('convert_JSON_to_csv_and_save', self.teen_schedule, filename)
-
-  def upload_new_schedule_button_change(self, file, **event_args):
-      if file is not None:
-          c = confirm("⚠️ WARNING ⚠️ \nThis will overwrite the current lesson schedule. Only proceed if you are sure.")
-          if c is True:
-              result = anvil.server.call('update_teen_drive_schedule', file)
-              if result is True:
-                n = Notification("The schedule has been updated successfully.")
-
-              else:
-                n = Notification("There was an error updating the schedule.")
-              n.show()
-              self.refresh_data_bindings()
-          else:
-            pass
-      from ..Frame import Frame
-      open_form('Frame', Scheduler)
-
 # ##############################################
 # Schedule preparation and display
 
