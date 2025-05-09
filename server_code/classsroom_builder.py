@@ -15,11 +15,7 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
 from datetime import datetime, timedelta, date
-from .globals import (
-    AVAILABILITY_MAPPING,
-    COURSE_STRUCTURE_COMPRESSED,
-    COURSE_STRUCTURE_STANDARD,
-)
+from .globals import (AVAILABILITY_MAPPING, COURSE_STRUCTURE_COMPRESSED, COURSE_STRUCTURE_STANDARD, LESSON_SLOTS)
 
 # Schools are referenced by their abbreviation found in app_tables / schools / abbreviation
 
@@ -28,6 +24,17 @@ STUDENTS_PER_DRIVE = 2
 MAX_classroom_SIZE = 30
 BUFFER_PERCENTAGE = 0.9
 # Other constants are based on the course structure
+
+# Test data for no_class_days if table is empty
+no_class_days_test = {
+  "2025-01-01": "New Year's Day",
+  "2025-05-01": "May Day Test",
+  "2025-05-26": "Memorial Day",
+  "2025-07-04": "Independence Day",
+  "2025-09-02": "Labor Day",
+  "2025-11-28": "Thanksgiving",
+  "2025-12-25": "Christmas Day",
+}
 
 
 # no_class_days_listed = app_tables.no_class_days.search(applies_all_or_school='all')

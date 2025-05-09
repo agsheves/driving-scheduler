@@ -288,6 +288,6 @@ class Scheduler(SchedulerTemplate):
 
   def classroom_type_selector_change(self, **event_args):
     if self.classroom_type_selector.checked is True:
-      self.COURSE_STRUCTURE = 'compressed'
+      self.COURSE_STRUCTURE = 'COURSE_STRUCTURE_COMPRESSED'
     else:
-      self.COURSE_STRUCTURE = 'standard'
+      self.COURSE_STRUCTURE = 'COURSE_STRUCTURE_STANDARD'
