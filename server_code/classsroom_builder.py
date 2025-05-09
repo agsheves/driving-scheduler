@@ -23,10 +23,7 @@ from .globals import AVAILABILITY_MAPPING, COURSE_STRUCTURE_COMPRESSED, COURSE_S
 STUDENTS_PER_DRIVE = 2
 MAX_classroom_SIZE = 30
 BUFFER_PERCENTAGE = 0.9
-MIN_COURSE_LENGTH = COURSE_STRUCTURE["sequence"][
-    "MIN_COURSE_LENGTH"
-]  # classrooms must run for over 42 calendar days to allow sufficient time to sequence all activities.
-CLASS_DAYS = COURSE_STRUCTURE["class_sessions"]["class_days"]
+# Other constants are based on the course structure
 
 
 # no_class_days_listed = app_tables.no_class_days.search(applies_all_or_school='all')
