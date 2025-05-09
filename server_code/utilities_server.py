@@ -85,7 +85,7 @@ def convert_schedule_csv_to_json(csv_file):
 
     return structured_data
 
-
+# Update this to parse classroom schedules
 @anvil.server.callable
 def update_teen_drive_schedule(file):
     json_payload = convert_schedule_csv_to_json(file)

@@ -20,22 +20,23 @@ from .globals import LESSON_SLOTS, COURSE_STRUCTURE
 # Schools are referenced by their abbreviation found in app_tables / schools / abbreviation
 
 # Constants
-STUDENTS_PER_DRIVE = 2
-MAX_classroom_SIZE = 30
-BUFFER_PERCENTAGE = 0.9
-MIN_COURSE_LENGTH = 42  # classrooms must run for over 42 calendar days to allow sufficient time to sequence all activities.
-CLASS_DAYS = ["Monday", "Wednedsay", "Friday"]
 
-# Test data for no_class_days if table is empty
-no_class_days_test = {
-    "2025-01-01": "New Year's Day",
-    "2025-05-01": "May Day Test",
-    "2025-05-26": "Memorial Day",
-    "2025-07-04": "Independence Day",
-    "2025-09-02": "Labor Day",
-    "2025-11-28": "Thanksgiving",
-    "2025-12-25": "Christmas Day",
-}
+
+def set_constants(COURSE_STRUCTURE):
+    COURSE_STRUCTURE = "None"
+    if COURSE_STRUCTURE == "None":
+        COURSE_STRUCTURE = COURSE_STRUCTURE_STANDARD
+    elif COURSE_STRUCTURE_TYPE == "standard":
+        COURSE_STRUCTURE = COURSE_STRUCTURE_STANDARD
+    elif COURSE_STRUCTURE_TYPE == "compressed":
+        COURSE_STRUCTURE = COURSE_STRUCTURE_COMPRESSED
+    STUDENTS_PER_DRIVE = 2
+    MAX_classroom_SIZE = 30
+    BUFFER_PERCENTAGE = 0.9
+    MIN_COURSE_LENGTH = COURSE_STRUCTURE["sequence"][
+        "MIN_COURSE_LENGTH"
+    ]  # classrooms must run for over 42 calendar days to allow sufficient time to sequence all activities.
+    CLASS_DAYS = COURSE_STRUCTURE["class_sessions"]["class_days"]
 
 
 # no_class_days_listed = app_tables.no_class_days.search(applies_all_or_school='all')
@@ -144,7 +145,7 @@ def get_daily_drive_slots(day, school):
 
 
 @anvil.server.callable
-def calculate_weekly_capacity(start_date, school):
+def calculate_weekly_capacity(start_date, school, course_structure):
     """
     Calculate the weekly capacity based on available drive slots,
     taking into account instructor availability, vacations, and school preferences.
@@ -152,6 +153,7 @@ def calculate_weekly_capacity(start_date, school):
     Args:
         start_date (date): Start date of the program
         school (str): School abbreviation (e.g., 'HSS', 'NHS') from app_tables/schools/abbreviation
+        course_structure (dict): Course structure
 
     Returns:
         dict: Contains weekly capacity information
@@ -186,7 +188,10 @@ def calculate_weekly_capacity(start_date, school):
 
     max_weekly_slots = max(weekly_slots.values())
     avg_weekly_slots = sum(weekly_slots.values()) / len(weekly_slots)
-    max_students = min(max_weekly_slots * STUDENTS_PER_DRIVE, MAX_classroom_SIZE)
+    max_students = min(
+        max_weekly_slots * STUDENTS_PER_DRIVE,
+        course_structure["class_sessions"]["max_students"],
+    )
 
     weekly_slots_serialized = {str(k): v for k, v in weekly_slots.items()}
 
@@ -249,7 +254,7 @@ def create_ghost_students(classroom_name, num_students):
 
 
 @anvil.server.callable
-def schedule_classes(classroom_name, start_date, num_students):
+def schedule_classes(classroom_name, start_date, num_students, course_structure):
     """
     Schedule classes for the classroom.
     Classes must be on specific days of the week as defined in CLASS_DAYS.
@@ -384,7 +389,7 @@ def get_weekly_lesson_slots(week_number):
 
 
 @anvil.server.callable
-def schedule_drives(classroom_name, start_date, num_students):
+def schedule_drives(classroom_name, start_date, num_students, course_structure):
     """
     Schedule drives (1 per week for weeks 2-6)
     First creates a master schedule that repeats each week, then adjusts for vacation days
@@ -480,7 +485,7 @@ def schedule_drives(classroom_name, start_date, num_students):
         drives_to_reschedule = []
 
         # Get the drive numbers for this week
-        drive_numbers = COURSE_STRUCTURE["driving_sessions"]["pairs"][week_num - 2]
+        drive_numbers = course_structure["driving_sessions"]["pairs"][week_num - 2]
 
         # Apply master schedule to this week
         for master_drive in master_schedule:
@@ -613,7 +618,9 @@ def schedule_drives(classroom_name, start_date, num_students):
 
 
 @anvil.server.callable
-def create_full_classroom_schedule(school, start_date, num_students=None):
+def create_full_classroom_schedule(
+    school, start_date, num_students=None, classroom_type=None
+):
     """
     Create a complete schedule for a new classroom including:
     - classroom creation
@@ -625,41 +632,38 @@ def create_full_classroom_schedule(school, start_date, num_students=None):
         school (str): School abbreviation (e.g., 'HSS', 'NHS')
         start_date (date): Start date of the program
         num_students (int, optional): Number of students. If None, will calculate based on capacity
+        classroom_type (str, optional): 'standard' or 'compressed'
 
     Returns:
         dict: Complete classroom schedule information
     """
-    # print(f"\nCreating full schedule for {school} classroom starting {start_date}")
+    # Select course structure
+    if classroom_type == "compressed":
+        course_structure = COURSE_STRUCTURE_COMPRESSED
+    else:
+        course_structure = COURSE_STRUCTURE_STANDARD
 
     # 1. Generate classroom name
     classroom_name = generate_classroom_name(school, start_date)
-    # print(f"classroom name: {classroom_name}")
 
     # 2. Calculate capacity if num_students not provided
     if num_students is None:
-        capacity = calculate_weekly_capacity(start_date, school)
-        num_students = min(capacity["max_students"], MAX_classroom_SIZE)
-    # print(f"Number of students: {num_students}")
+        capacity = calculate_weekly_capacity(start_date, school, course_structure)
+        num_students = min(
+            capacity["max_students"], course_structure["class_sessions"]["max_students"]
+        )
 
     # 3. Create student records
     students = create_ghost_students(classroom_name, num_students)
-    # print(f"Created {len(students)} student records")
 
     # 4. Schedule classes
-    classes = schedule_classes(classroom_name, start_date, num_students)
-    # print(f"Scheduled {len(classes)} classes")
-    # print("Class schedule:")
-    # for class_slot in classes:
-    # print(f"  • Class {class_slot['class_number']} on {class_slot['date']}")
+    classes = schedule_classes(
+        classroom_name, start_date, num_students, course_structure
+    )
 
     # 5. Schedule drives
-    drives = schedule_drives(classroom_name, start_date, num_students)
-    # print(f"\nScheduled {len(drives)} drives")
-    # print("Drive schedule:")
-    # for drive in drives:
-    # print(
-    #     f"  • Drive {drive['pair_letter']} on {drive['date']} (Slot: {drive['slot']})"
-    # )
+    drives = schedule_drives(classroom_name, start_date, num_students, course_structure)
+
     complete_schedule = anvil.server.call("create_merged_schedule", classroom_name)
     # 6. Store everything in the classroom record
     classroom_data_row = app_tables.classrooms.get(classroom_name=classroom_name)
@@ -725,7 +729,7 @@ def test_capacity_calculation(start_date=None, school=None):
 
     # Test calculate_weekly_capacity
     print("\n3. Testing calculate_weekly_capacity...")
-    capacity = calculate_weekly_capacity(start_date, school)
+    capacity = calculate_weekly_capacity(start_date, school, COURSE_STRUCTURE_STANDARD)
     print(f"Weekly slots: {capacity['weekly_slots']}")
     print(f"Max weekly slots: {capacity['max_weekly_slots']}")
     print(f"Maximum students: {capacity['max_students']}")
@@ -737,7 +741,9 @@ def test_capacity_calculation(start_date=None, school=None):
 
     # Test class scheduling
     print("\n5. Testing class scheduling...")
-    classes = schedule_classes(classroom_name, start_date, capacity["max_students"])
+    classes = schedule_classes(
+        classroom_name, start_date, capacity["max_students"], COURSE_STRUCTURE_STANDARD
+    )
     print(f"Scheduled {len(classes)} classes")
     print("First week classes:")
     for class_slot in classes[:3]:
@@ -745,7 +751,9 @@ def test_capacity_calculation(start_date=None, school=None):
 
     # Test drive scheduling
     print("\n6. Testing drive scheduling...")
-    drives = schedule_drives(classroom_name, start_date, capacity["max_students"])
+    drives = schedule_drives(
+        classroom_name, start_date, capacity["max_students"], COURSE_STRUCTURE_STANDARD
+    )
     print(f"Scheduled {len(drives)} drives")
 
     # Debug printing for drives

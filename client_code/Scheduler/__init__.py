@@ -25,6 +25,14 @@ class Scheduler(SchedulerTemplate):
     self.school_selector.items = [(s['school_name'], s['abbreviation']) for s in school_list]
     self.filter_instructors = False
 
+    self.COURSE_STRUCTURE = 'None'
+    if self.COURSE_STRUCTURE == 'None':
+      self.COURSE_STRUCTURE = COURSE_STRUCTURE_STANDARD
+    elif self.COURSE_STRUCTURE == 'standard':
+      self.COURSE_STRUCTURE = COURSE_STRUCTURE_STANDARD
+    elif self.COURSE_STRUCTURE == 'compressed':
+      self.COURSE_STRUCTURE = COURSE_STRUCTURE_COMPRESSED
+
     classroom_placeholder = [("Select a classroom", None)]
     current_classrooms = app_tables.classrooms.search()
     classroom_items = [(c['classroom_name'], c['classroom_name']) for c in current_classrooms]
@@ -43,6 +51,8 @@ class Scheduler(SchedulerTemplate):
     self.refresh_schedule_display()
 
 
+# ##############################################
+# Export schedule placeholder - not in use right now
   def export_schedule_button_click(self, **event_args):
     filename = f"Teen Schedule - version {date.today()}.csv"
     csv_file = anvil.server.call('convert_JSON_to_csv_and_save', self.teen_schedule, filename)
@@ -210,7 +220,7 @@ class Scheduler(SchedulerTemplate):
     self.classroom_schedule = anvil.server.call('create_full_classroom_schedule', 
                               self.school_selector.selected_value, 
                               start_date, 
-                              None)
+                              None, self.COURSE_STRUCTURE)
     
     if self.classroom_schedule:
         self.classroom_name = self.classroom_schedule['classroom_name']
@@ -284,4 +294,7 @@ class Scheduler(SchedulerTemplate):
     self.refresh_schedule_display(self.start_date)
 
   def classroom_type_selector_change(self, **event_args):
-    Notification('🛠️ Under construction\nThis will toggle between the 2 class per week and 3 class per week schedules').show()
+    if self.classroom_type_selector.checked is True:
+      self.COURSE_STRUCTURE = 'compressed'
+    else:
+      self.COURSE_STRUCTURE = 'standard'
