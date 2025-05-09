@@ -42,6 +42,11 @@ components:
       name: file_transfer_link
       properties: {align: center, background: '', bold: false, border: '', enabled: true, font: '', font_size: 18, foreground: '', icon: 'fa:floppy-o', icon_align: left, italic: false, role: null, spacing_above: small, spacing_below: small, text: ' File Transfer', tooltip: '', underline: false, visible: true}
       type: Button
+    - event_bindings: {click: changelog_button_click}
+      layout_properties: {grid_position: 'SAHYAI,DNXOFV'}
+      name: changelog_button
+      properties: {font_size: 18, foreground: 'theme:Primary', icon: 'fa:code-fork', role: null, text: ChangeLog}
+      type: Button
     - layout_properties: {grid_position: 'KHSNGK,VNCASN'}
       name: label_1
       properties: {align: left, background: '', bold: false, border: '', font: '', font_size: null, foreground: '', icon: '', icon_align: left, italic: false, role: null, spacing_above: small, spacing_below: small, text: '                                                                                 ', tooltip: '', underline: false, visible: true}

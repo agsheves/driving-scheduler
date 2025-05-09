@@ -1,5 +1,16 @@
 allow_embedding: false
 db_schema:
+  change_log:
+    client: search
+    columns:
+    - admin_ui: {order: 0, width: 200}
+      name: date
+      type: date
+    - admin_ui: {order: 1, width: 200}
+      name: changes_markdown
+      type: string
+    server: full
+    title: change_Log
   classrooms:
     client: search
     columns:

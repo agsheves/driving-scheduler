@@ -10,6 +10,7 @@ from anvil.tables import app_tables
 from ..Instructors import Instructors
 from ..Scheduler import Scheduler
 from ..file_transfer import file_transfer
+from .change_log import change_log
 
 class Frame(FrameTemplate):
   def __init__(self, display_form=None, **properties):
@@ -39,6 +40,7 @@ class Frame(FrameTemplate):
     self.schedule_page_link.background = app.theme_colors['Primary Container']
     self.instructor_page_link.background = "transparent"
     self.file_transfer_link.background = "transparent"
+    self.changelog_button.background = "transparent"
     
 
   def instructor_page_link_click(self, **event_args):
@@ -47,6 +49,7 @@ class Frame(FrameTemplate):
     self.instructor_page_link.background = app.theme_colors['Primary Container']
     self.schedule_page_link.background = "transparent"
     self.file_transfer_link.background = "transparent"
+    self.changelog_button.background = "transparent"
 
   def file_transfer_link_click(self, **event_args):
     self.dynamic_panel_1.clear()
@@ -54,6 +57,16 @@ class Frame(FrameTemplate):
     self.file_transfer_link.background = app.theme_colors['Primary Container']
     self.schedule_page_link.background = "transparent"
     self.instructor_page_link.background = "transparent"
+    self.changelog_button.background = "transparent"
+
+  def changelog_button_click(self, **event_args):
+
+    self.dynamic_panel_1.clear()
+    self.dynamic_panel_1.add_component(change_log())
+    self.changelog_button.background = app.theme_colors['Primary Container']
+    self.schedule_page_link.background = "transparent"
+    self.instructor_page_link.background = "transparent"
+    self.file_transfer_link.background = "transparent"    
 
 
 
