@@ -15,28 +15,18 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
 from datetime import datetime, timedelta, date
-from .globals import get_globals
+from .globals import AVAILABILITY_MAPPING, COURSE_STRUCTURE_COMPRESSED, COURSE_STRUCTURE_STANDARD
 
 # Schools are referenced by their abbreviation found in app_tables / schools / abbreviation
 
 # Constants
-
-globals = get_globals()
-def set_constants(COURSE_STRUCTURE):
-    COURSE_STRUCTURE = "None"
-    if COURSE_STRUCTURE == "None":
-        COURSE_STRUCTURE = globals.COURSE_STRUCTURE_STANDARD
-    elif COURSE_STRUCTURE_TYPE == "standard":
-        COURSE_STRUCTURE = globals.COURSE_STRUCTURE_STANDARD
-    elif COURSE_STRUCTURE_TYPE == "compressed":
-        COURSE_STRUCTURE = COURSE_STRUCTURE_COMPRESSED
-    STUDENTS_PER_DRIVE = 2
-    MAX_classroom_SIZE = 30
-    BUFFER_PERCENTAGE = 0.9
-    MIN_COURSE_LENGTH = COURSE_STRUCTURE["sequence"][
-        "MIN_COURSE_LENGTH"
-    ]  # classrooms must run for over 42 calendar days to allow sufficient time to sequence all activities.
-    CLASS_DAYS = COURSE_STRUCTURE["class_sessions"]["class_days"]
+STUDENTS_PER_DRIVE = 2
+MAX_classroom_SIZE = 30
+BUFFER_PERCENTAGE = 0.9
+MIN_COURSE_LENGTH = COURSE_STRUCTURE["sequence"][
+    "MIN_COURSE_LENGTH"
+]  # classrooms must run for over 42 calendar days to allow sufficient time to sequence all activities.
+CLASS_DAYS = COURSE_STRUCTURE["class_sessions"]["class_days"]
 
 
 # no_class_days_listed = app_tables.no_class_days.search(applies_all_or_school='all')
@@ -48,7 +38,7 @@ else:
 
 
 @anvil.server.callable
-def get_available_days(start_date):
+def get_available_days(start_date, course_structure):
     """
     Get available days for the program, excluding holidays.
     Note: Instructor vacations are handled separately in get_daily_drive_slots.
@@ -62,6 +52,11 @@ def get_available_days(start_date):
     """
     available_days = []
     current_date = start_date
+    if course_structure == 'standard':
+      COURSE_STRUCTURE = COURSE_STRUCTURE_STANDARD
+    else:
+      COURSE_STRUCTURE = COURSE_STRUCTURE_COMPRESSED
+    
 
     # Get holidays from the database
     holidays = [
@@ -75,16 +70,16 @@ def get_available_days(start_date):
     days_checked = 0
     max_days_to_check = 90  # Look up to ~3 months ahead
 
-    while len(available_days) < MIN_COURSE_LENGTH and days_checked < max_days_to_check:
+    while len(available_days) < COURSE_STRUCTURE['sequence']['MIN_COURSE_LENGTH'] and days_checked < max_days_to_check:
         if current_date not in holiday_dates:
             available_days.append(current_date)
         current_date += timedelta(days=1)
         days_checked += 1
 
     # Check if we found enough available days
-    if len(available_days) < MIN_COURSE_LENGTH:
-        days_short = MIN_COURSE_LENGTH - len(available_days)
-        raise ValueError(
+    if len(available_days) < COURSE_STRUCTURE['sequence']['MIN_COURSE_LENGTH']:
+    days_short = COURSE_STRUCTURE['sequence']['MIN_COURSE_LENGTH'] - len(available_days)
+    raise ValueError(
             f"Could not find enough available days. Need {days_short} more days to meet minimum course length of {MIN_COURSE_LENGTH} days"
         )
 
@@ -161,7 +156,11 @@ def calculate_weekly_capacity(start_date, school, course_structure):
     BUT!
     ⚠️ Need to do manual comparison to check exact results.
     """
-    available_days = get_available_days(start_date)
+    if course_structure == 'standard':
+      COURSE_STRUCTURE = COURSE_STRUCTURE_STANDARD
+    else:
+      COURSE_STRUCTURE = COURSE_STRUCTURE_COMPRESSED
+    available_days = get_available_days(start_date, course_structure)
 
     # Group days by week
     weekly_days = {}
@@ -260,14 +259,13 @@ def schedule_classes(classroom_name, start_date, num_students, course_structure)
     Classes must be on specific days of the week as defined in CLASS_DAYS.
     Returns a simplified object format suitable for table storage.
     """
-    # Verify start_date is Monday
-    if start_date.weekday() != 0:  # 0 is Monday
-        print(
-            f"Warning: Start date {start_date} is not a Monday. This may cause scheduling issues."
-        )
 
-    # Get available days
-    available_days = get_available_days(start_date)
+    if course_structure == 'standard':
+      COURSE_STRUCTURE = COURSE_STRUCTURE_STANDARD
+    else:
+      COURSE_STRUCTURE = COURSE_STRUCTURE_COMPRESSED
+
+    available_days = get_available_days(start_date, course_structure)
 
     # Create class schedule
     class_schedule = []
@@ -342,6 +340,10 @@ def get_weekly_lesson_slots(week_number):
     Returns:
         dict: Available slots by day, excluding class slots for weeks 2-5
     """
+    if course_structure == 'standard':
+      COURSE_STRUCTURE = COURSE_STRUCTURE_STANDARD
+    else:
+      COURSE_STRUCTURE = COURSE_STRUCTURE_COMPRESSED
     weekly_slots = {
         "Monday": [],
         "Tuesday": [],
@@ -353,7 +355,7 @@ def get_weekly_lesson_slots(week_number):
     }
 
     # Class days and slots (reserved for weeks 1-5)
-    class_days = ["Monday", "Wednesday", "Friday"]
+    class_days = COURSE_STRUCTURE['class_sessions']['class_days']
     class_slot = "lesson_slot_5"
 
     # Filter out breaks and organize by day
@@ -395,7 +397,7 @@ def schedule_drives(classroom_name, start_date, num_students, course_structure):
     First creates a master schedule that repeats each week, then adjusts for vacation days
     """
     # Get available days and instructor availability
-    available_days = get_available_days(start_date)
+    available_days = get_available_days(start_date, course_structure)
     num_pairs = num_students // 2
 
     # Initialize drive schedule
@@ -715,7 +717,7 @@ def test_capacity_calculation(start_date=None, school=None):
 
     # Test get_available_days
     print("\n1. Testing get_available_days...")
-    available_days = get_available_days(start_date)
+    available_days = get_available_days(start_date, course_structure)
     print(f"Found {len(available_days)} available days")
     print(f"First day: {available_days[0]}")
     print(f"Last day: {available_days[-1]}")

@@ -90,6 +90,12 @@ db_schema:
     - admin_ui: {order: -0.5, width: 200}
       name: availability_codes
       type: simpleObject
+    - admin_ui: {order: -0.75, width: 200}
+      name: availability_mapping
+      type: simpleObject
+    - admin_ui: {order: 7, width: 200}
+      name: course_structure_compressed
+      type: simpleObject
     server: full
     title: global_variables_EDIT_WITH_CARE
   instructor_schedules:

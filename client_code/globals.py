@@ -6,37 +6,67 @@ import anvil.tables as tables
 import anvil.tables.query as q
 from anvil.tables import app_tables
 
-# GLOBALs imports date from the GLOBALS table but also maintains fall-back values here
-# GLOBALS maitnains a current data set and previous sets as archives
-
-def get_globals():
-    latest_globals = app_tables.global_variables_edit_with_care.get(version='latest')
-    if latest_globals:
-        globals = {
-            'days_full': latest_globals['days_full'] or days_full_fallback,
-            'LESSON_SLOTS': latest_globals['lesson_slots'] or LESSON_SLOTS,
-            'days_short': latest_globals['days_short'] or days_short_fallback,
-            'availability_codes': latest_globals['availability_codes'] or availability_codes_fallback,
-            'AVAILABILITY_MAPPING': latest_globals['availability_mapping'] or AVAILABILITY_MAPPING_FALLBACK,
-            'COURSE_STRUCTURE_COMPRESSED': latest_globals['course_structure_compressed'] or COURSE_STRUCTURE_COMPRESSED_FALLBACK,
-            'COURSE_STRUCTURE_STANDARD': latest_globals['course_structure_standard'] or COURSE_STRUCTURE_STANDARD_FALLBACK,
-        }
-        return latest_globals
-    else:
-        # Use local fallbacks
-        globals = {
-            'days_full': days_full_fallback,
-            'days_short': days_short_fallback,
-            'availability_codes': availability_codes_fallback,
-            'AVAILABILITY_MAPPING': AVAILABILITY_MAPPING_FALLBACK,
-            'COURSE_STRUCTURE_COMPRESSED': COURSE_STRUCTURE_COMPRESSED_FALLBACK,
-            'COURSE_STRUCTURE_STANDARD': COURSE_STRUCTURE_STANDARD_FALLBACK,
-        }
-
 # time_slot_5 is extended as the evening drive and class start times differ
-LESSON_SLOTS = app_tables.global_variables_edit_with_care.get(version='latest')['lesson_slots']
+LESSON_SLOTS = {
+  "break_am": {
+    "term": "all",
+    "end_time": "10:15",
+    "seasonal": "no",
+    "vacation": "all",
+    "start_time": "10:00"
+  },
+  "break_pm": {
+    "term": "all",
+    "end_time": "15:45",
+    "seasonal": "no",
+    "vacation": "all",
+    "start_time": "15:30"
+  },
+  "break_lunch": {
+    "term": "all",
+    "end_time": "13:30",
+    "seasonal": "no",
+    "vacation": "all",
+    "start_time": "12:30"
+  },
+  "lesson_slot_1": {
+    "term": "Sat, Sun",
+    "end_time": "10:00",
+    "seasonal": "no",
+    "vacation": "all",
+    "start_time": "08:00"
+  },
+  "lesson_slot_2": {
+    "term": "Sat, Sun",
+    "end_time": "12:15",
+    "seasonal": "no",
+    "vacation": "all",
+    "start_time": "10:15"
+  },
+  "lesson_slot_3": {
+    "term": "Sat, Sun",
+    "end_time": "15:15",
+    "seasonal": "no",
+    "vacation": "all",
+    "start_time": "13:15"
+  },
+  "lesson_slot_4": {
+    "term": "all",
+    "end_time": "17:45",
+    "seasonal": "no",
+    "vacation": "all",
+    "start_time": "15:45"
+  },
+  "lesson_slot_5": {
+    "term": "all",
+    "end_time": "20:30",
+    "seasonal": "no",
+    "vacation": "all",
+    "start_time": "18:00"
+  }
+}
 
-days_full_fallback = [
+days_full = [
     "Monday",
     "Tuesday",
     "Wednesday",
@@ -45,10 +75,10 @@ days_full_fallback = [
     "Saturday",
     "Sunday",
 ]
-days_short_fallback = ["mon", "tues", "wed", "thurs", "fri", "sat", "sun"]
-availability_codes_fallback = ["Unavailable", "Yes - Drive", "Yes - Class", "Yes - Any"]
+days_short = ["mon", "tues", "wed", "thurs", "fri", "sat", "sun"]
+availability_codes = ["Unavailable", "Yes - Drive", "Yes - Class", "Yes - Any"]
 
-AVAILABILITY_MAPPING_FALLBACK = {
+AVAILABILITY_MAPPING = {
   "No": 0,  # Not available
   "Yes": 1,  # Available for both
   "Drive Only": 2,  # Available for drives only
@@ -59,7 +89,7 @@ AVAILABILITY_MAPPING_FALLBACK = {
 }
 
 # Course structure defining lesson pairs and sequence
-COURSE_STRUCTURE_COMPRESSED_FALLBACK = {
+COURSE_STRUCTURE_COMPRESSED = {
     "orientation": {
         "max_students": 30,  # Maximum students per orientation session
         "duration": 2,  # Hours
@@ -100,7 +130,7 @@ COURSE_STRUCTURE_COMPRESSED_FALLBACK = {
     },
 }
 
-COURSE_STRUCTURE_STANDARD_FALLBACK = {
+COURSE_STRUCTURE_STANDARD = {
     "orientation": {
         "max_students": 30,  # Maximum students per orientation session
         "duration": 2,  # Hours
