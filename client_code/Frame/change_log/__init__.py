@@ -14,5 +14,5 @@ class change_log(change_logTemplate):
     # Set Form properties and Data Bindings.
     self.init_components(**properties)
 
-    self.change_log_panel.items = app_tables.change_log.search()
+    self.change_log_panel.items = app_tables.change_log.search(tables.order_by("date", ascending=False))
 

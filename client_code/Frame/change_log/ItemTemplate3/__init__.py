@@ -14,5 +14,5 @@ class ItemTemplate3(ItemTemplate3Template):
     # Set Form properties and Data Bindings.
     self.init_components(**properties)
 
-    #self.date_label.text = self.item['date']
+    self.date_label.text = self.item['date'].strftime('%b %d %Y')
     self.change_text.content = self.item['changes_markdown']
