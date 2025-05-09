@@ -1,3 +1,6 @@
+"""
+Tool and shared services
+"""
 import anvil.google.auth, anvil.google.drive, anvil.google.mail
 from anvil.google.drive import app_files
 import anvil.files
@@ -19,7 +22,7 @@ from .globals import LESSON_SLOTS, AVAILABILITY_MAPPING
 ###########################################################
 # General data import function to take CSV data and convert to JSON.
 
-
+# ⚠️ No longer in use - delete?
 @anvil.server.callable
 def csv_to_structured_json(csv_file):
     if isinstance(csv_file, str):
@@ -48,12 +51,6 @@ def csv_to_structured_json(csv_file):
     return structured_data
 
 
-@anvil.server.callable
-def convert_csv_to_json(file):
-    json_payload = csv_to_structured_json(file)
-    print(json_payload)
-    return json_payload
-
 
 # Optional: Pretty print the JSON
 def print_json(json_data):
@@ -62,7 +59,7 @@ def print_json(json_data):
 
 # Drive schedule spoecifc import function
 
-
+# ⚠️ No longer in use - delete?
 @anvil.server.callable
 def convert_schedule_csv_to_json(csv_file):
     if isinstance(csv_file, str):
@@ -85,7 +82,7 @@ def convert_schedule_csv_to_json(csv_file):
 
     return structured_data
 
-
+# ⚠️ No longer in use - delete?
 @anvil.server.callable
 def update_teen_drive_schedule(file):
     json_payload = convert_schedule_csv_to_json(file)
@@ -108,7 +105,7 @@ def update_teen_drive_schedule(file):
 ###########################################################
 # Data export function to take JSON data and convert to CSV
 
-
+# ⚠️ No longer in use - delete?
 def export_json_to_csv(json_data, filename="schedule.csv"):
     output = io.StringIO()
     writer = csv.writer(output)
@@ -141,7 +138,7 @@ def export_json_to_csv(json_data, filename="schedule.csv"):
 
     app_tables.files.add_row(filename=filename, file=csv_media, file_type="CSV")
 
-
+# ⚠️ No longer in use - delete?
 @anvil.server.callable
 def convert_JSON_to_csv_and_save(json_data, filename):
     return export_json_to_csv(json_data, filename)
@@ -149,7 +146,7 @@ def convert_JSON_to_csv_and_save(json_data, filename):
 
 ###########################################################
 # Export functions
-# For testing sheet access
+# ⚠️ No longer in use - delete?
 @anvil.server.callable
 def sanity_check_write():
     sheet = app_files.drive_schedule_test
@@ -158,6 +155,7 @@ def sanity_check_write():
     ws.rows[:] = []
 
 
+# ➡️ Not active but keep for adaptation later if sheets is an option
 @anvil.server.background_task
 def sync_instructor_availability_to_sheets():
     """
@@ -305,7 +303,7 @@ def sync_instructor_availability_to_sheets():
 
     return True
 
-
+# ✅ Core function - keep
 @anvil.server.callable
 def export_instructor_availability():
     """
@@ -400,7 +398,7 @@ def export_instructor_availability():
 
     return excel_media
 
-
+# ✅ Core function - keep
 @anvil.server.callable
 def export_instructor_eight_monthavailability():
     """
@@ -476,7 +474,7 @@ def export_instructor_eight_monthavailability():
 
     return excel_media
 
-
+# ✅ Core function - keep
 @anvil.server.callable
 def export_classroom_schedule(classroom_name):
     print(classroom_name)
@@ -540,7 +538,7 @@ def export_classroom_schedule(classroom_name):
 
     return excel_media
 
-
+# ✅ Core function - keep
 @anvil.server.callable
 def export_merged_classroom_schedule(classroom_name):
     """

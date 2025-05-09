@@ -22,9 +22,6 @@ class ItemTemplate2(ItemTemplate2Template):
     file = self.item['file']
     anvil.media.download(file)
 
-  def convert_link_click(self, **event_args):
-    print(self.item['filename'])
-    anvil.server.call('convert_csv_to_json', self.item['file'])
 
   def delete_file_link_click(self, **event_args):
     file_name = self.item['filename']

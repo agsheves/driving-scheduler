@@ -1,3 +1,7 @@
+"""
+Instructor scheduling addds instructors to the pre-build classrooms based on their availability
+Also manages load balancing and updates availability records in the database
+"""
 import anvil.server
 import anvil.tables as tables
 import anvil.tables.query as q
