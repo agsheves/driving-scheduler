@@ -87,6 +87,9 @@ db_schema:
     - admin_ui: {order: 6, width: 200}
       name: lesson_slots
       type: simpleObject
+    - admin_ui: {order: -0.5, width: 200}
+      name: availability_codes
+      type: simpleObject
     server: full
     title: global_variables_EDIT_WITH_CARE
   instructor_schedules:

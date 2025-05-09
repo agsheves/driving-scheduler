@@ -15,19 +15,19 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
 from datetime import datetime, timedelta, date
-from .globals import LESSON_SLOTS, COURSE_STRUCTURE
+from .globals import get_globals
 
 # Schools are referenced by their abbreviation found in app_tables / schools / abbreviation
 
 # Constants
 
-
+globals = get_globals()
 def set_constants(COURSE_STRUCTURE):
     COURSE_STRUCTURE = "None"
     if COURSE_STRUCTURE == "None":
-        COURSE_STRUCTURE = COURSE_STRUCTURE_STANDARD
+        COURSE_STRUCTURE = globals.COURSE_STRUCTURE_STANDARD
     elif COURSE_STRUCTURE_TYPE == "standard":
-        COURSE_STRUCTURE = COURSE_STRUCTURE_STANDARD
+        COURSE_STRUCTURE = globals.COURSE_STRUCTURE_STANDARD
     elif COURSE_STRUCTURE_TYPE == "compressed":
         COURSE_STRUCTURE = COURSE_STRUCTURE_COMPRESSED
     STUDENTS_PER_DRIVE = 2

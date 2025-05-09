@@ -10,7 +10,6 @@ from anvil.tables import app_tables
 import json
 from datetime import date, time, datetime, timedelta
 import plotly.graph_objects as go
-from ..globals import current_teen_driving_schedule
 
 class Scheduler(SchedulerTemplate):
   def __init__(self, **properties):
@@ -26,12 +25,6 @@ class Scheduler(SchedulerTemplate):
     self.filter_instructors = False
 
     self.COURSE_STRUCTURE = 'None'
-    if self.COURSE_STRUCTURE == 'None':
-      self.COURSE_STRUCTURE = COURSE_STRUCTURE_STANDARD
-    elif self.COURSE_STRUCTURE == 'standard':
-      self.COURSE_STRUCTURE = COURSE_STRUCTURE_STANDARD
-    elif self.COURSE_STRUCTURE == 'compressed':
-      self.COURSE_STRUCTURE = COURSE_STRUCTURE_COMPRESSED
 
     classroom_placeholder = [("Select a classroom", None)]
     current_classrooms = app_tables.classrooms.search()

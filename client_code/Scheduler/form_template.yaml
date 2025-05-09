@@ -154,9 +154,9 @@ components:
         name: school_selector
         properties: {}
         type: DropDown
-      - event_bindings: {change: cohort_start_date_change}
+      - event_bindings: {change: classroom_start_date_change}
         layout_properties: {grid_position: 'IAMLLD,MCYKIH'}
-        name: cohort_start_date
+        name: classroom_start_date
         properties: {tooltip: Select a start date that falls on a Monday to optimize scheduling}
         type: DatePicker
       - layout_properties: {grid_position: 'MUQGCL,AWQMMP'}
