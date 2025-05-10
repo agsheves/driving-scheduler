@@ -108,9 +108,6 @@ db_schema:
     - admin_ui: {order: 1, width: 200}
       name: vacation_days
       type: simpleObject
-    - admin_ui: {order: 2, width: 200}
-      name: weekly_availability
-      type: simpleObject
     - admin_ui: {width: 200}
       name: school_preferences
       type: simpleObject
@@ -119,6 +116,12 @@ db_schema:
       type: simpleObject
     - admin_ui: {order: 5, width: 200}
       name: previous_seven_month_availability
+      type: simpleObject
+    - admin_ui: {width: 200}
+      name: weekly_availability_term
+      type: simpleObject
+    - admin_ui: {width: 200}
+      name: weekly_availability_vacation
       type: simpleObject
     server: full
     title: instructor_schedules
