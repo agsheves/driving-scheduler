@@ -802,12 +802,6 @@ def fix_instructor_slot_names():
                 )
                 instructor_schedule.update(weekly_availability_term=fixed_term)
 
-            # Fix vacation availability
-            if instructor_schedule["vacation_availability"]:
-                fixed_vacation = fix_slot_names(
-                    instructor_schedule["vacation_availability"]
-                )
-                instructor_schedule.update(vacation_availability=fixed_vacation)
 
             print(f"Fixed slot names for {instructor['firstName']}")
 
