@@ -402,13 +402,13 @@ def generate_seven_month_availability(instructor=None):
     weekly_data = instructor_schedule["weekly_availability_term"]["weekly_availability"]
 
     # Get personal vacation days and parse from JSON string if needed
-    vacation_data = instructor_schedule["vacation_days"]
+    vacation_data = instructor_schedule.get("vacation_days", {})
 
     # Initialize empty vacation days list
     vacation_days = []
 
-    # Only process if we have vacation data
-    if vacation_data:
+    # Only process if we have vacation data and it's not empty
+    if vacation_data and vacation_data != {}:
         if isinstance(vacation_data, str):
             try:
                 vacation_data = json.loads(vacation_data)
@@ -419,23 +419,29 @@ def generate_seven_month_availability(instructor=None):
         # Extract the actual vacation days list from the nested structure
         vacation_days = vacation_data.get("vacation_days", [])
 
-    print(f"Processing vacation days: {vacation_days}")
+    print(f"Processing vacation days for {instructor['firstName']}: {vacation_days}")
 
     # Create vacation date ranges
     vacation_ranges = []
-    if vacation_days:  # Only process if we have vacation days
+    if vacation_days and isinstance(vacation_days, list):  # Ensure we have a valid list
         for vacation in vacation_days:
             try:
+                if not isinstance(vacation, dict):
+                    continue
                 start_date = datetime.strptime(
-                    vacation["start_date"], "%Y-%m-%d"
+                    vacation.get("start_date", ""), "%Y-%m-%d"
                 ).date()
-                end_date = datetime.strptime(vacation["end_date"], "%Y-%m-%d").date()
+                end_date = datetime.strptime(
+                    vacation.get("end_date", ""), "%Y-%m-%d"
+                ).date()
                 current_date = start_date
                 while current_date <= end_date:
                     vacation_ranges.append(str(current_date))
                     current_date += timedelta(days=1)
-            except (KeyError, ValueError) as e:
-                print(f"Error processing vacation date range: {e}")
+            except (KeyError, ValueError, AttributeError) as e:
+                print(
+                    f"Error processing vacation date range for {instructor['firstName']}: {e}"
+                )
                 continue
 
     # Calculate the target end date (8 months from today)
