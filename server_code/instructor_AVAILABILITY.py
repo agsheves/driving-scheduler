@@ -268,7 +268,7 @@ def generate_capacity_report(days=180):
             instructor_schedule = app_tables.instructor_schedules.get(
                 instructor=instructor
             )
-            weekly_data = instructor_schedule["weekly_availability"]
+            weekly_data = instructor_schedule["weekly_availability_term"]
             if weekly_data is None or weekly_data == "":
                 continue
         except (KeyError, TypeError):
@@ -364,7 +364,7 @@ def generate_seven_month_availability(instructor=None):
 
     # Get instructor's weekly availability
     instructor_schedule = app_tables.instructor_schedules.get(instructor=instructor)
-    if not instructor_schedule or not instructor_schedule["weekly_availability"]:
+    if not instructor_schedule or not instructor_schedule["weekly_availability_term"]:
         print(f"No weekly availability found for {instructor['firstName']}")
         return None
 
@@ -399,7 +399,7 @@ def generate_seven_month_availability(instructor=None):
             previous_seven_month_availability=existing_availability
         )
 
-    weekly_data = instructor_schedule["weekly_availability"]["weekly_availability"]
+    weekly_data = instructor_schedule["weekly_availability_term"]["weekly_availability"]
 
     # Get personal vacation days and parse from JSON string if needed
     vacation_data = instructor_schedule["vacation_days"]

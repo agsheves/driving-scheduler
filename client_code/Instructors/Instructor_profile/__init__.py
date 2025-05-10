@@ -34,7 +34,7 @@ class Instructor_profile(Instructor_profileTemplate):
         print(self.instructor["firstName"])
         existing_term_schedule = False  # Initialize to False
         existing_term_schedule_data = self.instructor_availability_row[
-            "weekly_availability"
+            "weekly_availability_term"
         ]
         if existing_term_schedule_data != "null":
             existing_term_schedule = True
@@ -67,6 +67,6 @@ class Instructor_profile(Instructor_profileTemplate):
             ]
 
     def download_term_availability_button_click(self, **event_args):
-        json = self.instructor_availability_row["weekly_availability"]
+        json = self.instructor_availability_row["weekly_availability_term"]
         csv_file_name = f"{self.instructor['firstName']}_{self.instructor['surname']}_term_availability.csv"
         anvil.server.call("convert_JSON_to_csv_and_save", json, csv_file_name)

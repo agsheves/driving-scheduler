@@ -124,7 +124,7 @@ def get_daily_drive_slots(day, school):
             continue
 
         # Get availability for the specific day
-        instructor_availability = instructor_row["weekly_availability"][
+        instructor_availability = instructor_row["weekly_availability_term"][
             "weekly_availability"
         ]
         day_name = day.strftime("%A").lower()

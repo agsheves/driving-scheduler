@@ -199,7 +199,7 @@ def sync_instructor_availability_to_sheets():
             continue
 
         # Get availability data
-        availability = instructor_row["weekly_availability"]["weekly_availability"]
+        availability = instructor_row["weekly_availability_term"]["weekly_availability"]
         school_prefs = instructor_row["school_preferences"]
         vacation_days = instructor_row["vacation_days"]
         print(f"Retrieved availability data for {instructor['firstName']}")
@@ -327,7 +327,7 @@ def export_instructor_availability():
                 continue
 
             # Get availability data
-            availability = instructor_row["weekly_availability"]["weekly_availability"]
+            availability = instructor_row["weekly_availability_term"]["weekly_availability"]
             school_prefs = instructor_row["school_preferences"]
             vacation_days = instructor_row["vacation_days"]
 
@@ -682,13 +682,15 @@ def export_merged_classroom_schedule(classroom_name):
 
 
 @anvil.server.callable
-def import_instructor_availability_fromCSV(csv_file):
+def import_instructor_availability_fromCSV(csv_file=None):
     """
     Import instructor availability from CSV and save to instructor record.
     CSV format: One row per instructor with 35 columns (7 days × 5 slots)
     Row header format: instructor_name_type (e.g., 'john_term' or 'john_vacation')
     """
     # Read CSV data
+    if csv_file is None:
+      csv_file = app_tables.files.get(filename='instructor_availability.csv')['file']
     if isinstance(csv_file, str):
         with open(csv_file, "r") as f:
             reader = csv.reader(f)
@@ -714,7 +716,8 @@ def import_instructor_availability_fromCSV(csv_file):
             continue
 
         # Find instructor in database
-        instructor = app_tables.users.get(firstName=instructor_name)
+        instructor_upper = instructor_name.capitalize()
+        instructor = app_tables.users.get(firstName=instructor_upper)
         if not instructor:
             print(f"Instructor not found: {instructor_name}")
             continue
@@ -751,10 +754,11 @@ def import_instructor_availability_fromCSV(csv_file):
 
         # Save to appropriate field based on schedule type
         if schedule_type == "term":
-            instructor_schedule.update(weekly_availability=availability_data)
+            instructor_schedule.update(weekly_availability_term=availability_data)
         else:  # vacation
-            instructor_schedule.update(vacation_availability=availability_data)
+          instructor_schedule.update(weekly_availability_vacation=availability_data)
 
         print(f"Updated {schedule_type} availability for {instructor_name}")
 
     return True
+
