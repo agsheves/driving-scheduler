@@ -758,3 +758,14 @@ def import_instructor_availability_fromCSV(csv_file):
         print(f"Updated {schedule_type} availability for {instructor_name}")
 
     return True
+
+
+@anvil.server.callable
+def add_new_instructor():
+  instructors = app_tables.users.search(is_instructor=True)
+  for instructor in instructors:
+    is_listed = app_tables.instructor_schedules.get(instructor=instructor)
+    if is_listed is True:
+      print('already listed')
+    else:
+      app_tables.instructor_schedules.add_row(instructor=instructor)
