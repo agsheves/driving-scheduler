@@ -402,7 +402,7 @@ def generate_seven_month_availability(instructor=None):
     weekly_data = instructor_schedule["weekly_availability_term"]["weekly_availability"]
 
     # Get personal vacation days and parse from JSON string if needed
-    vacation_data = instructor_schedule.get("vacation_days", {})
+    vacation_data = instructor_schedule['vacation_days']
 
     # Initialize empty vacation days list
     vacation_days = []
