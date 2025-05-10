@@ -403,17 +403,22 @@ def generate_seven_month_availability(instructor=None):
 
     # Get personal vacation days and parse from JSON string if needed
     vacation_data = instructor_schedule["vacation_days"]
-    if isinstance(vacation_data, str):
-        import json
 
-        try:
-            vacation_data = json.loads(vacation_data)
-        except json.JSONDecodeError:
-            print(f"Error parsing vacation days JSON for {instructor['firstName']}")
-            vacation_data = {"vacation_days": []}
+    # Initialize empty vacation days list
+    vacation_days = []
 
-    # Extract the actual vacation days list from the nested structure
-    vacation_days = vacation_data.get("vacation_days", [])
+    # Only process if we have vacation data
+    if vacation_data:
+        if isinstance(vacation_data, str):
+            try:
+                vacation_data = json.loads(vacation_data)
+            except json.JSONDecodeError:
+                print(f"Error parsing vacation days JSON for {instructor['firstName']}")
+                vacation_data = {"vacation_days": []}
+
+        # Extract the actual vacation days list from the nested structure
+        vacation_days = vacation_data.get("vacation_days", [])
+
     print(f"Processing vacation days: {vacation_days}")
 
     # Create vacation date ranges
