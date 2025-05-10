@@ -364,7 +364,7 @@ def generate_seven_month_availability(instructor=None):
 
     # Get instructor's weekly availability
     instructor_schedule = app_tables.instructor_schedules.get(instructor=instructor)
-    if not instructor_schedule or not instructor_schedule["weekly_availability"]:
+    if not instructor_schedule or not instructor_schedule["weekly_availability_term"]:
         print(f"No weekly availability found for {instructor['firstName']}")
         return None
 
