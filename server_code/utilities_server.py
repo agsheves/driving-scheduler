@@ -746,7 +746,7 @@ def import_instructor_availability_fromCSV(csv_file):
                     value = row[
                         col_idx + 1
                     ]  # +1 because first column is instructor name
-                    day_slots[f"time_slot_{slot + 1}"] = value
+                    day_slots[f"lesson_slot_{slot + 1}"] = value
             availability_data["weekly_availability"][day] = day_slots
 
         # Save to appropriate field based on schedule type
@@ -762,10 +762,53 @@ def import_instructor_availability_fromCSV(csv_file):
 
 @anvil.server.callable
 def add_new_instructor():
-  instructors = app_tables.users.search(is_instructor=True)
-  for instructor in instructors:
-    is_listed = app_tables.instructor_schedules.get(instructor=instructor)
-    if is_listed is True:
-      print('already listed')
+    instructors = app_tables.users.search(is_instructor=True)
+    for instructor in instructors:
+        is_listed = app_tables.instructor_schedules.get(instructor=instructor)
+        if is_listed is True:
+            print("already listed")
+        else:
+            app_tables.instructor_schedules.add_row(instructor=instructor)
+
+
+def fix_slot_names(data):
+    """
+    Recursively replace 'time_slot' with 'lesson_slot' in the availability data structure.
+    """
+    if isinstance(data, dict):
+        return {
+            k.replace("time_slot", "lesson_slot"): fix_slot_names(v)
+            for k, v in data.items()
+        }
+    elif isinstance(data, list):
+        return [fix_slot_names(item) for item in data]
     else:
-      app_tables.instructor_schedules.add_row(instructor=instructor)
+        return data
+
+
+@anvil.server.callable
+def fix_instructor_slot_names():
+    """
+    Fix slot names in all instructor schedules.
+    """
+    instructors = app_tables.users.search(is_instructor=True)
+    for instructor in instructors:
+        instructor_schedule = app_tables.instructor_schedules.get(instructor=instructor)
+        if instructor_schedule:
+            # Fix term availability
+            if instructor_schedule["weekly_availability_term"]:
+                fixed_term = fix_slot_names(
+                    instructor_schedule["weekly_availability_term"]
+                )
+                instructor_schedule.update(weekly_availability_term=fixed_term)
+
+            # Fix vacation availability
+            if instructor_schedule["vacation_availability"]:
+                fixed_vacation = fix_slot_names(
+                    instructor_schedule["vacation_availability"]
+                )
+                instructor_schedule.update(vacation_availability=fixed_vacation)
+
+            print(f"Fixed slot names for {instructor['firstName']}")
+
+    return True
