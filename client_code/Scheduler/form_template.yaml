@@ -82,19 +82,19 @@ components:
         name: instructor_list
         properties: {font_size: 16, role: body}
         type: Label
-      - event_bindings: {click: back_week_button_click}
+      - event_bindings: {click: back_day_button_click}
         layout_properties: {grid_position: 'VUDEQA,RXUMMD'}
-        name: back_week_button
-        properties: {align: left, text: << Previous Week}
+        name: back_day_button
+        properties: {align: left, text: << Previous Day}
         type: Button
       - layout_properties: {grid_position: 'VUDEQA,YIAJIJ'}
         name: week_shown_label
         properties: {align: center}
         type: Label
-      - event_bindings: {click: forward_week_button_click}
+      - event_bindings: {click: forward_day_button_click}
         layout_properties: {grid_position: 'VUDEQA,KLWGOE'}
-        name: forward_week_button
-        properties: {align: right, text: Next Week >>}
+        name: forward_day_button
+        properties: {align: right, text: Next Day >>}
         type: Button
       - layout_properties: {grid_position: 'NHCIOA,LAESXL'}
         name: schedule_plot_complete

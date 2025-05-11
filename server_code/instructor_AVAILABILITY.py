@@ -43,7 +43,7 @@ def process_instructor_availability(instructors, start_date=None):
     # Calculate the start of the week (Monday) for the given start_date
     # Changed timne delta to one to only show two days
     start_of_week = start_date # - timedelta(days=start_date.weekday()) replace this to revert to week display
-    end_of_week = start_of_week + timedelta(days=1)
+    end_of_week = start_of_week + timedelta(days=0)
 
     all_records = []
 
@@ -135,7 +135,7 @@ def process_instructor_availability(instructors, start_date=None):
     flat_columns = []
     for col in pivot_df.columns:
         day, instructor = col
-        flat_columns.append((day, instructor, f"{day.capitalize()} - {instructor}"))
+        flat_columns.append((day, instructor, f"{instructor}"))
 
     # Define day order
     day_order = {

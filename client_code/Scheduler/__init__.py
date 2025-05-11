@@ -92,7 +92,8 @@ class Scheduler(SchedulerTemplate):
   def refresh_schedule_display(self, start_date=None):
     if start_date is None:
       self.start_date = datetime.now().date()
-    self.week_shown_label.text = f"Showing week commencing {self.start_date}"
+    formatted_date = self.start_date.strftime('%A, %B %d')
+    self.week_shown_label.text = f"Availability for {formatted_date}."
 
     # Get selected instructors based on filter status
     if self.filter_instructors:
@@ -276,13 +277,13 @@ class Scheduler(SchedulerTemplate):
   def download_availability_button_click(self, **event_args):
     anvil.server.call('export_instructor_eight_monthavailability')
 
-  def forward_week_button_click(self, **event_args):
-    new_start_date = self.start_date + timedelta(days=7)
+  def forward_day_button_click(self, **event_args):
+    new_start_date = self.start_date + timedelta(days=1)
     self.start_date = new_start_date
     self.refresh_schedule_display(self.start_date)
 
-  def back_week_button_click(self, **event_args):
-    new_start_date = self.start_date + timedelta(days=-7)
+  def back_day_button_click(self, **event_args):
+    new_start_date = self.start_date + timedelta(days=-1)
     self.start_date = new_start_date
     self.refresh_schedule_display(self.start_date)
 
