@@ -368,6 +368,9 @@ def generate_seven_month_availability(instructor=None):
         print(f"No weekly availability found for {instructor['firstName']}")
         return None
 
+    print(f"\nProcessing instructor: {instructor['firstName']}")
+    print(f"Raw weekly availability: {instructor_schedule['weekly_availability_term']}")
+
     # Get existing availability
     existing_availability = (
         instructor_schedule["current_seven_month_availability"] or {}
@@ -402,7 +405,7 @@ def generate_seven_month_availability(instructor=None):
     weekly_data = instructor_schedule["weekly_availability_term"]["weekly_availability"]
 
     # Get personal vacation days and parse from JSON string if needed
-    vacation_data = instructor_schedule['vacation_days']
+    vacation_data = instructor_schedule["vacation_days"]
 
     # Initialize empty vacation days list
     vacation_days = []
@@ -502,6 +505,7 @@ def generate_seven_month_availability(instructor=None):
         f"Availability now extends to {max(datetime.strptime(date, '%Y-%m-%d').date() for date in merged_availability.keys())}"
     )
     instructor_schedule.update(current_seven_month_availability=merged_availability)
+    print(f"Parsed weekly availability: {weekly_data}")
     return merged_availability
 
 
