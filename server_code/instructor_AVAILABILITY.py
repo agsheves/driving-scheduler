@@ -368,9 +368,6 @@ def generate_seven_month_availability(instructor=None):
         print(f"No weekly availability found for {instructor['firstName']}")
         return None
 
-    print(f"\nProcessing instructor: {instructor['firstName']}")
-    print(f"Raw weekly availability: {instructor_schedule['weekly_availability_term']}")
-
     # Get existing availability
     existing_availability = (
         instructor_schedule["current_seven_month_availability"] or {}
@@ -387,9 +384,6 @@ def generate_seven_month_availability(instructor=None):
                 days=240
             )  # 8 months from today
             if last_date >= target_end_date:
-                print(
-                    f"Existing availability already covers 8 months (extends to {last_date})"
-                )
                 return None
         except (ValueError, TypeError) as e:
             print(f"Error checking existing availability: {e}")
@@ -397,7 +391,6 @@ def generate_seven_month_availability(instructor=None):
 
     # Save current schedule as previous before updating
     if existing_availability:
-        print(f"Saving previous schedule for {instructor['firstName']}")
         instructor_schedule.update(
             previous_seven_month_availability=existing_availability
         )
@@ -421,8 +414,6 @@ def generate_seven_month_availability(instructor=None):
 
         # Extract the actual vacation days list from the nested structure
         vacation_days = vacation_data.get("vacation_days", [])
-
-    print(f"Processing vacation days for {instructor['firstName']}: {vacation_days}")
 
     # Create vacation date ranges
     vacation_ranges = []
@@ -499,13 +490,7 @@ def generate_seven_month_availability(instructor=None):
     # Merge existing and new availability
     merged_availability = {**existing_availability, **new_availability}
 
-    print(f"Generated availability for {len(new_availability)} new days")
-    print(f"Total availability now covers {len(merged_availability)} days")
-    print(
-        f"Availability now extends to {max(datetime.strptime(date, '%Y-%m-%d').date() for date in merged_availability.keys())}"
-    )
     instructor_schedule.update(current_seven_month_availability=merged_availability)
-    print(f"Parsed weekly availability: {weekly_data}")
     return merged_availability
 
 
