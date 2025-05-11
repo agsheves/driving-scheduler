@@ -86,6 +86,7 @@ def convert_schedule_csv_to_json(csv_file):
     return structured_data
 
 
+# Update this to parse classroom schedules
 @anvil.server.callable
 def update_teen_drive_schedule(file):
     json_payload = convert_schedule_csv_to_json(file)
@@ -108,7 +109,8 @@ def update_teen_drive_schedule(file):
 ###########################################################
 # Data export function to take JSON data and convert to CSV
 
-# Keep these files
+
+# Keep these files for transfers to / fron GLOBALS
 def export_json_to_csv(json_data, filename="schedule.csv"):
     output = io.StringIO()
     writer = csv.writer(output)
@@ -471,7 +473,9 @@ def export_instructor_eight_monthavailability():
     )
 
     app_tables.files.add_row(
-        filename="instructor_availability_240Days.xlsx", file=excel_media, file_type="Excel"
+        filename="instructor_availability_240Days.xlsx",
+        file=excel_media,
+        file_type="Excel",
     )
 
     return excel_media
@@ -593,11 +597,11 @@ def export_merged_classroom_schedule(classroom_name):
                     data[slot_to_time[slot]][date_str] = title
                 else:
                     data[slot_to_time[slot]][date_str] = ""
-                  
+
         if has_instructor:
-          filename = f"{classroom_name}_merged_schedule_lessons_instructors.xlsx"
+            filename = f"{classroom_name}_merged_schedule_lessons_instructors.xlsx"
         else:
-          filename = f"{classroom_name}_merged_schedule_lessons.xlsx"
+            filename = f"{classroom_name}_merged_schedule_lessons.xlsx"
         # Create DataFrame
         df = pd.DataFrame(data).T
 
@@ -628,8 +632,9 @@ def export_merged_classroom_schedule(classroom_name):
             {"num_format": "yyyy-mm-dd", "align": "center"}
         )
 
-        cell_format = workbook.add_format({"align": "center", "valign": "vcenter","text_wrap": True, "border": 1})
-
+        cell_format = workbook.add_format(
+            {"align": "center", "valign": "vcenter", "text_wrap": True, "border": 1}
+        )
 
         time_format = workbook.add_format(
             {"bold": True, "bg_color": "#F2F2F2", "border": 1, "align": "center"}
@@ -652,11 +657,13 @@ def export_merged_classroom_schedule(classroom_name):
         # Set column widths for date columns
         for i in range(1, len(df.columns) + 1):
             worksheet.set_column(i, i, 12)  # Date columns
-          
-        for row_num, (index, row) in enumerate(df.iterrows(), start=2):  # Start from row 2 (after headers)
-          worksheet.write(row_num, 0, index, time_format)  # First column: time slot
-          for col_num, value in enumerate(row, start=1):   # Data cells
-            worksheet.write(row_num, col_num, value, cell_format)
+
+        for row_num, (index, row) in enumerate(
+            df.iterrows(), start=2
+        ):  # Start from row 2 (after headers)
+            worksheet.write(row_num, 0, index, time_format)  # First column: time slot
+            for col_num, value in enumerate(row, start=1):  # Data cells
+                worksheet.write(row_num, col_num, value, cell_format)
 
     # Create media object and save to database
     excel_media = anvil.BlobMedia(
@@ -672,3 +679,130 @@ def export_merged_classroom_schedule(classroom_name):
     )
 
     return excel_media
+
+
+@anvil.server.callable
+def import_instructor_availability_fromCSV(csv_file):
+    """
+    Import instructor availability from CSV and save to instructor record.
+    CSV format: One row per instructor with 35 columns (7 days × 5 slots)
+    Row header format: instructor_name_type (e.g., 'john_term' or 'john_vacation')
+    """
+    # Read CSV data
+    if isinstance(csv_file, str):
+        with open(csv_file, "r") as f:
+            reader = csv.reader(f)
+            data = list(reader)
+    else:
+        reader = csv.reader(csv_file.get_bytes().decode("utf-8").splitlines())
+        data = list(reader)
+
+    # Get headers and remove first column (instructor name)
+    headers = data[0][1:]
+
+    # Process each instructor row
+    for row in data[1:]:
+        # Get instructor name and type from first column
+        instructor_id = row[0]
+        if "_" not in instructor_id:
+            print(f"Skipping invalid instructor ID format: {instructor_id}")
+            continue
+
+        instructor_name, schedule_type = instructor_id.split("_")
+        if schedule_type not in ["term", "vacation"]:
+            print(f"Skipping invalid schedule type: {schedule_type}")
+            continue
+
+        # Find instructor in database
+        instructor = app_tables.users.get(firstName=instructor_name)
+        if not instructor:
+            print(f"Instructor not found: {instructor_name}")
+            continue
+
+        # Get or create instructor schedule record
+        instructor_schedule = app_tables.instructor_schedules.get(instructor=instructor)
+        if not instructor_schedule:
+            instructor_schedule = app_tables.instructor_schedules.add_row(
+                instructor=instructor
+            )
+
+        # Parse availability data into JSON structure
+        availability_data = {"weekly_availability": {}}
+        days = [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday",
+        ]
+
+        for i, day in enumerate(days):
+            day_slots = {}
+            for slot in range(5):
+                col_idx = (i * 5) + slot
+                if col_idx < len(row[1:]):  # Ensure we don't go out of bounds
+                    value = row[
+                        col_idx + 1
+                    ]  # +1 because first column is instructor name
+                    day_slots[f"lesson_slot_{slot + 1}"] = value
+            availability_data["weekly_availability"][day] = day_slots
+
+        # Save to appropriate field based on schedule type
+        if schedule_type == "term":
+            instructor_schedule.update(weekly_availability=availability_data)
+        else:  # vacation
+            instructor_schedule.update(vacation_availability=availability_data)
+
+        print(f"Updated {schedule_type} availability for {instructor_name}")
+
+    return True
+
+
+@anvil.server.callable
+def add_new_instructor():
+    instructors = app_tables.users.search(is_instructor=True)
+    for instructor in instructors:
+        is_listed = app_tables.instructor_schedules.get(instructor=instructor)
+        if is_listed is True:
+            print("already listed")
+        else:
+            app_tables.instructor_schedules.add_row(instructor=instructor)
+
+
+def fix_slot_names(data):
+    """
+    Recursively replace 'time_slot' with 'lesson_slot' in the availability data structure.
+    """
+    if isinstance(data, dict):
+        return {
+            k.replace("time_slot", "lesson_slot"): fix_slot_names(v)
+            for k, v in data.items()
+        }
+    elif isinstance(data, list):
+        return [fix_slot_names(item) for item in data]
+    else:
+        return data
+
+
+@anvil.server.callable
+def fix_instructor_slot_names():
+    """
+    Fix slot names in all instructor schedules.
+    """
+    instructors = app_tables.users.search(is_instructor=True)
+    for instructor in instructors:
+        instructor_schedule = app_tables.instructor_schedules.get(instructor=instructor)
+        if instructor_schedule:
+            # Fix term availability
+            if instructor_schedule["weekly_availability_term"]:
+                fixed_term = fix_slot_names(
+                    instructor_schedule["weekly_availability_term"]
+                )
+                instructor_schedule.update(weekly_availability_term=fixed_term)
+
+
+            print(f"Fixed slot names for {instructor['firstName']}")
+
+    return True

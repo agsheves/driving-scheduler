@@ -1,0 +1,53 @@
+{
+    "weekly_availability": {
+      "friday": {
+        "lesson_slot_1": "No",
+        "lesson_slot_2": "Yes",
+        "lesson_slot_3": "Drive Only",
+        "lesson_slot_4": "Yes",
+        "lesson_slot_5": "Yes"
+      },
+      "monday": {
+        "lesson_slot_1": "No",
+        "lesson_slot_2": "Yes",
+        "lesson_slot_3": "Drive Only",
+        "lesson_slot_4": "Yes",
+        "lesson_slot_5": "Class Only"
+      },
+      "sunday": {
+        "lesson_slot_1": "Yes",
+        "lesson_slot_2": "No",
+        "lesson_slot_3": "No",
+        "lesson_slot_4": "No",
+        "lesson_slot_5": "No"
+      },
+      "tuesday": {
+        "lesson_slot_1": "No",
+        "lesson_slot_2": "Yes",
+        "lesson_slot_3": "Yes",
+        "lesson_slot_4": "Drive Only",
+        "lesson_slot_5": "Class Only"
+      },
+      "saturday": {
+        "lesson_slot_1": "Yes",
+        "lesson_slot_2": "Class Only",
+        "lesson_slot_3": "Yes",
+        "lesson_slot_4": "Drive Only",
+        "lesson_slot_5": "No"
+      },
+      "thursday": {
+        "lesson_slot_1": "No",
+        "lesson_slot_2": "Drive Only",
+        "lesson_slot_3": "Yes",
+        "lesson_slot_4": "Class Only",
+        "lesson_slot_5": "Yes"
+      },
+      "wednesday": {
+        "lesson_slot_1": "No",
+        "lesson_slot_2": "Class Only",
+        "lesson_slot_3": "Yes",
+        "lesson_slot_4": "Yes",
+        "lesson_slot_5": "Drive Only"
+      }
+    }
+  }

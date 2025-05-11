@@ -41,8 +41,9 @@ def process_instructor_availability(instructors, start_date=None):
         start_date = datetime.now().date()
 
     # Calculate the start of the week (Monday) for the given start_date
-    start_of_week = start_date - timedelta(days=start_date.weekday())
-    end_of_week = start_of_week + timedelta(days=6)
+    # Changed timne delta to one to only show two days
+    start_of_week = start_date # - timedelta(days=start_date.weekday()) replace this to revert to week display
+    end_of_week = start_of_week + timedelta(days=0)
 
     all_records = []
 
@@ -134,7 +135,7 @@ def process_instructor_availability(instructors, start_date=None):
     flat_columns = []
     for col in pivot_df.columns:
         day, instructor = col
-        flat_columns.append((day, instructor, f"{day.capitalize()} - {instructor}"))
+        flat_columns.append((day, instructor, f"{instructor}"))
 
     # Define day order
     day_order = {
@@ -268,7 +269,7 @@ def generate_capacity_report(days=180):
             instructor_schedule = app_tables.instructor_schedules.get(
                 instructor=instructor
             )
-            weekly_data = instructor_schedule["weekly_availability"]
+            weekly_data = instructor_schedule["weekly_availability_term"]
             if weekly_data is None or weekly_data == "":
                 continue
         except (KeyError, TypeError):
@@ -364,7 +365,7 @@ def generate_seven_month_availability(instructor=None):
 
     # Get instructor's weekly availability
     instructor_schedule = app_tables.instructor_schedules.get(instructor=instructor)
-    if not instructor_schedule or not instructor_schedule["weekly_availability"]:
+    if not instructor_schedule or not instructor_schedule["weekly_availability_term"]:
         print(f"No weekly availability found for {instructor['firstName']}")
         return None
 
@@ -384,9 +385,6 @@ def generate_seven_month_availability(instructor=None):
                 days=240
             )  # 8 months from today
             if last_date >= target_end_date:
-                print(
-                    f"Existing availability already covers 8 months (extends to {last_date})"
-                )
                 return None
         except (ValueError, TypeError) as e:
             print(f"Error checking existing availability: {e}")
@@ -394,43 +392,51 @@ def generate_seven_month_availability(instructor=None):
 
     # Save current schedule as previous before updating
     if existing_availability:
-        print(f"Saving previous schedule for {instructor['firstName']}")
         instructor_schedule.update(
             previous_seven_month_availability=existing_availability
         )
 
-    weekly_data = instructor_schedule["weekly_availability"]["weekly_availability"]
+    weekly_data = instructor_schedule["weekly_availability_term"]["weekly_availability"]
 
     # Get personal vacation days and parse from JSON string if needed
     vacation_data = instructor_schedule["vacation_days"]
-    if isinstance(vacation_data, str):
-        import json
 
-        try:
-            vacation_data = json.loads(vacation_data)
-        except json.JSONDecodeError:
-            print(f"Error parsing vacation days JSON for {instructor['firstName']}")
-            vacation_data = {"vacation_days": []}
+    # Initialize empty vacation days list
+    vacation_days = []
 
-    # Extract the actual vacation days list from the nested structure
-    vacation_days = vacation_data.get("vacation_days", [])
-    print(f"Processing vacation days: {vacation_days}")
+    # Only process if we have vacation data and it's not empty
+    if vacation_data and vacation_data != {}:
+        if isinstance(vacation_data, str):
+            try:
+                vacation_data = json.loads(vacation_data)
+            except json.JSONDecodeError:
+                print(f"Error parsing vacation days JSON for {instructor['firstName']}")
+                vacation_data = {"vacation_days": []}
+
+        # Extract the actual vacation days list from the nested structure
+        vacation_days = vacation_data.get("vacation_days", [])
 
     # Create vacation date ranges
     vacation_ranges = []
-    if vacation_days:  # Only process if we have vacation days
+    if vacation_days and isinstance(vacation_days, list):  # Ensure we have a valid list
         for vacation in vacation_days:
             try:
+                if not isinstance(vacation, dict):
+                    continue
                 start_date = datetime.strptime(
-                    vacation["start_date"], "%Y-%m-%d"
+                    vacation.get("start_date", ""), "%Y-%m-%d"
                 ).date()
-                end_date = datetime.strptime(vacation["end_date"], "%Y-%m-%d").date()
+                end_date = datetime.strptime(
+                    vacation.get("end_date", ""), "%Y-%m-%d"
+                ).date()
                 current_date = start_date
                 while current_date <= end_date:
                     vacation_ranges.append(str(current_date))
                     current_date += timedelta(days=1)
-            except (KeyError, ValueError) as e:
-                print(f"Error processing vacation date range: {e}")
+            except (KeyError, ValueError, AttributeError) as e:
+                print(
+                    f"Error processing vacation date range for {instructor['firstName']}: {e}"
+                )
                 continue
 
     # Calculate the target end date (8 months from today)
@@ -485,11 +491,6 @@ def generate_seven_month_availability(instructor=None):
     # Merge existing and new availability
     merged_availability = {**existing_availability, **new_availability}
 
-    print(f"Generated availability for {len(new_availability)} new days")
-    print(f"Total availability now covers {len(merged_availability)} days")
-    print(
-        f"Availability now extends to {max(datetime.strptime(date, '%Y-%m-%d').date() for date in merged_availability.keys())}"
-    )
     instructor_schedule.update(current_seven_month_availability=merged_availability)
     return merged_availability
 

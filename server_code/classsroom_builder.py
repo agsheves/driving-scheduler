@@ -15,7 +15,7 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
 from datetime import datetime, timedelta, date
-from .globals import LESSON_SLOTS, COURSE_STRUCTURE
+from .globals import (AVAILABILITY_MAPPING, COURSE_STRUCTURE_COMPRESSED, COURSE_STRUCTURE_STANDARD, LESSON_SLOTS)
 
 # Schools are referenced by their abbreviation found in app_tables / schools / abbreviation
 
@@ -23,18 +23,17 @@ from .globals import LESSON_SLOTS, COURSE_STRUCTURE
 STUDENTS_PER_DRIVE = 2
 MAX_classroom_SIZE = 30
 BUFFER_PERCENTAGE = 0.9
-MIN_COURSE_LENGTH = 42  # classrooms must run for over 42 calendar days to allow sufficient time to sequence all activities.
-CLASS_DAYS = ["Monday", "Wednedsay", "Friday"]
+# Other constants are based on the course structure
 
 # Test data for no_class_days if table is empty
 no_class_days_test = {
-    "2025-01-01": "New Year's Day",
-    "2025-05-01": "May Day Test",
-    "2025-05-26": "Memorial Day",
-    "2025-07-04": "Independence Day",
-    "2025-09-02": "Labor Day",
-    "2025-11-28": "Thanksgiving",
-    "2025-12-25": "Christmas Day",
+  "2025-01-01": "New Year's Day",
+  "2025-05-01": "May Day Test",
+  "2025-05-26": "Memorial Day",
+  "2025-07-04": "Independence Day",
+  "2025-09-02": "Labor Day",
+  "2025-11-28": "Thanksgiving",
+  "2025-12-25": "Christmas Day",
 }
 
 
@@ -47,7 +46,7 @@ else:
 
 
 @anvil.server.callable
-def get_available_days(start_date):
+def get_available_days(start_date, course_structure):
     """
     Get available days for the program, excluding holidays.
     Note: Instructor vacations are handled separately in get_daily_drive_slots.
@@ -61,32 +60,30 @@ def get_available_days(start_date):
     """
     available_days = []
     current_date = start_date
-
+    # course_structure is now always a dict
     # Get holidays from the database
     holidays = [
         {"date": datetime.strptime(date_str, "%Y-%m-%d").date(), "name": name}
         for date_str, name in no_class_days.items()
     ]
-
     holiday_dates = {h["date"] for h in holidays}
-
-    # Check dates until we have enough available calendar days or hit max search window
     days_checked = 0
-    max_days_to_check = 90  # Look up to ~3 months ahead
-
-    while len(available_days) < MIN_COURSE_LENGTH and days_checked < max_days_to_check:
+    max_days_to_check = 90
+    while (
+        len(available_days) < course_structure["sequence"]["MIN_COURSE_LENGTH"]
+        and days_checked < max_days_to_check
+    ):
         if current_date not in holiday_dates:
             available_days.append(current_date)
         current_date += timedelta(days=1)
         days_checked += 1
-
-    # Check if we found enough available days
-    if len(available_days) < MIN_COURSE_LENGTH:
-        days_short = MIN_COURSE_LENGTH - len(available_days)
-        raise ValueError(
-            f"Could not find enough available days. Need {days_short} more days to meet minimum course length of {MIN_COURSE_LENGTH} days"
+    if len(available_days) < course_structure["sequence"]["MIN_COURSE_LENGTH"]:
+        days_short = course_structure["sequence"]["MIN_COURSE_LENGTH"] - len(
+            available_days
         )
-
+        raise ValueError(
+            f"Could not find enough available days. Need {days_short} more days to meet minimum course length of {course_structure['sequence']['MIN_COURSE_LENGTH']} days"
+        )
     return available_days
 
 
@@ -127,7 +124,7 @@ def get_daily_drive_slots(day, school):
             continue
 
         # Get availability for the specific day
-        instructor_availability = instructor_row["weekly_availability"][
+        instructor_availability = instructor_row["weekly_availability_term"][
             "weekly_availability"
         ]
         day_name = day.strftime("%A").lower()
@@ -144,7 +141,7 @@ def get_daily_drive_slots(day, school):
 
 
 @anvil.server.callable
-def calculate_weekly_capacity(start_date, school):
+def calculate_weekly_capacity(start_date, school, course_structure):
     """
     Calculate the weekly capacity based on available drive slots,
     taking into account instructor availability, vacations, and school preferences.
@@ -152,6 +149,7 @@ def calculate_weekly_capacity(start_date, school):
     Args:
         start_date (date): Start date of the program
         school (str): School abbreviation (e.g., 'HSS', 'NHS') from app_tables/schools/abbreviation
+        course_structure (dict): Course structure
 
     Returns:
         dict: Contains weekly capacity information
@@ -159,19 +157,14 @@ def calculate_weekly_capacity(start_date, school):
     BUT!
     ⚠️ Need to do manual comparison to check exact results.
     """
-    available_days = get_available_days(start_date)
-
-    # Group days by week
+    available_days = get_available_days(start_date, course_structure)
     weekly_days = {}
     for day in available_days:
         week_num = (day - start_date).days // 7 + 1
         if week_num not in weekly_days:
             weekly_days[week_num] = []
         weekly_days[week_num].append(day)
-
-    # Calculate drive slots per week
     weekly_slots = {}
-
     for week_num in range(1, 7):
         total_slots = 0
         week_days = [
@@ -183,13 +176,13 @@ def calculate_weekly_capacity(start_date, school):
             total_slots += get_daily_drive_slots(day, school)
         available_slots = int(total_slots)
         weekly_slots[week_num] = available_slots
-
     max_weekly_slots = max(weekly_slots.values())
     avg_weekly_slots = sum(weekly_slots.values()) / len(weekly_slots)
-    max_students = min(max_weekly_slots * STUDENTS_PER_DRIVE, MAX_classroom_SIZE)
-
+    max_students = min(
+        max_weekly_slots * STUDENTS_PER_DRIVE,
+        course_structure["class_sessions"]["max_students"],
+    )
     weekly_slots_serialized = {str(k): v for k, v in weekly_slots.items()}
-
     return {
         "weekly_slots": weekly_slots_serialized,
         "max_weekly_slots": max_weekly_slots,
@@ -249,94 +242,60 @@ def create_ghost_students(classroom_name, num_students):
 
 
 @anvil.server.callable
-def schedule_classes(classroom_name, start_date, num_students):
+def schedule_classes(classroom_name, start_date, num_students, course_structure):
     """
     Schedule classes for the classroom.
-    Classes must be on specific days of the week as defined in CLASS_DAYS.
+    Classes must be on specific days of the week as defined in class_days.
     Returns a simplified object format suitable for table storage.
     """
-    # Verify start_date is Monday
-    if start_date.weekday() != 0:  # 0 is Monday
-        print(
-            f"Warning: Start date {start_date} is not a Monday. This may cause scheduling issues."
-        )
-
-    # Get available days
-    available_days = get_available_days(start_date)
-
-    # Create class schedule
+    available_days = get_available_days(start_date, course_structure)
     class_schedule = []
     current_week = 1
     current_class = 1
-
-    # Map of class numbers to their required day of week (0=Monday, 6=Sunday)
     class_day_map = {
-        1: 0,  # Monday
-        2: 2,  # Wednesday
-        3: 4,  # Friday
-        4: 0,  # Monday
-        5: 2,  # Wednesday
-        6: 4,  # Friday
-        7: 0,  # Monday
-        8: 2,  # Wednesday
-        9: 4,  # Friday
-        10: 0,  # Monday
-        11: 2,  # Wednesday
-        12: 4,  # Friday
-        13: 0,  # Monday
-        14: 2,  # Wednesday
-        15: 4,  # Friday
+        1: 0,
+        2: 2,
+        3: 4,
+        4: 0,
+        5: 2,
+        6: 4,
+        7: 0,
+        8: 2,
+        9: 4,
+        10: 0,
+        11: 2,
+        12: 4,
+        13: 0,
+        14: 2,
+        15: 4,
     }
-
-    # Schedule each class
     while current_class <= 15:
-        # Calculate the target date based on week and required day
         required_day = class_day_map[current_class]
         week_offset = (current_week - 1) * 7
         target_date = start_date + timedelta(days=week_offset + required_day)
-
-        # Find the next available date that matches the required day of week
         class_date = None
         for day in available_days:
             if day >= target_date and day.weekday() == required_day:
                 class_date = day
                 break
-
         if class_date is None:
             print(f"Warning: Could not find available date for Class {current_class}")
             break
-
-        # Create simplified class slot object
         class_slot = {
             "class_number": current_class,
-            "date": class_date.isoformat(),  # Convert date to string for storage
+            "date": class_date.isoformat(),
             "week": current_week,
             "day": class_date.strftime("%A"),
             "status": "scheduled",
         }
         class_schedule.append(class_slot)
-
-        # Move to next class
         current_class += 1
-        if current_class % 3 == 1:  # Start new week after every 3 classes
+        if current_class % 3 == 1:
             current_week += 1
-
-    # Store the schedule in the classroom table
-    classroom_data_row = app_tables.classrooms.get(classroom_name=classroom_name)
-    if classroom_data_row:
-        classroom_data_row.update(class_schedule=class_schedule)
-
     return class_schedule
 
 
-def get_weekly_lesson_slots(week_number):
-    """
-    Get available lesson slots for drives, excluding breaks and class slots.
-    Args:
-        week_number (int): Week number (1-6)
-    Returns:
-        dict: Available slots by day, excluding class slots for weeks 2-5
-    """
+def get_weekly_lesson_slots(week_number, course_structure):
     weekly_slots = {
         "Monday": [],
         "Tuesday": [],
@@ -346,22 +305,13 @@ def get_weekly_lesson_slots(week_number):
         "Saturday": [],
         "Sunday": [],
     }
-
-    # Class days and slots (reserved for weeks 1-5)
-    class_days = ["Monday", "Wednesday", "Friday"]
+    class_days = course_structure["class_sessions"]["class_days"]
     class_slot = "lesson_slot_5"
-
-    # Filter out breaks and organize by day
     for slot_name, slot_info in LESSON_SLOTS.items():
         if not slot_name.startswith("break_"):
-            # Parse the term days
             term_days = [day.strip() for day in slot_info["term"].split(",")]
-
-            # Add slot to each applicable day
             if term_days == ["all"]:
-                # Add to all weekdays
                 for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]:
-                    # Skip class slots on class days for weeks 2-5
                     if (
                         week_number < 6
                         and day in class_days
@@ -369,47 +319,33 @@ def get_weekly_lesson_slots(week_number):
                     ):
                         continue
                     weekly_slots[day].append(slot_name)
-
-                # Add to weekends if it's lesson_slot_4 or lesson_slot_5
                 if slot_name in ["lesson_slot_4", "lesson_slot_5"]:
                     weekly_slots["Saturday"].append(slot_name)
                     weekly_slots["Sunday"].append(slot_name)
-
             elif term_days == ["Sat", "Sun"]:
-                # Add to weekend days
                 weekly_slots["Saturday"].append(slot_name)
                 weekly_slots["Sunday"].append(slot_name)
-
     return weekly_slots
 
 
 @anvil.server.callable
-def schedule_drives(classroom_name, start_date, num_students):
+def schedule_drives(classroom_name, start_date, num_students, course_structure):
     """
     Schedule drives (1 per week for weeks 2-6)
     First creates a master schedule that repeats each week, then adjusts for vacation days
     """
-    # Get available days and instructor availability
-    available_days = get_available_days(start_date)
+    available_days = get_available_days(start_date, course_structure)
     num_pairs = num_students // 2
-
-    # Initialize drive schedule
     drives = []
-
-    # Get company vacation days
     vacation_days = [
         datetime.strptime(date_str, "%Y-%m-%d").date()
         for date_str in no_class_days.keys()
     ]
-
-    # Define spare slots (lesson_slot_5 on Tue/Thu/Sun)
     spare_slots = {
         "Tuesday": "lesson_slot_5",
         "Thursday": "lesson_slot_5",
         "Sunday": "lesson_slot_5",
     }
-
-    # Step 1: Create master schedule for one week
     master_schedule = []
     used_slots = {
         "Monday": [],
@@ -420,22 +356,9 @@ def schedule_drives(classroom_name, start_date, num_students):
         "Saturday": [],
         "Sunday": [],
     }
-
-    # Get available slots for a typical week
-    weekly_slots = get_weekly_lesson_slots(2)  # Use week 2 as template
-    print("\nMaster Schedule Creation:")
-    print(f"Number of pairs to schedule: {num_pairs}")
-
-    # Schedule each pair in the master week
+    weekly_slots = get_weekly_lesson_slots(2, course_structure)
     for pair in range(num_pairs):
-        # **EDITS**
-        # Drives A to n are actuallty stident pairings. So we nee to say Pair A, Pair B, etc.
-        # Then we need to add the drive numbers from globals / COURSE_STRUCTURE / driving_sessions
-        # So the entry will show 'Pair A - Drives 1 & 2', 'Pair C - Drives 3 & 4' Etc...
-        pair_letter = chr(65 + pair)  # A, B, C, etc.
-        print(f"\nScheduling Pair {pair_letter}")
-
-        # Try to schedule on primary day first
+        pair_letter = chr(65 + pair)
         scheduled = False
         for day in [
             "Monday",
@@ -454,48 +377,27 @@ def schedule_drives(classroom_name, start_date, num_students):
                         {"pair_letter": pair_letter, "day": day, "slot": slot}
                     )
                     used_slots[day].append(slot)
-                    print(f"  Scheduled for {day} at {slot}")
                     scheduled = True
                     break
-
-    print("\nMaster Schedule Summary:")
-    for drive in master_schedule:
-        print(f"Pair {drive['pair_letter']}: {drive['day']} at {drive['slot']}")
-
-    # Step 2: Apply master schedule to all weeks, adjusting for vacation days
     for week in range(5):
-        week_num = week + 2  # Weeks 2-6
-        print(f"\nApplying Week {week_num} Schedule:")
-
+        week_num = week + 2
         week_start = start_date + timedelta(days=7 * (week + 1))
-
-        # Get available days for this week, excluding vacation days
         week_days = [
             day
             for day in available_days
             if week_start <= day < week_start + timedelta(days=7)
         ]
-
-        # Track drives that need rescheduling due to vacation days
         drives_to_reschedule = []
-
-        # Get the drive numbers for this week
-        drive_numbers = COURSE_STRUCTURE["driving_sessions"]["pairs"][week_num - 2]
-
-        # Apply master schedule to this week
+        drive_numbers = course_structure["driving_sessions"]["pairs"][week_num - 2]
         for master_drive in master_schedule:
             pair_letter = master_drive["pair_letter"]
             master_day = master_drive["day"]
             master_slot = master_drive["slot"]
-
-            # Find the corresponding date in this week
             target_date = None
             for day in week_days:
                 if day.strftime("%A") == master_day:
                     target_date = day
                     break
-
-            # If the day is available, schedule the drive
             if target_date and target_date not in vacation_days:
                 drive_slot = {
                     "classroom": classroom_name,
@@ -510,11 +412,7 @@ def schedule_drives(classroom_name, start_date, num_students):
                     "status": "scheduled",
                 }
                 drives.append(drive_slot)
-                print(
-                    f"  Scheduled Pair {pair_letter} for {target_date} at {master_slot}"
-                )
             else:
-                # Drive falls on vacation day, add to reschedule list
                 drives_to_reschedule.append(
                     {
                         "pair_letter": pair_letter,
@@ -523,26 +421,16 @@ def schedule_drives(classroom_name, start_date, num_students):
                         "original_slot": master_slot,
                     }
                 )
-                print(f"  Pair {pair_letter} needs rescheduling (vacation day)")
-
-        # Reschedule drives that fell on vacation days
         if drives_to_reschedule:
-            print(
-                f"\nRescheduling {len(drives_to_reschedule)} drives for week {week_num}:"
-            )
             for drive in drives_to_reschedule:
-                print(f"  Attempting to reschedule Pair {drive['pair_letter']}")
                 rescheduled = False
-                # Try spare slots first
                 for day, slot in spare_slots.items():
                     if not rescheduled:
-                        # Find the date for this day in the current week
                         for week_day in week_days:
                             if (
                                 week_day.strftime("%A") == day
                                 and week_day not in vacation_days
                             ):
-                                # Check if this slot is already used
                                 slot_used = any(
                                     d["date"] == week_day.isoformat()
                                     and d["slot"] == slot
@@ -565,13 +453,12 @@ def schedule_drives(classroom_name, start_date, num_students):
                                     drives.append(drive_slot)
                                     rescheduled = True
                                     break
-
-                # If couldn't use spare slot, try any available slot
                 if not rescheduled:
                     for week_day in week_days:
                         if week_day not in vacation_days and not rescheduled:
-                            available_slots = weekly_slots[week_day.strftime("%A")]
-
+                            available_slots = get_weekly_lesson_slots(
+                                week_num, course_structure
+                            )[week_day.strftime("%A")]
                             for slot in available_slots:
                                 slot_used = any(
                                     d["date"] == week_day.isoformat()
@@ -595,25 +482,23 @@ def schedule_drives(classroom_name, start_date, num_students):
                                     drives.append(drive_slot)
                                     rescheduled = True
                                     break
-
                 if not rescheduled:
                     print(
-                        f"WARNING: Could not reschedule Pair {drive['pair_letter']} in week {week_num}"
+                        f"WARNING: Could not reschedule Pair {drive['pair_letter']} in week {drive['week']}"
                     )
                     print(
                         f"Original schedule: {drive['original_day']} at {drive['original_slot']}"
                     )
-
-    # Store the schedule in the classroom table
     classroom_data_row = app_tables.classrooms.get(classroom_name=classroom_name)
     if classroom_data_row:
         classroom_data_row.update(drive_schedule=drives)
-
     return drives
 
 
 @anvil.server.callable
-def create_full_classroom_schedule(school, start_date, num_students=None):
+def create_full_classroom_schedule(
+    school, start_date, num_students=None, classroom_type=None
+):
     """
     Create a complete schedule for a new classroom including:
     - classroom creation
@@ -625,41 +510,38 @@ def create_full_classroom_schedule(school, start_date, num_students=None):
         school (str): School abbreviation (e.g., 'HSS', 'NHS')
         start_date (date): Start date of the program
         num_students (int, optional): Number of students. If None, will calculate based on capacity
+        classroom_type (str, optional): 'standard' or 'compressed'
 
     Returns:
         dict: Complete classroom schedule information
     """
-    # print(f"\nCreating full schedule for {school} classroom starting {start_date}")
+    # Select course structure ONCE
+    if classroom_type == "compressed":
+        course_structure = COURSE_STRUCTURE_COMPRESSED
+    else:
+        course_structure = COURSE_STRUCTURE_STANDARD
 
     # 1. Generate classroom name
     classroom_name = generate_classroom_name(school, start_date)
-    # print(f"classroom name: {classroom_name}")
 
     # 2. Calculate capacity if num_students not provided
     if num_students is None:
-        capacity = calculate_weekly_capacity(start_date, school)
-        num_students = min(capacity["max_students"], MAX_classroom_SIZE)
-    # print(f"Number of students: {num_students}")
+        capacity = calculate_weekly_capacity(start_date, school, course_structure)
+        num_students = min(
+            capacity["max_students"], course_structure["class_sessions"]["max_students"]
+        )
 
     # 3. Create student records
     students = create_ghost_students(classroom_name, num_students)
-    # print(f"Created {len(students)} student records")
 
     # 4. Schedule classes
-    classes = schedule_classes(classroom_name, start_date, num_students)
-    # print(f"Scheduled {len(classes)} classes")
-    # print("Class schedule:")
-    # for class_slot in classes:
-    # print(f"  • Class {class_slot['class_number']} on {class_slot['date']}")
+    classes = schedule_classes(
+        classroom_name, start_date, num_students, course_structure
+    )
 
     # 5. Schedule drives
-    drives = schedule_drives(classroom_name, start_date, num_students)
-    # print(f"\nScheduled {len(drives)} drives")
-    # print("Drive schedule:")
-    # for drive in drives:
-    # print(
-    #     f"  • Drive {drive['pair_letter']} on {drive['date']} (Slot: {drive['slot']})"
-    # )
+    drives = schedule_drives(classroom_name, start_date, num_students, course_structure)
+
     complete_schedule = anvil.server.call("create_merged_schedule", classroom_name)
     # 6. Store everything in the classroom record
     classroom_data_row = app_tables.classrooms.get(classroom_name=classroom_name)
@@ -711,7 +593,7 @@ def test_capacity_calculation(start_date=None, school=None):
 
     # Test get_available_days
     print("\n1. Testing get_available_days...")
-    available_days = get_available_days(start_date)
+    available_days = get_available_days(start_date, course_structure)
     print(f"Found {len(available_days)} available days")
     print(f"First day: {available_days[0]}")
     print(f"Last day: {available_days[-1]}")
@@ -725,7 +607,7 @@ def test_capacity_calculation(start_date=None, school=None):
 
     # Test calculate_weekly_capacity
     print("\n3. Testing calculate_weekly_capacity...")
-    capacity = calculate_weekly_capacity(start_date, school)
+    capacity = calculate_weekly_capacity(start_date, school, COURSE_STRUCTURE_STANDARD)
     print(f"Weekly slots: {capacity['weekly_slots']}")
     print(f"Max weekly slots: {capacity['max_weekly_slots']}")
     print(f"Maximum students: {capacity['max_students']}")
@@ -737,7 +619,9 @@ def test_capacity_calculation(start_date=None, school=None):
 
     # Test class scheduling
     print("\n5. Testing class scheduling...")
-    classes = schedule_classes(classroom_name, start_date, capacity["max_students"])
+    classes = schedule_classes(
+        classroom_name, start_date, capacity["max_students"], COURSE_STRUCTURE_STANDARD
+    )
     print(f"Scheduled {len(classes)} classes")
     print("First week classes:")
     for class_slot in classes[:3]:
@@ -745,7 +629,9 @@ def test_capacity_calculation(start_date=None, school=None):
 
     # Test drive scheduling
     print("\n6. Testing drive scheduling...")
-    drives = schedule_drives(classroom_name, start_date, capacity["max_students"])
+    drives = schedule_drives(
+        classroom_name, start_date, capacity["max_students"], COURSE_STRUCTURE_STANDARD
+    )
     print(f"Scheduled {len(drives)} drives")
 
     # Debug printing for drives

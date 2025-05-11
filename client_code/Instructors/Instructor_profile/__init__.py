@@ -34,7 +34,7 @@ class Instructor_profile(Instructor_profileTemplate):
         print(self.instructor["firstName"])
         existing_term_schedule = False  # Initialize to False
         existing_term_schedule_data = self.instructor_availability_row[
-            "weekly_availability"
+            "weekly_availability_term"
         ]
         if existing_term_schedule_data != "null":
             existing_term_schedule = True
