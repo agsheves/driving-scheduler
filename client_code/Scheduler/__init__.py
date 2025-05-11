@@ -151,11 +151,11 @@ class Scheduler(SchedulerTemplate):
       colorscale=[
         [0 / 6, "grey"],  # 0: Not available
         [1 / 6, "purple"],  # 1: Available for both
-        [2 / 6, "RebeccaPurple"],  # 2: Available for drives only
-        [3 / 6, "RebeccaPurple"],  # 3: Available for classes only
-        [4 / 6, "orange"],  # 4: Allocated to classroom slot
-        [5 / 6, "red"],  # 5: Booked
-        [6 / 6, "lightgrey"],  # 6: Vacation
+        [2 / 6, "purple"],  # 2: Available for drives only
+        [3 / 6, "purple"],  # 3: Available for classes only
+        [4 / 6, "blue"],  # 4: Allocated to classroom slot
+        [5 / 6, "blue"],  # 5: Booked
+        [6 / 6, "grey"],  # 6: Vacation
       ],
       text=text_matrix,
       texttemplate="%{text}",
