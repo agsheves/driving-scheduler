@@ -257,7 +257,7 @@ components:
       properties: {}
       type: DropDown
     - layout_properties: {grid_position: 'TZKDNL,ZWBSPP'}
-      name: cohort_name_label
+      name: classroom_name_label
       properties: {}
       type: Label
     - layout_properties: {grid_position: 'FIICYZ,QTHQQO'}

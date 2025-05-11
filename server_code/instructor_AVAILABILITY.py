@@ -269,7 +269,7 @@ def generate_capacity_report(days=180):
             instructor_schedule = app_tables.instructor_schedules.get(
                 instructor=instructor
             )
-            weekly_data = instructor_schedule["weekly_availability"]
+            weekly_data = instructor_schedule["weekly_availability_term"]
             if weekly_data is None or weekly_data == "":
                 continue
         except (KeyError, TypeError):
