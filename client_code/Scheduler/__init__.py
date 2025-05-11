@@ -147,19 +147,19 @@ class Scheduler(SchedulerTemplate):
             text_row = []
             for val in row:
                 if val == 0:
-                    text_row.append("Unavailable")
+                    text_row.append("No")
                 elif val == 1:
                     text_row.append("Any")
                 elif val == 2:
-                    text_row.append("Drive Only")
+                    text_row.append("Drive<br>Only")
                 elif val == 3:
-                    text_row.append("Class Only")
+                    text_row.append("Class<br>Only")
                 elif val == 4:
                     text_row.append("Scheduled")
                 elif val == 5:
                     text_row.append("Booked")
                 elif val == 6:
-                    text_row.append("Personal Vacation")
+                    text_row.append("Vacation")
                 else:
                     text_row.append("")
             text_matrix.append(text_row)
@@ -180,7 +180,8 @@ class Scheduler(SchedulerTemplate):
                 ],
                 text=text_matrix,
                 texttemplate="%{text}",
-                textfont=dict(size=14),
+                textfont=dict(size=10),
+                textwrap = True,
                 showscale=False,
                 bgcolor="white",
                 zmin=0,
