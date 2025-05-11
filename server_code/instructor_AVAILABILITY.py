@@ -41,8 +41,9 @@ def process_instructor_availability(instructors, start_date=None):
         start_date = datetime.now().date()
 
     # Calculate the start of the week (Monday) for the given start_date
-    start_of_week = start_date - timedelta(days=start_date.weekday())
-    end_of_week = start_of_week + timedelta(days=6)
+    # Changed timne delta to one to only show two days
+    start_of_week = start_date # - timedelta(days=start_date.weekday()) replace this to revert to week display
+    end_of_week = start_of_week + timedelta(days=1)
 
     all_records = []
 
