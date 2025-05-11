@@ -323,3 +323,12 @@ class Scheduler(SchedulerTemplate):
             self.COURSE_STRUCTURE = "COURSE_STRUCTURE_COMPRESSED"
         else:
             self.COURSE_STRUCTURE = "COURSE_STRUCTURE_STANDARD"
+
+    def availability_display_date_picker_change(self, **event_args):
+      self.start_date = self.availability_display_date_picker.date
+      self.refresh_schedule_display(self.start_date)
+
+    def today_reset_link_click(self, **event_args):
+      self.start_date = datetime.now().date()
+      self.refresh_schedule_display(self.start_date)
+
