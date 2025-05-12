@@ -21,6 +21,7 @@ from .globals import (
     COURSE_STRUCTURE_STANDARD,
     LESSON_SLOTS,
 )
+import uuid
 
 # Schools are referenced by their abbreviation found in app_tables / schools / abbreviation
 
@@ -537,10 +538,10 @@ def create_full_classroom_schedule(
         classroom_type (str, optional): 'standard' or 'compressed'
 
     Returns:
-        str: Task ID for tracking the background process
+        str: Task ID (UUID) for tracking the background process
     """
-    # Generate task ID
-    task_id = f"classroom_{school}_{start_date.strftime('%Y%m%d')}"
+    # Generate UUID for task
+    task_id = str(uuid.uuid4())
 
     # Create task record
     task_record = app_tables.background_tasks.add_row(
@@ -611,24 +612,16 @@ def create_full_classroom_schedule_background(
                 complete_schedule=complete_schedule,
             )
 
-        result = {
-            "classroom_name": classroom_name,
-            "num_students": num_students,
-            "students": students,
-            "classes": classes,
-            "drives": drives,
-            "complete_schedule": complete_schedule,
-            "start_date": start_date,
-            "end_date": start_date + timedelta(weeks=6),
-        }
+        # Generate output filename
+        output_filename = f"{classroom_name}_schedule.xlsx"
 
-        # Update task record with success
+        # Update task record with success and output filename
         task_record = app_tables.background_tasks.get(task_id=task_id)
         if task_record:
             task_record.update(
-                status="done", end_time=datetime.now(), result=str(result)
+                status="done", end_time=datetime.now(), output_filename=output_filename
             )
-        return result
+        return output_filename
 
     except Exception as e:
         # Update task record with error

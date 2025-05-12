@@ -15,6 +15,7 @@ def classroom_builder_button_click(self, **event_args):
     # Convert the string date back to a date object for the API call
     start_date = datetime.strptime(self.start_date, "%m-%d-%Y").date()
 
+    # Start the background task
     task_id = anvil.server.call(
         "create_full_classroom_schedule",
         self.school_selector.selected_value,
@@ -23,29 +24,35 @@ def classroom_builder_button_click(self, **event_args):
         self.COURSE_STRUCTURE,
     )
 
-    self.schedule_print_box.content = f"The classroom is being created. Please wait for the process to complete. Do not close this window."
-    time.sleep(45)  # Wait for background task to complete
+    # Show initial message
+    self.schedule_print_box.content = "The report is being written. Please wait..."
 
-    if task_id:
-        classroom_schedule = app_tables.background_tasks.get(task_id=task_id)
-        if classroom_schedule and classroom_schedule["status"] == "done":
-            self.classroom_name = classroom_schedule["classroom_name"]
-            formatted_output = (
-                f"Classroom Schedule: {self.classroom_schedule['classroom_name']}\n\n"
-            )
+    # Start polling for completion
+    self.poll_for_report(task_id)
 
-            formatted_output += f"\nSummary:\n"
-            formatted_output += (
-                f"Number of Students: {self.classroom_schedule['num_students']}\n"
-            )
-            formatted_output += f"Start Date: {self.classroom_schedule['start_date']}\n"
-            formatted_output += f"End Date: {self.classroom_schedule['end_date']}"
 
-            self.schedule_print_box.content = f"The classroom has been completed successfully:\n\n{formatted_output}\n\nYou can export this file now"
-        else:
-            self.schedule_print_box.content = "Error creating schedule"
+def poll_for_report(self, task_id):
+    """Poll for report completion"""
+    # Wait 55 seconds
+    time.sleep(55)
+
+    # Check task status
+    task = app_tables.background_tasks.get(task_id=task_id)
+
+    if task and task["status"] == "done" and task["output_filename"]:
+        # Report is ready
+        self.schedule_print_box.content = (
+            f"Report completed successfully: {task['output_filename']}"
+        )
+    elif task and task["status"] == "error":
+        # Task failed
+        self.schedule_print_box.content = (
+            f"Error creating report: {task.get('error', 'Unknown error')}"
+        )
     else:
-        self.schedule_print_box.content = "Error creating schedule"
+        # Still running, poll again
+        self.schedule_print_box.content = "Still generating report... Please wait..."
+        anvil.timer.call_after(55, lambda: self.poll_for_report(task_id))
 
 
 def instructor_scheduler_button_click(self, **event_args):
