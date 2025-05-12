@@ -130,6 +130,17 @@ def process_instructor_availability(instructors, start_date=None):
         index=["slot", "start_time", "end_time"],
         columns=["day_name", "instructor"],
         aggfunc="first",
+    ).reindex(
+        columns=pd.MultiIndex.from_product(
+            [
+                day_order.keys(),
+                [
+                    i["firstName"]
+                    for i in sorted(instructors, key=lambda x: x["display_order"])
+                ],
+            ],
+            names=["day_name", "instructor"],
+        )
     )
 
     # Filter out break slots from the pivot table
