@@ -8,7 +8,8 @@ import anvil.tables as tables
 import anvil.tables.query as q
 from anvil.tables import app_tables
 import json
-from datetime import date, time, datetime, timedelta, sleep
+from datetime import date, datetime, timedelta
+from time import sleep
 import plotly.graph_objects as go
 
 
@@ -236,28 +237,28 @@ class Scheduler(SchedulerTemplate):
             self.COURSE_STRUCTURE,
         )
         self.schedule_print_box.content = f"The classroom is being created. Please wait for the process to complete. Do not close this window."
-        time.sleep(45)
+        sleep(45)
         if task_id:
             classroom_schedule = app_tables.background_tasks.get(task_id=task_id)
-                self.classroom_name = classroom_schedule["classroom_name"]
-                formatted_output = (
-                    f"classroom Schedule: {self.classroom_schedule['classroom_name']}\n\n"
-                )
+            self.classroom_name = classroom_schedule["classroom_name"]
+            formatted_output = (
+                f"classroom Schedule: {self.classroom_schedule['classroom_name']}\n\n"
+            )
 
-                # formatted_output += "Class Schedule:\n"
-                # for class_slot in self.classroom_schedule['classes']:
-                # formatted_output += f"Class {class_slot['class_number']}: {class_slot['date']} ({class_slot['day']})\n"
+            # formatted_output += "Class Schedule:\n"
+            # for class_slot in self.classroom_schedule['classes']:
+            # formatted_output += f"Class {class_slot['class_number']}: {class_slot['date']} ({class_slot['day']})\n"
 
-                # formatted_output += "\nDrive Schedule:\n"
-                # for drive in self.classroom_schedule['drives']:
-                # formatted_output += f"Pair {drive['pair_letter']}: {drive['date']} - Slot {drive['slot']} (Week {drive['week']})\n"
+            # formatted_output += "\nDrive Schedule:\n"
+            # for drive in self.classroom_schedule['drives']:
+            # formatted_output += f"Pair {drive['pair_letter']}: {drive['date']} - Slot {drive['slot']} (Week {drive['week']})\n"
 
-                formatted_output += f"\nSummary:\n"
-                formatted_output += (
-                    f"Number of Students: {self.classroom_schedule['num_students']}\n"
-                )
-                formatted_output += f"Start Date: {self.classroom_schedule['start_date']}\n"
-                formatted_output += f"End Date: {self.classroom_schedule['end_date']}"
+            formatted_output += f"\nSummary:\n"
+            formatted_output += (
+                f"Number of Students: {self.classroom_schedule['num_students']}\n"
+            )
+            formatted_output += f"Start Date: {self.classroom_schedule['start_date']}\n"
+            formatted_output += f"End Date: {self.classroom_schedule['end_date']}"
 
             self.schedule_print_box.content = f"The classroom has been completed successfully:\n\n{formatted_output}\n\n You can export this file now"
         else:
