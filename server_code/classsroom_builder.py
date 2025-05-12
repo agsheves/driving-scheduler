@@ -622,7 +622,7 @@ def create_full_classroom_schedule(
     task_id = f"classroom_{school}_{start_date.strftime('%Y%m%d')}"
 
     # Call the background task
-    anvil.server.call(
+    anvil.server.launch_background_task(
         "create_full_classroom_schedule_background",
         school,
         start_date,

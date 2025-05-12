@@ -1,5 +1,25 @@
 allow_embedding: false
 db_schema:
+  background_tasks:
+    client: search
+    columns:
+    - admin_ui: {order: 0, width: 200}
+      name: task_id
+      type: string
+    - admin_ui: {order: 1, width: 200}
+      name: status
+      type: string
+    - admin_ui: {order: 2, width: 200}
+      name: start_time
+      type: datetime
+    - admin_ui: {order: 3, width: 200}
+      name: end_time
+      type: datetime
+    - admin_ui: {order: 4, width: 200}
+      name: results
+      type: string
+    server: full
+    title: background_tasks
   change_log:
     client: search
     columns:
