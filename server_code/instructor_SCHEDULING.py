@@ -10,24 +10,13 @@ from .globals import LESSON_SLOTS, AVAILABILITY_MAPPING
 
 
 @anvil.server.background_task
-def schedule_instructors_for_classroom_background(
-    classroom_name, instructor1, instructor2
-):
+def schedule_instructors_for_classroom_background(classroom_name, instructor1, instructor2, task_id):
     """
     Background task version of schedule_instructors_for_classroom
     """
-    task_id = f"instructors_{classroom_name['classroom_name']}"
-
-    # Create task record
-    task_record = app_tables.background_tasks.add_row(
-        task_id=task_id, status="running", start_time=datetime.now()
-    )
-
     try:
         # Get classroom data
-        classroom = app_tables.classrooms.get(
-            classroom_name=classroom_name["classroom_name"]
-        )
+        classroom = app_tables.classrooms.get(classroom_name=classroom_name["classroom_name"])
         if not classroom:
             raise ValueError(f"classroom {classroom_name} not found")
 
@@ -36,42 +25,43 @@ def schedule_instructors_for_classroom_background(
             raise ValueError("One or both instructors not found")
 
         # Get instructor schedules
-        instructor1_schedule = app_tables.instructor_schedules.get(
-            instructor=instructor1
-        )
-        instructor2_schedule = app_tables.instructor_schedules.get(
-            instructor=instructor2
-        )
+        instructor1_schedule = app_tables.instructor_schedules.get(instructor=instructor1)
+        instructor2_schedule = app_tables.instructor_schedules.get(instructor=instructor2)
 
         if not instructor1_schedule or not instructor2_schedule:
             raise ValueError("One or both instructor schedules not found")
 
         # Get availability data
-        instructor1_availability = instructor1_schedule[
-            "current_seven_month_availability"
-        ]
-        instructor2_availability = instructor2_schedule[
-            "current_seven_month_availability"
-        ]
+        instructor1_availability = instructor1_schedule["current_seven_month_availability"]
+        instructor2_availability = instructor2_schedule["current_seven_month_availability"]
 
         # Get the complete schedule
         daily_schedules = classroom["complete_schedule"]
-
+        
         # Process the schedule and update instructor assignments
         # ... existing instructor scheduling logic ...
-
-        result = {
-            "status": "success",
-            "classroom_name": classroom_name["classroom_name"],
-        }
-
+        
+        result = {"status": "success", "classroom_name": classroom_name["classroom_name"]}
+        
         # Update task record with success
-        task_record.update(status="done", end_time=datetime.now(), result=str(result))
+        task_record = app_tables.background_tasks.get(task_id=task_id)
+        if task_record:
+            task_record.update(
+                status="done",
+                end_time=datetime.now(),
+                result=str(result)
+            )
         return result
-
+        
     except Exception as e:
         # Update task record with error
-        task_record.update(status="error", end_time=datetime.now(), error=str(e))
+        task_record = app_tables.background_tasks.get(task_id=task_id)
+        if task_record:
+            task_record.update(
+                status="error",
+                end_time=datetime.now(),
+                error=str(e)
+            )
         return {"status": "error", "message": str(e)}
 
 
@@ -89,17 +79,25 @@ def schedule_instructors_for_classroom(classroom_name, instructor1, instructor2)
     Returns:
         str: Task ID for tracking the background process
     """
-    # Start the background task
+    # Generate task ID
     task_id = f"instructors_{classroom_name['classroom_name']}"
-
-    # Call the background task
-    anvil.server.call(
+    
+    # Create task record
+    task_record = app_tables.background_tasks.add_row(
+        task_id=task_id,
+        status="running",
+        start_time=datetime.now()
+    )
+    
+    # Launch background task
+    anvil.server.launch_background_task(
         "schedule_instructors_for_classroom_background",
         classroom_name,
         instructor1,
         instructor2,
+        task_id
     )
-
+    
     return task_id
 
 

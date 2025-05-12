@@ -519,13 +519,27 @@ def schedule_drives(classroom_name, start_date, num_students, course_structure):
     return drives
 
 
-@anvil.server.background_task
-def create_full_classroom_schedule_background(
-    school, start_date, num_students, classroom_type
+@anvil.server.callable
+def create_full_classroom_schedule(
+    school, start_date, num_students=None, classroom_type=None
 ):
     """
-    Background task version of create_full_classroom_schedule
+    Create a complete schedule for a new classroom including:
+    - classroom creation
+    - Student assignment
+    - Class scheduling
+    - Drive scheduling
+
+    Args:
+        school (str): School abbreviation (e.g., 'HSS', 'NHS')
+        start_date (date): Start date of the program
+        num_students (int, optional): Number of students. If None, will calculate based on capacity
+        classroom_type (str, optional): 'standard' or 'compressed'
+
+    Returns:
+        str: Task ID for tracking the background process
     """
+    # Generate task ID
     task_id = f"classroom_{school}_{start_date.strftime('%Y%m%d')}"
 
     # Create task record
@@ -533,6 +547,26 @@ def create_full_classroom_schedule_background(
         task_id=task_id, status="running", start_time=datetime.now()
     )
 
+    # Launch background task
+    anvil.server.launch_background_task(
+        "create_full_classroom_schedule_background",
+        school,
+        start_date,
+        num_students,
+        classroom_type,
+        task_id,
+    )
+
+    return task_id
+
+
+@anvil.server.background_task
+def create_full_classroom_schedule_background(
+    school, start_date, num_students, classroom_type, task_id
+):
+    """
+    Background task version of create_full_classroom_schedule
+    """
     try:
         # Select course structure ONCE
         if classroom_type == "compressed":
@@ -589,48 +623,19 @@ def create_full_classroom_schedule_background(
         }
 
         # Update task record with success
-        task_record.update(status="done", end_time=datetime.now(), result=str(result))
+        task_record = app_tables.background_tasks.get(task_id=task_id)
+        if task_record:
+            task_record.update(
+                status="done", end_time=datetime.now(), result=str(result)
+            )
         return result
 
     except Exception as e:
         # Update task record with error
-        task_record.update(status="error", end_time=datetime.now(), error=str(e))
+        task_record = app_tables.background_tasks.get(task_id=task_id)
+        if task_record:
+            task_record.update(status="error", end_time=datetime.now(), error=str(e))
         return str(e)
-
-
-@anvil.server.callable
-def create_full_classroom_schedule(
-    school, start_date, num_students=None, classroom_type=None
-):
-    """
-    Create a complete schedule for a new classroom including:
-    - classroom creation
-    - Student assignment
-    - Class scheduling
-    - Drive scheduling
-
-    Args:
-        school (str): School abbreviation (e.g., 'HSS', 'NHS')
-        start_date (date): Start date of the program
-        num_students (int, optional): Number of students. If None, will calculate based on capacity
-        classroom_type (str, optional): 'standard' or 'compressed'
-
-    Returns:
-        str: Task ID for tracking the background process
-    """
-    # Start the background task
-    task_id = f"classroom_{school}_{start_date.strftime('%Y%m%d')}"
-
-    # Call the background task
-    anvil.server.launch_background_task(
-        "create_full_classroom_schedule_background",
-        school,
-        start_date,
-        num_students,
-        classroom_type,
-    )
-
-    return task_id
 
 
 @anvil.server.callable
