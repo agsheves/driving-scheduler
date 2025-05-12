@@ -103,13 +103,9 @@ def process_instructor_availability(instructors, start_date=None):
 
     # Process the data with pandas
     # Instructor order is correct to here
-    print("Sample record instructor values:")
-    for r in all_records[:5]:
-      print(r.get("instructor"))
+
     df = pd.DataFrame(all_records)
-    print("\n=== SERVER SIDE ===")
-    print("Unique slots in DataFrame:", df["slot"].unique())
-    print("Number of records:", len(df))
+
 
     if df.empty:
         return None
@@ -133,8 +129,8 @@ def process_instructor_availability(instructors, start_date=None):
     break_slots = ["break_am", "break_lunch", "break_pm"]
     pivot_df = pivot_df[~pivot_df.index.get_level_values("slot").isin(break_slots)]
 
-    print("\nPivot table index (slots):", [slot for slot, _, _ in pivot_df.index])
-    print("Pivot table shape:", pivot_df.shape)
+    #print("\nPivot table index (slots):", [slot for slot, _, _ in pivot_df.index])
+    #print("Pivot table shape:", pivot_df.shape)
 
     # Sort by start time
     pivot_df = pivot_df.sort_values(by=["start_time"], ascending=False)
@@ -408,7 +404,7 @@ def generate_seven_month_availability(instructor=None):
     """
     if instructor is None:
         instructor = app_tables.users.get(firstName="Leslie")
-        print(instructor)
+
     print(f"Generating seven-month availability for {instructor['firstName']}")
 
     # Get instructor's weekly availability
