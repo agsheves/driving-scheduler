@@ -8,7 +8,7 @@ import anvil.tables as tables
 import anvil.tables.query as q
 from anvil.tables import app_tables
 import json
-from datetime import date, time, datetime, timedelta
+from datetime import date, time, datetime, timedelta, sleep
 import plotly.graph_objects as go
 
 
