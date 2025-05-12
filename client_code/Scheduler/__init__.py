@@ -227,6 +227,7 @@ class Scheduler(SchedulerTemplate):
 
         # Convert the string date back to a date object for the API call
         start_date = datetime.strptime(self.start_date, "%m-%d-%Y").date()
+        self.schedule_print_box.content = "Generating your report. Pase do not close this window"
 
         self.classroom_schedule = anvil.server.call(
             "create_full_classroom_schedule",

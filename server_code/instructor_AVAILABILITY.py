@@ -130,7 +130,7 @@ def process_instructor_availability(instructors, start_date=None):
     pivot_df = pivot_df[~pivot_df.index.get_level_values("slot").isin(break_slots)]
 
     #print("\nPivot table index (slots):", [slot for slot, _, _ in pivot_df.index])
-    #print("Pivot table shape:", pivot_df.shape)
+    print("Pivot table shape:", pivot_df.shape)
 
     # Sort by start time
     pivot_df = pivot_df.sort_values(by=["start_time"], ascending=False)

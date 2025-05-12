@@ -520,9 +520,14 @@ def schedule_drives(classroom_name, start_date, num_students, course_structure):
 
 
 @anvil.server.callable
-def create_full_classroom_schedule(
-    school, start_date, num_students=None, classroom_type=None
-):
+def create_full_classroom_schedule(school, start_date, num_students=None, classroom_type=None):
+    anvil.server.launch_background_task('create_full_classroom_schedule_background', school, start_date, num_students=None, classroom_type=None)
+
+
+def wait_for_results(function):
+  
+@anvil.server.background_task
+def create_full_classroom_schedule_background(school, start_date, num_students=None, classroom_type=None):   
     """
     Create a complete schedule for a new classroom including:
     - classroom creation
@@ -578,16 +583,17 @@ def create_full_classroom_schedule(
             complete_schedule=complete_schedule,
         )
 
-    return {
+    classroom_data = {
         "classroom_name": classroom_name,
         "num_students": num_students,
         "students": students,
         "classes": classes,
         "drives": drives,
-        "complete_schedule": complete_schedule,
+        #"complete_schedule": complete_schedule,
         "start_date": start_date,
         "end_date": start_date + timedelta(weeks=6),
     }
+    return classroom_data
 
 
 @anvil.server.callable
