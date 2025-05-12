@@ -354,7 +354,8 @@ def generate_capacity_report(days=180):
             df.loc["Total Booked", date] = 0  # Reserved for future use
 
     # Format the Excel file
-    filename = f"total_availability_as_at_{start_date.strftime('%Y%m%d')}.xlsx"
+    today = datetime.today().strftime('%B_%d_%Y')
+    filename = f"instructor_capacity_report_{today}.xlsx"
 
     # Create Excel writer
     output = io.BytesIO()
@@ -390,8 +391,12 @@ def generate_capacity_report(days=180):
     )
 
     app_tables.files.add_row(filename=filename, file=excel_media, file_type="Excel")
+    if excel_media:
+      result = True
+    else:
+      result = "Error"
 
-    return excel_media
+    return result, filename
 
 
 @anvil.server.callable

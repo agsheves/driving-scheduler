@@ -275,9 +275,22 @@ class Scheduler(SchedulerTemplate):
         self.schedule_export_notice_label.visible = True
 
     def create_availability_report_button_click(self, **event_args):
-        anvil.server.call("generate_capacity_report")
-        Notification("Your report is available in the file downloader")
+        result, filename = anvil.server.call("generate_capacity_report")
+        if result is True:
+          alert(content = f'Your report ran correctly. Please check the file list for filename {filename}', dismissible=True, large=True)
+        else:
+          alert(content = 'There was an error running the report. Please try again', dismissible=True, large=True)
 
+ 
+    def download_availability_button_click(self, **event_args):
+      result, filename = anvil.server.call("export_instructor_eight_monthavailability")
+      if result is True:
+        alert(content = f'Your report ran correctly. Please check the file list for filename {filename}', dismissible=True, large=True)
+      else:
+        alert(content = 'There was an error running the report. Please try again', dismissible=True, large=True)
+
+
+    
     def classroom_selector_change(self, **event_args):
         classroom = app_tables.classrooms.get(
             classroom_name=self.classroom_selector.selected_value
@@ -304,9 +317,6 @@ class Scheduler(SchedulerTemplate):
         name = self.classroom["classroom_name"]
         anvil.server.call("export_merged_classroom_schedule", name)
         self.classroom = ""
-
-    def download_availability_button_click(self, **event_args):
-        anvil.server.call("export_instructor_eight_monthavailability")
 
     def forward_day_button_click(self, **event_args):
         new_start_date = self.start_date + timedelta(days=1)

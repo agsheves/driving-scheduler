@@ -471,14 +471,19 @@ def export_instructor_eight_monthavailability():
         output.getvalue(),
         name="instructor_availability.xlsx",
     )
-
+    today = datetime.today().strftime('%B_%d_%Y')
+    filename=f"instructor_schedules_240Days_{today}.xlsx"
     app_tables.files.add_row(
-        filename="instructor_availability_240Days.xlsx",
+        filename=filename,
         file=excel_media,
         file_type="Excel",
     )
 
-    return excel_media
+    if excel_media:
+      result = True
+    else:
+      result = 'Error'
+    return result, filename
 
 
 @anvil.server.callable
