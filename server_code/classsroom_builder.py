@@ -252,6 +252,13 @@ def schedule_classes(classroom_name, start_date, num_students, course_structure)
     class_schedule = []
     current_week = 1
     current_class = 1
+    # Change this so mapping is not as fixed.
+    # Day one of classroom is orientation, day two onwards checks course structure 
+    # Classes are then scheduled Tues, Thursday for standard, Mon, Wed, Fri for compressed
+    # Improve class rescheduling for holidays
+    # Count classes and once 3 is complete, schedule drive pair 1
+    # Add a not before time for drives based on class bookings?
+
     class_day_map = {
         1: 0,
         2: 2,
@@ -290,6 +297,8 @@ def schedule_classes(classroom_name, start_date, num_students, course_structure)
         }
         class_schedule.append(class_slot)
         current_class += 1
+        
+        # This needs to dynamically use course_structure['class_sessions']['classes_per_week'] to check modulo
         if current_class % 3 == 1:
             current_week += 1
     return class_schedule
