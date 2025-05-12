@@ -350,6 +350,8 @@ def generate_capacity_report(days=180):
         # Format headers
         for col_num, value in enumerate(df.columns.values):
             worksheet.write(0, col_num + 1, value, header_format)
+            # Set column width for date columns
+            worksheet.set_column(col_num + 1, col_num + 1, 12)
         for row_num, value in enumerate(df.index.values):
             worksheet.write(row_num + 1, 0, value, header_format)
 
@@ -357,6 +359,11 @@ def generate_capacity_report(days=180):
         worksheet.set_column(0, 0, 15)  # Instructor names
         for i in range(1, len(df.columns) + 1):
             worksheet.set_column(i, i, 12)  # Date columns
+
+        # Add date formatting
+        date_format = workbook.add_format({"num_format": "dd/mm/yyyy"})
+        for col_num, value in enumerate(df.columns.values):
+            worksheet.write(0, col_num + 1, value, date_format)
 
     # Create media object and save to database
     excel_media = anvil.BlobMedia(

@@ -354,8 +354,11 @@ def export_instructor_availability():
                 day_data = availability.get(day, {})
                 for slot in slots:
                     status = day_data.get(slot, "No")
+                    # Get the time range for this slot
+                    slot_info = LESSON_SLOTS[slot]
+                    time_range = f"{slot_info['start_time']}-{slot_info['end_time']}"
                     data.append(
-                        {"Day": day.capitalize(), "Slot": slot, "Status": status}
+                        {"Day": day.capitalize(), "Slot": time_range, "Status": status}
                     )
 
             df = pd.DataFrame(data)
@@ -801,7 +804,6 @@ def fix_instructor_slot_names():
                     instructor_schedule["weekly_availability_term"]
                 )
                 instructor_schedule.update(weekly_availability_term=fixed_term)
-
 
             print(f"Fixed slot names for {instructor['firstName']}")
 
