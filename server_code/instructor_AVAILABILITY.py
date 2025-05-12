@@ -148,8 +148,8 @@ def process_instructor_availability(instructors, start_date=None):
         "sunday": 6,
     }
 
-    # Sort flat columns by day first, then by instructor
-    flat_columns.sort(key=lambda x: (day_order[x[0]], x[1]))
+    # Sort flat columns by day only, preserving instructor order
+    flat_columns.sort(key=lambda x: day_order[x[0]])
 
     # Extract just the formatted labels
     flat_labels = [item[2] for item in flat_columns]
