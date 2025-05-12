@@ -84,7 +84,7 @@ class Scheduler(SchedulerTemplate):
     def populate_instructor_filter_drop_down(self):
         """Populate the dropdown with available instructors"""
         # Get all instructors from the database
-        instructors = app_tables.users.search(is_instructor=True)
+        instructors = app_tables.users.search(tables.order_by("display_order", ascending=True), is_instructor=True)
         instructor_names = [
             f"{instructor['firstName']} {instructor['surname']}"
             for instructor in instructors
@@ -121,7 +121,7 @@ class Scheduler(SchedulerTemplate):
 
         else:
             # When filter is off, get all instructors
-            selected_instructors = list(app_tables.users.search(is_instructor=True))
+            selected_instructors = app_tables.users.search(tables.order_by("display_order", ascending=True), is_instructor=True)
             self.instructor_list.visible = True
 
         # Get data from server

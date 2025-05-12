@@ -15,7 +15,12 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import anvil.server
 from datetime import datetime, timedelta, date
-from .globals import (AVAILABILITY_MAPPING, COURSE_STRUCTURE_COMPRESSED, COURSE_STRUCTURE_STANDARD, LESSON_SLOTS)
+from .globals import (
+    AVAILABILITY_MAPPING,
+    COURSE_STRUCTURE_COMPRESSED,
+    COURSE_STRUCTURE_STANDARD,
+    LESSON_SLOTS,
+)
 
 # Schools are referenced by their abbreviation found in app_tables / schools / abbreviation
 
@@ -27,13 +32,13 @@ BUFFER_PERCENTAGE = 0.9
 
 # Test data for no_class_days if table is empty
 no_class_days_test = {
-  "2025-01-01": "New Year's Day",
-  "2025-05-01": "May Day Test",
-  "2025-05-26": "Memorial Day",
-  "2025-07-04": "Independence Day",
-  "2025-09-02": "Labor Day",
-  "2025-11-28": "Thanksgiving",
-  "2025-12-25": "Christmas Day",
+    "2025-01-01": "New Year's Day",
+    "2025-05-01": "May Day Test",
+    "2025-05-26": "Memorial Day",
+    "2025-07-04": "Independence Day",
+    "2025-09-02": "Labor Day",
+    "2025-11-28": "Thanksgiving",
+    "2025-12-25": "Christmas Day",
 }
 
 
@@ -252,30 +257,24 @@ def schedule_classes(classroom_name, start_date, num_students, course_structure)
     class_schedule = []
     current_week = 1
     current_class = 1
-    # Change this so mapping is not as fixed.
-    # Day one of classroom is orientation, day two onwards checks course structure 
-    # Classes are then scheduled Tues, Thursday for standard, Mon, Wed, Fri for compressed
-    # Improve class rescheduling for holidays
-    # Count classes and once 3 is complete, schedule drive pair 1
-    # Add a not before time for drives based on class bookings?
+    class_days = course_structure["class_sessions"]["class_days"]
+    classes_per_week = course_structure["class_sessions"]["classes_per_week"]
 
-    class_day_map = {
-        1: 0,
-        2: 2,
-        3: 4,
-        4: 0,
-        5: 2,
-        6: 4,
-        7: 0,
-        8: 2,
-        9: 4,
-        10: 0,
-        11: 2,
-        12: 4,
-        13: 0,
-        14: 2,
-        15: 4,
-    }
+    # Create a dynamic class_day_map
+    class_day_map = {}
+    class_number = 1
+
+    # For each week
+    for week in range(1, 6):  # Assuming 5 weeks of classes
+        # For each class in the week
+        for i in range(classes_per_week):
+            # Get the day index (0-6) for this class
+            day_index = class_days[
+                i
+            ]  # This assumes class_days is a list of day indices
+            class_day_map[class_number] = day_index
+            class_number += 1
+
     while current_class <= 15:
         required_day = class_day_map[current_class]
         week_offset = (current_week - 1) * 7
@@ -297,10 +296,26 @@ def schedule_classes(classroom_name, start_date, num_students, course_structure)
         }
         class_schedule.append(class_slot)
         current_class += 1
-        
-        # This needs to dynamically use course_structure['class_sessions']['classes_per_week'] to check modulo
-        if current_class % 3 == 1:
+
+        if current_class % classes_per_week == 1:
             current_week += 1
+
+    # Print orientation details
+    print(f"\nOrientation: {start_date.strftime('%A, %Y-%m-%d')}")
+
+    # Print first few classes to verify scheduling
+    print("\nFirst 3 classes:")
+    for slot in class_schedule[1:4]:  # Skip orientation (index 0)
+        print(f"Class {slot['class_number']}: {slot['date']} ({slot['day']})")
+
+    # Print week transitions
+    print("\nWeek transitions:")
+    current_week = 1
+    for slot in class_schedule:
+        if slot["week"] != current_week:
+            print(f"Week {current_week} -> {slot['week']}")
+            current_week = slot["week"]
+
     return class_schedule
 
 

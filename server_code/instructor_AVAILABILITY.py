@@ -42,7 +42,7 @@ def process_instructor_availability(instructors, start_date=None):
 
     # Calculate the start of the week (Monday) for the given start_date
     # Changed timne delta to one to only show two days
-    start_of_week = start_date # - timedelta(days=start_date.weekday()) replace this to revert to week display
+    start_of_week = start_date  # - timedelta(days=start_date.weekday()) replace this to revert to week display
     end_of_week = start_of_week + timedelta(days=0)
 
     all_records = []
@@ -93,15 +93,13 @@ def process_instructor_availability(instructors, start_date=None):
                                 "value": value,
                             }
                         )
+
                     except (KeyError, TypeError) as e:
                         print(f"Error with slot {slot_name}: {e}")
                         continue
 
     # Process the data with pandas
     df = pd.DataFrame(all_records)
-    print("\n=== SERVER SIDE ===")
-    print("Unique slots in DataFrame:", df["slot"].unique())
-    print("Number of records:", len(df))
 
     if df.empty:
         return None
@@ -132,6 +130,7 @@ def process_instructor_availability(instructors, start_date=None):
     pivot_df = pivot_df.sort_values(by=["start_time"], ascending=False)
 
     # Create flattened day-instructor labels
+    # Order is alphabetical here
     flat_columns = []
     for col in pivot_df.columns:
         day, instructor = col
@@ -148,8 +147,8 @@ def process_instructor_availability(instructors, start_date=None):
         "sunday": 6,
     }
 
-    # Sort flat columns by day first, then by instructor
-    flat_columns.sort(key=lambda x: (day_order[x[0]], x[1]))
+    # Sort flat columns by day first, leave instructor order unchanged
+    flat_columns.sort(key=lambda x: (day_order[x[0]]))
 
     # Extract just the formatted labels
     flat_labels = [item[2] for item in flat_columns]
@@ -163,6 +162,15 @@ def process_instructor_availability(instructors, start_date=None):
             col_idx = list(pivot_df.columns).index((day, instructor))
             new_row.append(row[col_idx])
         z_values_ordered.append(new_row)
+
+    # After creating the pivot table, reorder the columns
+    instructor_order = {
+        instructor["firstName"]: idx for idx, instructor in enumerate(instructors)
+    }
+    ordered_columns = sorted(
+        pivot_df.columns, key=lambda x: (day_order[x[0]], instructor_order[x[1]])
+    )
+    pivot_df = pivot_df[ordered_columns]
 
     # Convert to the format expected by the client
     data = {
@@ -185,7 +193,9 @@ def get_max_drive_slots(date):
     Uses the existing process_instructor_availability function to get availability data.
     """
     # Get all instructors
-    instructors = app_tables.users.search(is_instructor=True)
+    instructors = app_tables.users.search(
+        tables.order_by("display_order", ascending=True), is_instructor=True
+    )
 
     # Get availability data for the week containing the date
     availability_data = process_instructor_availability(instructors, date)
@@ -213,7 +223,9 @@ def get_max_class_slots(date):
     Uses the existing process_instructor_availability function to get availability data.
     """
     # Get all instructors
-    instructors = app_tables.users.search(is_instructor=True)
+    instructors = app_tables.users.search(
+        tables.order_by("display_order", ascending=True), is_instructor=True
+    )
 
     # Get availability data for the week containing the date
     availability_data = process_instructor_availability(instructors, date)
@@ -246,8 +258,9 @@ def generate_capacity_report(days=180):
         str: Path to the generated Excel file
     """
     # Get all instructors
-    instructors = app_tables.users.search(is_instructor=True)
-
+    instructors = app_tables.users.search(
+        tables.order_by("display_order", ascending=True), is_instructor=True
+    )
     # Get vacation days
     vacation_days = app_tables.no_class_days.search()
     vacation_dict = {str(day["date"]): day["Event"] for day in vacation_days}
@@ -331,6 +344,8 @@ def generate_capacity_report(days=180):
         # Format headers
         for col_num, value in enumerate(df.columns.values):
             worksheet.write(0, col_num + 1, value, header_format)
+            # Set column width for date columns
+            worksheet.set_column(col_num + 1, col_num + 1, 12)
         for row_num, value in enumerate(df.index.values):
             worksheet.write(row_num + 1, 0, value, header_format)
 
@@ -338,6 +353,11 @@ def generate_capacity_report(days=180):
         worksheet.set_column(0, 0, 15)  # Instructor names
         for i in range(1, len(df.columns) + 1):
             worksheet.set_column(i, i, 12)  # Date columns
+
+        # Add date formatting
+        date_format = workbook.add_format({"num_format": "dd/mm/yyyy"})
+        for col_num, value in enumerate(df.columns.values):
+            worksheet.write(0, col_num + 1, value, date_format)
 
     # Create media object and save to database
     excel_media = anvil.BlobMedia(
@@ -502,7 +522,9 @@ def update_all_instructor_seven_month_availability():
     """
     Update all instructor seven-month availability in the database.
     """
-    instructors = app_tables.users.search(is_instructor=True)
+    instructors = app_tables.users.search(
+        tables.order_by("display_order", ascending=True), is_instructor=True
+    )
     if not instructors:
         return False
     for instructor in instructors:
