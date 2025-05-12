@@ -113,6 +113,17 @@ def process_instructor_availability(instructors, start_date=None):
         # Replace invalid values with 0 (Unavailable)
         df.loc[~df["value"].isin(range(7)), "value"] = 0
 
+    # Create a mapping of instructor names to their order in the input list
+    instructor_order = {
+        instructor["firstName"]: idx for idx, instructor in enumerate(instructors)
+    }
+
+    # Add an order column to the DataFrame
+    df["instructor_order"] = df["instructor"].map(instructor_order)
+
+    # Sort the DataFrame by instructor order
+    df = df.sort_values("instructor_order")
+
     # Create a pivot table for the heatmap: slots vs days
     pivot_df = df.pivot_table(
         values="value",
