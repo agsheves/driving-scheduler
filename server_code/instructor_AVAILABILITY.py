@@ -142,7 +142,6 @@ def process_instructor_availability(instructors, start_date=None):
         day, instructor = col
         flat_columns.append((day, instructor, f"{instructor}"))
 
-
     # Define day order
     day_order = {
         "monday": 0,
@@ -169,6 +168,15 @@ def process_instructor_availability(instructors, start_date=None):
             col_idx = list(pivot_df.columns).index((day, instructor))
             new_row.append(row[col_idx])
         z_values_ordered.append(new_row)
+
+    # After creating the pivot table, reorder the columns
+    instructor_order = {
+        instructor["firstName"]: idx for idx, instructor in enumerate(instructors)
+    }
+    ordered_columns = sorted(
+        pivot_df.columns, key=lambda x: (day_order[x[0]], instructor_order[x[1]])
+    )
+    pivot_df = pivot_df[ordered_columns]
 
     # Convert to the format expected by the client
     data = {
