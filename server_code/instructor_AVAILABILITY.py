@@ -113,34 +113,12 @@ def process_instructor_availability(instructors, start_date=None):
         # Replace invalid values with 0 (Unavailable)
         df.loc[~df["value"].isin(range(7)), "value"] = 0
 
-    # Create a mapping of instructor names to their order in the input list
-    instructor_order = {
-        instructor["firstName"]: idx for idx, instructor in enumerate(instructors)
-    }
-
-    # Add an order column to the DataFrame
-    df["instructor_order"] = df["instructor"].map(instructor_order)
-
-    # Sort the DataFrame by instructor order
-    df = df.sort_values("instructor_order")
-
     # Create a pivot table for the heatmap: slots vs days
     pivot_df = df.pivot_table(
         values="value",
         index=["slot", "start_time", "end_time"],
         columns=["day_name", "instructor"],
         aggfunc="first",
-    ).reindex(
-        columns=pd.MultiIndex.from_product(
-            [
-                day_order.keys(),
-                [
-                    i["firstName"]
-                    for i in sorted(instructors, key=lambda x: x["display_order"])
-                ],
-            ],
-            names=["day_name", "instructor"],
-        )
     )
 
     # Filter out break slots from the pivot table
@@ -170,8 +148,8 @@ def process_instructor_availability(instructors, start_date=None):
         "sunday": 6,
     }
 
-    # Sort flat columns by day only, preserving instructor order
-    flat_columns.sort(key=lambda x: (day_order[x[0]], x[1]))
+    # Sort flat columns by day first, leave instructor order unchanged
+    flat_columns.sort(key=lambda x: (day_order[x[0]])
 
     # Extract just the formatted labels
     flat_labels = [item[2] for item in flat_columns]
