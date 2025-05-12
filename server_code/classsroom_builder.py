@@ -259,6 +259,7 @@ def schedule_classes(classroom_name, start_date, num_students, course_structure)
     current_week = 1
     current_class = 1
     class_days = course_structure["class_sessions"]["class_days"]
+    print(f"class days {class_days}")
     classes_per_week = course_structure["class_sessions"]["classes_per_week"]
 
     # Create a dynamic class_day_map
@@ -268,6 +269,7 @@ def schedule_classes(classroom_name, start_date, num_students, course_structure)
     # For each week
     for week in range(1, 6):  # Assuming 5 weeks of classes
         # For each class in the week
+        print(f"Week {week}")
         for i in range(classes_per_week):
             # Get the day index (0-6) for this class
             day_index = class_days[
@@ -275,12 +277,16 @@ def schedule_classes(classroom_name, start_date, num_students, course_structure)
             ]  # This assumes class_days is a list of day indices
             class_day_map[class_number] = day_index
             class_number += 1
-
+    print("adding classes")
     while current_class <= 15:
-        required_day = class_day_map[current_class]
+
+        required_day = int(class_day_map[current_class])
         week_offset = (current_week - 1) * 7
+        print(week_offset)
         target_date = start_date + timedelta(days=week_offset + required_day)
+        print(target_date)
         class_date = None
+        print("adding class data")
         for day in available_days:
             if day >= target_date and day.weekday() == required_day:
                 class_date = day
@@ -295,6 +301,7 @@ def schedule_classes(classroom_name, start_date, num_students, course_structure)
             "day": class_date.strftime("%A"),
             "status": "scheduled",
         }
+        print(class_slot)
         class_schedule.append(class_slot)
         current_class += 1
 
@@ -578,7 +585,7 @@ def create_full_classroom_schedule_background(
 
         # 1. Generate classroom name
         classroom_name = generate_classroom_name(school, start_date)
-
+        print(f"got classroom name {classroom_name}")
         # 2. Calculate capacity if num_students not provided
         if num_students is None:
             capacity = calculate_weekly_capacity(start_date, school, course_structure)
@@ -586,14 +593,18 @@ def create_full_classroom_schedule_background(
                 capacity["max_students"],
                 course_structure["class_sessions"]["max_students"],
             )
-
+        print(f"got num students {num_students}")
         # 3. Create student records
         students = create_ghost_students(classroom_name, num_students)
+        if students:
+          print("Got students")
 
         # 4. Schedule classes
         classes = schedule_classes(
             classroom_name, start_date, num_students, course_structure
         )
+        if classes:
+          print("Got classes")
 
         # 5. Schedule drives
         drives = schedule_drives(
@@ -626,20 +637,21 @@ def create_full_classroom_schedule_background(
 
         # Generate output filename
         output_filename = f"{classroom_name}_schedule.xlsx"
+        print(formatted_output)
 
         # Update task record with success and output filename
         task_record = app_tables.background_tasks.get(task_id=task_id)
         print(f"Checking task id {task_id}")
-        if task_record:
+        if task_record is not None:
             task_record.update(status="done", end_time=datetime.now(), output_filename=output_filename, results_text = formatted_output)
         #return output_filename
 
     except Exception as e:
         # Update task record with error
+        print(f"got error {e}")
         task_record = app_tables.background_tasks.get(task_id=task_id)
         if task_record:
-            task_record.update(status="error", end_time=datetime.now(), error=str(e))
-        return str(e)
+          task_record.update(status="error", end_time=datetime.now(), output_filename='', results_text = str(e))
 
 
 @anvil.server.callable
