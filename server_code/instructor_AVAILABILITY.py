@@ -41,7 +41,7 @@ def process_instructor_availability(instructors, start_date=None):
         start_date = datetime.now().date()
 
     # Calculate the start of the week (Monday) for the given start_date
-    # Changed timne delta to one to only show two days
+    # Changed time delta to one to only show two days
     start_of_week = start_date  # - timedelta(days=start_date.weekday()) replace this to revert to week display
     end_of_week = start_of_week + timedelta(days=0)
 
@@ -86,6 +86,7 @@ def process_instructor_availability(instructors, start_date=None):
                         all_records.append(
                             {
                                 "instructor": instructor["firstName"],
+                                "display_order": instructor['display_order'],
                                 "day_index": day_index,
                                 "day_name": day_name,
                                 "slot": slot_name,
@@ -101,7 +102,10 @@ def process_instructor_availability(instructors, start_date=None):
                         continue
 
     # Process the data with pandas
-    # INstructor order is corerct to here
+    # Instructor order is correct to here
+    print("Sample record instructor values:")
+    for r in all_records[:5]:
+      print(r.get("instructor"))
     df = pd.DataFrame(all_records)
     print("\n=== SERVER SIDE ===")
     print("Unique slots in DataFrame:", df["slot"].unique())
@@ -136,25 +140,36 @@ def process_instructor_availability(instructors, start_date=None):
     pivot_df = pivot_df.sort_values(by=["start_time"], ascending=False)
 
     # Create flattened day-instructor labels
-    # Order is alphabetical here
-    flat_columns = []
-    for col in pivot_df.columns:
-        day, instructor = col
-        flat_columns.append((day, instructor, f"{instructor}"))
-
+    # Order has reset to alphabetical here
     # Define day order
     day_order = {
-        "monday": 0,
-        "tuesday": 1,
-        "wednesday": 2,
-        "thursday": 3,
-        "friday": 4,
-        "saturday": 5,
-        "sunday": 6,
+      "monday": 0,
+      "tuesday": 1,
+      "wednesday": 2,
+      "thursday": 3,
+      "friday": 4,
+      "saturday": 5,
+      "sunday": 6,
     }
+    
+    # Sort pivot_df columns correctly
+    instructor_display_order = (
+      df[["instructor", "display_order"]]
+      .drop_duplicates()
+      .set_index("instructor")["display_order"]
+      .to_dict()
+    )
+    
+    ordered_columns = sorted(
+      pivot_df.columns,
+      key=lambda x: (day_order.get(x[0], 99), instructor_display_order.get(x[1], 999))
+    )
+    
+    pivot_df = pivot_df[ordered_columns]
+    
+    # Now use ordered_columns to generate flat_columns and z_values
+    flat_columns = [(day, instructor, f"{instructor}") for (day, instructor) in ordered_columns]
 
-    # Sort flat columns by day first, leave instructor order unchanged
-    flat_columns.sort(key=lambda x: (day_order[x[0]]))
 
     # Extract just the formatted labels
     flat_labels = [item[2] for item in flat_columns]
@@ -169,14 +184,23 @@ def process_instructor_availability(instructors, start_date=None):
             new_row.append(row[col_idx])
         z_values_ordered.append(new_row)
 
-    # After creating the pivot table, reorder the columns
-    instructor_order = {
-        instructor["firstName"]: idx for idx, instructor in enumerate(instructors)
-    }
-    ordered_columns = sorted(
-        pivot_df.columns, key=lambda x: (day_order[x[0]], instructor_order[x[1]])
+        # After creating the pivot table, reorder the columns
+    instructor_display_order = (
+      df[["instructor", "display_order"]]
+      .drop_duplicates()
+      .set_index("instructor")["display_order"]
+      .to_dict()
     )
+    
+    # Sort columns by day first, then by instructor display_order
+    ordered_columns = sorted(
+      pivot_df.columns,
+      key=lambda x: (day_order.get(x[0], 99), instructor_display_order.get(x[1], 999))
+    )
+    
     pivot_df = pivot_df[ordered_columns]
+
+
 
     # Convert to the format expected by the client
     data = {
