@@ -48,8 +48,6 @@ def process_instructor_availability(instructors, start_date=None):
     all_records = []
 
     for instructor in instructors:
-        # Checks order instructrors are processed - order is correct here
-        print(f"processing {instructor['firstName']}")
         try:
             instructor_schedule = app_tables.instructor_schedules.get(
                 instructor=instructor
@@ -101,11 +99,7 @@ def process_instructor_availability(instructors, start_date=None):
                         continue
 
     # Process the data with pandas
-    # Instructor order is corerct to here
     df = pd.DataFrame(all_records)
-    print("\n=== SERVER SIDE ===")
-    print("Unique slots in DataFrame:", df["slot"].unique())
-    print("Number of records:", len(df))
 
     if df.empty:
         return None

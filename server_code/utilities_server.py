@@ -172,47 +172,33 @@ def sync_instructor_availability_to_sheets():
     """
     # Get all instructors
     instructors = app_tables.users.search(is_instructor=True)
-    print(f"Found {len(instructors)} instructors")
-    for inst in instructors:
-        print(f"Instructor found: {inst['firstName']} {inst['surname']}")
 
     # Get the spreadsheet from app_files
     try:
         spreadsheet = app_files.availability_new
-        print("Successfully accessed spreadsheet")
-        print(f"Available worksheets: {list(spreadsheet.worksheets)}")
     except Exception as e:
         print(f"Error accessing spreadsheet: {str(e)}")
         return False
 
     # Process each instructor
     for instructor in instructors:
-        print(
-            f"\nProcessing instructor: {instructor['firstName']} {instructor['surname']}"
-        )
-
         # Get instructor schedule
         instructor_row = app_tables.instructor_schedules.get(instructor=instructor)
         if not instructor_row:
             print(f"No schedule found for {instructor['firstName']}")
-            print(f"Checking instructor data: {instructor}")
             continue
 
         # Get availability data
         availability = instructor_row["weekly_availability"]["weekly_availability"]
         school_prefs = instructor_row["school_preferences"]
         vacation_days = instructor_row["vacation_days"]
-        print(f"Retrieved availability data for {instructor['firstName']}")
-        print(f"Vacation days data: {vacation_days}")
 
         # Create sheet name (using underscore to avoid spaces)
         sheet_name = f"{instructor['firstName']}_{instructor['surname']}"
-        print(f"Attempting to access worksheet: {sheet_name}")
 
         # Get worksheet
         try:
             worksheet = spreadsheet[sheet_name]
-            print(f"Successfully accessed worksheet: {sheet_name}")
         except Exception as e:
             print(f"Error accessing worksheet {sheet_name}: {str(e)}")
             continue
@@ -237,21 +223,15 @@ def sync_instructor_availability_to_sheets():
             ]
 
             # Clear existing data by deleting rows
-            print("Clearing existing data...")
             try:
                 rows = list(worksheet.rows)
                 if rows:
-                    print(f"Found {len(rows)} rows to delete")
                     for row in rows:
                         row.delete()
-                    print("Existing data cleared")
-                else:
-                    print("No existing rows to delete")
             except TypeError:
-                print("No existing rows to delete (empty sheet)")
+                pass
 
             # Prepare all rows at once
-            print("Preparing data rows...")
             rows = []
 
             # Header row
@@ -270,33 +250,23 @@ def sync_instructor_availability_to_sheets():
                 rows.append(row_data)
 
             # Add all rows one by one
-            print("Writing all rows...")
             for row in rows:
                 worksheet.add_row(**row)
-            print("Main data written")
 
             # Add school preferences
-            print("Writing school preferences...")
             worksheet.add_row(**{"Slot": "School Preferences:"})
             worksheet.add_row(**{"Slot": str(school_prefs)})
-            print("School preferences written")
 
             # Add vacation days
-            print("Writing vacation days...")
             worksheet.add_row(**{"Slot": "Vacation Days:"})
             if vacation_days and "vacation_days" in vacation_days:
-                print(vacation_days["vacation_days"])
                 for vac_day in vacation_days["vacation_days"]:
                     # Format: "Reason: Personal Day (2025-05-06 to 2025-05-07)"
                     vac_text = f"{vac_day['reason']} ({vac_day['start_date']} to {vac_day['end_date']})"
                     worksheet.add_row(**{"Slot": vac_text})
             else:
                 worksheet.add_row(**{"Slot": "No vacation days scheduled"})
-            print("Vacation days written")
 
-            print(
-                f"Successfully updated availability for {instructor['firstName']} {instructor['surname']}"
-            )
         except Exception as e:
             print(f"Error writing data to worksheet: {str(e)}")
             print(f"Error type: {type(e)}")
@@ -457,12 +427,6 @@ def export_instructor_eight_monthavailability():
 
             df = pd.DataFrame(data)
             df.set_index("Lesson", inplace=True)
-
-            # Print a sample of the DataFrame for logging
-            print(f"\nDataFrame sample for {instructor['firstName']}:")
-            print(df.head(2))  # Show first 2 rows
-            print("\nColumns (dates):")
-            print(df.columns[:5])  # Show first 5 dates
 
             # Write to Excel
             sheet_name = f"{instructor['firstName']} {instructor['surname']}"
