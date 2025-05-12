@@ -130,7 +130,7 @@ class Scheduler(SchedulerTemplate):
         data = anvil.server.call(
             "process_instructor_availability", selected_instructors, self.start_date
         )
-        print(data)
+        #print(data)
 
         if not data:
             self.schedule_plot_complete.visible = False
@@ -217,6 +217,7 @@ class Scheduler(SchedulerTemplate):
         self.refresh_schedule_display()
 
     def classroom_builder_button_click(self, **event_args):
+        print("running classroom builder")
 
         if not self.school_selector.selected_value:
             self.schedule_print_box.content = "Please select a school"
@@ -238,29 +239,13 @@ class Scheduler(SchedulerTemplate):
         )
         self.schedule_print_box.content = f"The classroom is being created. Please wait for the process to complete. Do not close this window."
         sleep(45)
+        print("waiting")
         if task_id:
             classroom_schedule = app_tables.background_tasks.get(task_id=task_id)
-            self.classroom_name = classroom_schedule["classroom_name"]
-            formatted_output = (
-                f"classroom Schedule: {self.classroom_schedule['classroom_name']}\n\n"
-            )
-
-            # formatted_output += "Class Schedule:\n"
-            # for class_slot in self.classroom_schedule['classes']:
-            # formatted_output += f"Class {class_slot['class_number']}: {class_slot['date']} ({class_slot['day']})\n"
-
-            # formatted_output += "\nDrive Schedule:\n"
-            # for drive in self.classroom_schedule['drives']:
-            # formatted_output += f"Pair {drive['pair_letter']}: {drive['date']} - Slot {drive['slot']} (Week {drive['week']})\n"
-
-            formatted_output += f"\nSummary:\n"
-            formatted_output += (
-                f"Number of Students: {self.classroom_schedule['num_students']}\n"
-            )
-            formatted_output += f"Start Date: {self.classroom_schedule['start_date']}\n"
-            formatted_output += f"End Date: {self.classroom_schedule['end_date']}"
-
-            self.schedule_print_box.content = f"The classroom has been completed successfully:\n\n{formatted_output}\n\n You can export this file now"
+            if classroom_schedule['status'] == 'done':
+              print("got schedule back")
+              formatted_output = classroom_schedule['results_text']
+              self.schedule_print_box.content = f"The classroom has been completed successfully:\n\n{formatted_output}\n\n This file is available for download filename: {classroom_schedule['output_filename']}"
         else:
             self.schedule_print_box.content = "Error creating schedule"
 

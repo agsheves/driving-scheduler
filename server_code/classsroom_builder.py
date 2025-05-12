@@ -568,6 +568,7 @@ def create_full_classroom_schedule_background(
     """
     Background task version of create_full_classroom_schedule
     """
+    print("running background task")
     try:
         # Select course structure ONCE
         if classroom_type == "compressed":
@@ -600,7 +601,18 @@ def create_full_classroom_schedule_background(
         )
 
         complete_schedule = anvil.server.call("create_merged_schedule", classroom_name)
-
+        print("got completed schedule")
+        formatted_output = (
+          f"classroom Schedule: {complete_schedule['classroom_name']}\n\n"
+        )
+  
+        formatted_output += f"\nSummary:\n"
+        formatted_output += (
+          f"Number of Students: {complete_schedule['num_students']}\n"
+        )
+        formatted_output += f"Start Date: {complete_schedule['start_date']}\n"
+        formatted_output += f"End Date: {complete_schedule['end_date']}"
+        
         # 6. Store everything in the classroom record
         classroom_data_row = app_tables.classrooms.get(classroom_name=classroom_name)
         if classroom_data_row:
@@ -617,11 +629,10 @@ def create_full_classroom_schedule_background(
 
         # Update task record with success and output filename
         task_record = app_tables.background_tasks.get(task_id=task_id)
+        print(f"Checking task id {task_id}")
         if task_record:
-            task_record.update(
-                status="done", end_time=datetime.now(), output_filename=output_filename
-            )
-        return output_filename
+            task_record.update(status="done", end_time=datetime.now(), output_filename=output_filename, results_text = formatted_output)
+        #return output_filename
 
     except Exception as e:
         # Update task record with error
