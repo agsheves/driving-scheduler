@@ -101,7 +101,7 @@ def process_instructor_availability(instructors, start_date=None):
                         continue
 
     # Process the data with pandas
-    # INstructor order is corerct to here
+    # Instructor order is corerct to here
     df = pd.DataFrame(all_records)
     print("\n=== SERVER SIDE ===")
     print("Unique slots in DataFrame:", df["slot"].unique())
