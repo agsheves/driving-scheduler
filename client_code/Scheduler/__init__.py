@@ -121,7 +121,7 @@ class Scheduler(SchedulerTemplate):
 
         else:
             # When filter is off, get all instructors
-            selected_instructors = list(app_tables.users.search(is_instructor=True))
+            selected_instructors = app_tables.users.search(tables.order_by("display_order", ascending=True), is_instructor=True)
             self.instructor_list.visible = True
 
         # Get data from server
