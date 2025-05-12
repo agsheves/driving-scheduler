@@ -42,7 +42,7 @@ def process_instructor_availability(instructors, start_date=None):
 
     # Calculate the start of the week (Monday) for the given start_date
     # Changed timne delta to one to only show two days
-    start_of_week = start_date # - timedelta(days=start_date.weekday()) replace this to revert to week display
+    start_of_week = start_date  # - timedelta(days=start_date.weekday()) replace this to revert to week display
     end_of_week = start_of_week + timedelta(days=0)
 
     all_records = []
@@ -185,7 +185,9 @@ def get_max_drive_slots(date):
     Uses the existing process_instructor_availability function to get availability data.
     """
     # Get all instructors
-    instructors = app_tables.users.search(is_instructor=True)
+    instructors = app_tables.users.search(
+        tables.order_by("display_order", ascending=True), is_instructor=True
+    )
 
     # Get availability data for the week containing the date
     availability_data = process_instructor_availability(instructors, date)
@@ -213,7 +215,9 @@ def get_max_class_slots(date):
     Uses the existing process_instructor_availability function to get availability data.
     """
     # Get all instructors
-    instructors = app_tables.users.search(is_instructor=True)
+    instructors = app_tables.users.search(
+        tables.order_by("display_order", ascending=True), is_instructor=True
+    )
 
     # Get availability data for the week containing the date
     availability_data = process_instructor_availability(instructors, date)
@@ -246,8 +250,9 @@ def generate_capacity_report(days=180):
         str: Path to the generated Excel file
     """
     # Get all instructors
-    instructors = app_tables.users.search(is_instructor=True)
-
+    instructors = app_tables.users.search(
+        tables.order_by("display_order", ascending=True), is_instructor=True
+    )
     # Get vacation days
     vacation_days = app_tables.no_class_days.search()
     vacation_dict = {str(day["date"]): day["Event"] for day in vacation_days}
@@ -502,7 +507,9 @@ def update_all_instructor_seven_month_availability():
     """
     Update all instructor seven-month availability in the database.
     """
-    instructors = app_tables.users.search(is_instructor=True)
+    instructors = app_tables.users.search(
+        tables.order_by("display_order", ascending=True), is_instructor=True
+    )
     if not instructors:
         return False
     for instructor in instructors:
