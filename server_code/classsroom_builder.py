@@ -747,6 +747,10 @@ def create_merged_schedule(classroom_name):
     # Get class and drive schedules
     class_schedule = classroom["class_schedule"] or []
     drive_schedule = classroom["drive_schedule"] or []
+    print("\nDEBUG - Class Schedule:")
+    for cs in class_schedule:
+      print(f"  Class entry: {cs}")
+    
 
     # Create a dictionary of all dates in the classroom's date range
     start_date = classroom["start_date"]
@@ -756,6 +760,8 @@ def create_merged_schedule(classroom_name):
 
     while current_date <= end_date:
         date_str = current_date.strftime("%Y-%m-%d")
+        print("\nDEBUG - Processing days:")
+        print(f"\nProcessing day: {date_str}")
 
         # Create daily schedule
         day_schedule = {
@@ -787,32 +793,41 @@ def create_merged_schedule(classroom_name):
                     }
 
         # Add class assignments (only for non-vacation days)
+        # Add class assignments (only for non-vacation days)
         if not day_schedule["is_vacation"]:
-            for class_slot in class_schedule:
-                if class_slot["date"] == date_str:
-                  day_schedule["slots"][class_slot["slot"]] = {
-                    "type": "class",
-                    "title": f"Class {class_slot['class_number']}",
-                    "details": {
-                      "week": class_slot["week"],
-                      "status": class_slot["status"],
-                    },
-                  }
-
-        # Add drive assignments (only for non-vacation days)
+          for class_slot in class_schedule:
+            # Simple direct string comparison
+            if class_slot["date"] == date_str:
+              # Use the slot from class_slot
+              slot_to_use = class_slot["slot"]
+              day_schedule["slots"][slot_to_use] = {
+                "type": "class",
+                "title": f"Class {class_slot['class_number']}",
+                "details": {
+                  "week": class_slot["week"],
+                  "status": class_slot["status"],
+                },
+              }
+              print(f"Added class {class_slot['class_number']} to {date_str} in slot {slot_to_use}")
+        
+        # Add drive assignments after classes (only for non-vacation days)
         if not day_schedule["is_vacation"]:
-            for drive_slot in drive_schedule:
-                if drive_slot["date"] == date_str:
-                    day_schedule["slots"][drive_slot["slot"]] = {
-                        "type": "drive",
-                        "title": f"Pair {drive_slot['pair_letter']}: Drives {drive_slot['drive_numbers']}",
-                        "details": {
-                            "week": drive_slot["week"],
-                            "is_backup_slot": drive_slot["is_backup_slot"],
-                            "is_weekend": drive_slot["is_weekend"],
-                            "status": drive_slot["status"],
-                        },
-                    }
+          for drive_slot in drive_schedule:
+            if drive_slot["date"] == date_str:
+              slot_to_use = drive_slot["slot"]
+              # Only add the drive if the slot isn't already used by a class
+              if day_schedule["slots"][slot_to_use]["type"] != "class":
+                day_schedule["slots"][slot_to_use] = {
+                  "type": "drive",
+                  "title": f"Pair {drive_slot['pair_letter']}: Drives {drive_slot['drive_numbers']}",
+                  "details": {
+                    "week": drive_slot["week"],
+                    "is_backup_slot": drive_slot["is_backup_slot"],
+                    "is_weekend": drive_slot["is_weekend"],
+                    "status": drive_slot["status"],
+                  },
+                }
+                print(f"Added drive for pair {drive_slot['pair_letter']} to {date_str} in slot {slot_to_use}")
 
         daily_schedules.append(day_schedule)
         current_date += timedelta(days=1)
