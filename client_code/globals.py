@@ -126,7 +126,7 @@ COURSE_STRUCTURE_COMPRESSED = {
         ],  # Preferred order of class vs drive sessions
         "min_days_between_classes": 1,  # Minimum days between class sessions
         "max_days_between_classes": 7,  # Maximum days between class sessions
-        "MIN_COURSE_LENGTH": 49,  # Minimum days classroom must run 7 weeks * 7 days
+        "MIN_COURSE_LENGTH": 56,  # Minimum days classroom must run 8 weeks * 7 days
     },
 }
 
@@ -168,6 +168,6 @@ COURSE_STRUCTURE_STANDARD = {
         ],  # Preferred order of class vs drive sessions
         "min_days_between_classes": 1,  # Minimum days between class sessions
         "max_days_between_classes": 7,  # Maximum days between class sessions
-        "MIN_COURSE_LENGTH": 56,  # Minimum days classroom must run 8 weeks * 7 days
+        "MIN_COURSE_LENGTH": 63,  # Minimum days classroom must run 9 weeks * 7 days
     },
 }
