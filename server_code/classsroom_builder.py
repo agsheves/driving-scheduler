@@ -575,7 +575,7 @@ def create_full_classroom_schedule_background(school, start_date, task_id, num_s
     drives = schedule_drives(classroom_name, start_date, num_students, course_structure, occupied_slots)
     if drives:
       print("Got drives")
-    complete_schedule = anvil.server.call("create_merged_schedule", classroom_name)
+    complete_schedule = anvil.server.call("create_merged_schedule", classroom_name, classes, drives)
     if complete_schedule:
       print("Got complete schedule")
 
@@ -727,7 +727,7 @@ def test_capacity_calculation(start_date=None, school=None):
 
 
 @anvil.server.callable
-def create_merged_schedule(classroom_name):
+def create_merged_schedule(classroom_name, classes, drives):
     """
     Create a merged view of the classroom schedule showing all slots and their assignments.
     Returns a list of daily schedules with all slots and their assignments (classes or drives).
@@ -745,12 +745,14 @@ def create_merged_schedule(classroom_name):
         raise ValueError(f"classroom {classroom_name} not found")
 
     # Get class and drive schedules
-    class_schedule = classroom["class_schedule"] or []
-    drive_schedule = classroom["drive_schedule"] or []
-    print("\nDEBUG - Class Schedule:")
-    for cs in class_schedule:
-      print(f"  Class entry: {cs}")
-    
+    #class_schedule = classroom['class_schedule'] or []
+    class_schedule = classes
+    print(class_schedule)
+    drive_schedule = drives
+    print(drive_schedule)
+    #print(f"\nDebug - Class Schedule:\n{class_schedule}")
+    #drive_schedule = classroom["drive_schedule"] or []
+
 
     # Create a dictionary of all dates in the classroom's date range
     start_date = classroom["start_date"]
@@ -760,8 +762,7 @@ def create_merged_schedule(classroom_name):
 
     while current_date <= end_date:
         date_str = current_date.strftime("%Y-%m-%d")
-        print("\nDEBUG - Processing days:")
-        print(f"\nProcessing day: {date_str}")
+ 
 
         # Create daily schedule
         day_schedule = {
