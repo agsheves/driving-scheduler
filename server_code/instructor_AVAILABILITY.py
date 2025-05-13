@@ -336,7 +336,7 @@ def generate_capacity_report(days=180):
             df.loc["Total Booked", date] = 0  # Reserved for future use
 
     # Format the Excel file
-    filename = f"total_availability_as_at_{start_date.strftime('%Y%m%d')}.xlsx"
+    filename = f"capacity_oveview_{start_date.strftime('%Y%m%d')}.xlsx"
 
     # Create Excel writer
     output = io.BytesIO()
