@@ -413,7 +413,9 @@ def export_instructor_eight_monthavailability():
             # Create data structure
             data = []
             for slot in slots:
-                row_data = {"Lesson": slot}
+                start = format_time_12hr(LESSON_SLOTS[slot]['start_time'])
+                end = format_time_12hr(LESSON_SLOTS[slot]['end_time'])
+                row_data = {"Lesson": f"{slot} ({start}–{end})"}
                 for date in all_dates:
                     # Get the value directly from the availability data
                     value = availability[date].get(slot, 0)
@@ -511,6 +513,9 @@ def export_classroom_schedule(classroom_name):
 
     return excel_media
 
+
+def format_time_12hr(t):
+  return datetime.strptime(t, "%H:%M").strftime("%-I:%M %p")
 
 @anvil.server.callable
 def export_merged_classroom_schedule(classroom_name):
