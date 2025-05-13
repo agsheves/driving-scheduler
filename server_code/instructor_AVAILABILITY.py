@@ -84,6 +84,7 @@ def process_instructor_availability(instructors, start_date=None):
                         all_records.append(
                             {
                                 "instructor": instructor["firstName"],
+                                "display_order": instructor['display_order'],
                                 "day_index": day_index,
                                 "day_name": day_name,
                                 "slot": slot_name,
@@ -131,24 +132,35 @@ def process_instructor_availability(instructors, start_date=None):
 
     # Create flattened day-instructor labels
     # Order is alphabetical here
-    flat_columns = []
-    for col in pivot_df.columns:
-        day, instructor = col
-        flat_columns.append((day, instructor, f"{instructor}"))
-
     # Define day order
     day_order = {
-        "monday": 0,
-        "tuesday": 1,
-        "wednesday": 2,
-        "thursday": 3,
-        "friday": 4,
-        "saturday": 5,
-        "sunday": 6,
+      "monday": 0,
+      "tuesday": 1,
+      "wednesday": 2,
+      "thursday": 3,
+      "friday": 4,
+      "saturday": 5,
+      "sunday": 6,
     }
+    
+    # Sort pivot_df columns correctly
+    instructor_display_order = (
+      df[["instructor", "display_order"]]
+      .drop_duplicates()
+      .set_index("instructor")["display_order"]
+      .to_dict()
+    )
+    
+    ordered_columns = sorted(
+      pivot_df.columns,
+      key=lambda x: (day_order.get(x[0], 99), instructor_display_order.get(x[1], 999))
+    )
+    
+    pivot_df = pivot_df[ordered_columns]
+    
+    # Now use ordered_columns to generate flat_columns and z_values
+    flat_columns = [(day, instructor, f"{instructor}") for (day, instructor) in ordered_columns]
 
-    # Sort flat columns by day first, leave instructor order unchanged
-    flat_columns.sort(key=lambda x: (day_order[x[0]]))
 
     # Extract just the formatted labels
     flat_labels = [item[2] for item in flat_columns]
