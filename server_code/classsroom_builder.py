@@ -518,26 +518,20 @@ def schedule_drives(classroom_name, start_date, num_students, course_structure):
         classroom_data_row.update(drive_schedule=drives)
     return drives
 
+# ⚠️ Change to background task
+# add this to background task  anvil.server.call("export_merged_classroom_schedule", name)
+@anvil.server.call
+def create_full_classroom_schedule_background(school, start_date, task_id, num_students=None, classroom_type=None):
+  create_full_classroom_schedule(school, start_date, task_id, num_students=None, classroom_type=None)
 
-@anvil.server.callable
-def create_full_classroom_schedule(
-    school, start_date, num_students=None, classroom_type=None
-):
+@anvil.server.background
+def create_full_classroom_schedule(school, start_date, task_id, num_students=None, classroom_type=None):
     """
     Create a complete schedule for a new classroom including:
     - classroom creation
     - Student assignment
     - Class scheduling
     - Drive scheduling
-
-    Args:
-        school (str): School abbreviation (e.g., 'HSS', 'NHS')
-        start_date (date): Start date of the program
-        num_students (int, optional): Number of students. If None, will calculate based on capacity
-        classroom_type (str, optional): 'standard' or 'compressed'
-
-    Returns:
-        dict: Complete classroom schedule information
     """
     # Select course structure ONCE
     if classroom_type == "compressed":
@@ -545,29 +539,20 @@ def create_full_classroom_schedule(
     else:
         course_structure = COURSE_STRUCTURE_STANDARD
 
-    # 1. Generate classroom name
-    classroom_name = generate_classroom_name(school, start_date)
 
-    # 2. Calculate capacity if num_students not provided
+    classroom_name = generate_classroom_name(school, start_date)
     if num_students is None:
         capacity = calculate_weekly_capacity(start_date, school, course_structure)
         num_students = min(
             capacity["max_students"], course_structure["class_sessions"]["max_students"]
         )
-
-    # 3. Create student records
+    # Creates ghost students as placeholders for actual students later
     students = create_ghost_students(classroom_name, num_students)
-
-    # 4. Schedule classes
     classes = schedule_classes(
         classroom_name, start_date, num_students, course_structure
     )
-
-    # 5. Schedule drives
     drives = schedule_drives(classroom_name, start_date, num_students, course_structure)
-
     complete_schedule = anvil.server.call("create_merged_schedule", classroom_name)
-    # 6. Store everything in the classroom record
     classroom_data_row = app_tables.classrooms.get(classroom_name=classroom_name)
     if classroom_data_row:
         classroom_data_row.update(
@@ -578,17 +563,17 @@ def create_full_classroom_schedule(
             complete_schedule=complete_schedule,
         )
 
-    return {
-        "classroom_name": classroom_name,
-        "num_students": num_students,
-        "students": students,
-        "classes": classes,
-        "drives": drives,
-        "complete_schedule": complete_schedule,
-        "start_date": start_date,
-        "end_date": start_date + timedelta(weeks=6),
-    }
-
+    results_message = f"""Classroom created successfully:\n
+Name: {classroom_name}\n
+School: {school}\n
+Max number of students: {num_students}\n
+Dates: {start_date} - {complete_schedule}\n
+"""
+    filename, download_message = anvil.server.call('export_classroom_schedule', classroom_name)
+    results_message += f"Export results: {download_message}"
+    task_row = app_tables.background_tasks.get(task_id=task_id)
+    now = datetime.now()
+    task_row.update(status='complete', results_text=results_message, end_time=now, output_filename=filename)
 
 @anvil.server.callable
 def test_capacity_calculation(start_date=None, school=None):

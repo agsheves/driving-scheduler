@@ -241,20 +241,16 @@ class Scheduler(SchedulerTemplate):
         if not self.school_selector.selected_value:
             self.schedule_print_box.content = "Please select a school"
             return
+        school = self.school_selector.selected_value
 
         if not self.start_date:
             self.schedule_print_box.content = "Please select a start date"
             return
         start_date = datetime.strptime(self.start_date, "%m-%d-%Y").date()
-        # ⚠️ Change to background task
-      # add this to background task  anvil.server.call("export_merged_classroom_schedule", name)
-        self.classroom_schedule = anvil.server.call(
-            "create_full_classroom_schedule",
-            self.school_selector.selected_value,
-            start_date,
-            None,
-            self.COURSE_STRUCTURE,
-        )
+
+        task_id = uuid.uuid4()
+        anvil.server.call("create_full_classroom_schedule", school, start_date, task_id, num_students=None, classroom_type=None)
+        self.set_and_monitor_background_task(task_id)
 
 
     def schedule_instructors_button_click(self, **event_args):

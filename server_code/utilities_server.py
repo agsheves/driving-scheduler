@@ -514,12 +514,13 @@ def export_classroom_schedule(classroom_name):
         output.getvalue(),
         name=f"{classroom_name}_schedule.xlsx",
     )
-
+    filename=f"{classroom_name}_schedule.xlsx", file=excel_media, file_type="Excel"
     app_tables.files.add_row(
-        filename=f"{classroom_name}_schedule.xlsx", file=excel_media, file_type="Excel"
+        filename=filename
     )
+    results_message = "Download created successfully"
 
-    return excel_media
+    return filename, results_message
 
 
 def format_time_12hr(t):
