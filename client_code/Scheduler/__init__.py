@@ -9,7 +9,9 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import json
 from datetime import date, time, datetime, timedelta
+from time import sleep
 import plotly.graph_objects as go
+import uuid
 
 
 class Scheduler(SchedulerTemplate):
@@ -51,12 +53,6 @@ class Scheduler(SchedulerTemplate):
         self.refresh_schedule_display()
 
     # ##############################################
-    # Export schedule placeholder - not in use right now
-    def export_schedule_button_click(self, **event_args):
-        filename = f"Teen Schedule - version {date.today()}.csv"
-        csv_file = anvil.server.call(
-            "convert_JSON_to_csv_and_save", self.teen_schedule, filename
-        )
 
     def upload_new_schedule_button_change(self, file, **event_args):
         if file is not None:
@@ -125,11 +121,10 @@ class Scheduler(SchedulerTemplate):
             self.instructor_list.visible = True
 
         # Get data from server
-        print("Getting data:\n")
+
         data = anvil.server.call(
             "process_instructor_availability", selected_instructors, self.start_date
         )
-        print(data)
 
         if not data:
             self.schedule_plot_complete.visible = False
@@ -216,7 +211,6 @@ class Scheduler(SchedulerTemplate):
         self.refresh_schedule_display()
 
     def classroom_builder_button_click(self, **event_args):
-
         if not self.school_selector.selected_value:
             self.schedule_print_box.content = "Please select a school"
             return
@@ -241,15 +235,6 @@ class Scheduler(SchedulerTemplate):
             formatted_output = (
                 f"classroom Schedule: {self.classroom_schedule['classroom_name']}\n\n"
             )
-
-            # formatted_output += "Class Schedule:\n"
-            # for class_slot in self.classroom_schedule['classes']:
-            # formatted_output += f"Class {class_slot['class_number']}: {class_slot['date']} ({class_slot['day']})\n"
-
-            # formatted_output += "\nDrive Schedule:\n"
-            # for drive in self.classroom_schedule['drives']:
-            # formatted_output += f"Pair {drive['pair_letter']}: {drive['date']} - Slot {drive['slot']} (Week {drive['week']})\n"
-
             formatted_output += f"\nSummary:\n"
             formatted_output += (
                 f"Number of Students: {self.classroom_schedule['num_students']}\n"
@@ -288,7 +273,6 @@ class Scheduler(SchedulerTemplate):
         else:
           alert(content = "There was an error downloading your report. Please try again", large=True, dismissible=True)
 
-
     def classroom_selector_change(self, **event_args):
         classroom = app_tables.classrooms.get(
             classroom_name=self.classroom_selector.selected_value
@@ -316,8 +300,6 @@ class Scheduler(SchedulerTemplate):
         anvil.server.call("export_merged_classroom_schedule", name)
         self.classroom = ""
 
-
-
     def forward_day_button_click(self, **event_args):
         new_start_date = self.start_date + timedelta(days=1)
         self.start_date = new_start_date
@@ -342,3 +324,36 @@ class Scheduler(SchedulerTemplate):
       self.start_date = datetime.now().date()
       self.refresh_schedule_display(self.start_date)
 
+    def check_for_background_task(task_id):
+      while True:
+        row = app_tables.background_tasks.get(task_id=task_id)
+        if row is None:
+          alert("Task was not initiated properly. Please try again.", large=True, dismissible=True)
+          return
+    
+        status = row['status']
+    
+        if status in ('complete', 'error'):
+          results_message = row['results_text']
+          alert(content=results_message, large=True, dismissible=True)
+          return
+    
+        time.sleep(30)
+
+    def set_and_monitor_background_task(self,task_id):
+        now = datetime.now()
+        app_tables.background_tasks.add_row(
+          start_time=now,
+          status='running',
+          task_id=task_id
+        )
+  
+        n =Notification("Your task is running and you will receive an alert when it is complete")
+        n.show()
+        time.sleep(5)
+        self.check_for_background_task(task_id)
+
+    
+            
+          
+    
