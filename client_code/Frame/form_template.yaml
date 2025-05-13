@@ -40,7 +40,7 @@ components:
     - event_bindings: {click: file_transfer_link_click}
       layout_properties: {grid_position: 'ATKKKJ,DBSYGY'}
       name: file_transfer_link
-      properties: {align: center, background: '', bold: false, border: '', enabled: true, font: '', font_size: 18, foreground: '', icon: 'fa:floppy-o', icon_align: left, italic: false, role: null, spacing_above: small, spacing_below: small, text: ' File Transfer', tooltip: '', underline: false, visible: true}
+      properties: {align: center, background: '', bold: false, border: '', enabled: true, font: '', font_size: 18, foreground: '', icon: 'fa:floppy-o', icon_align: left, italic: false, role: null, spacing_above: small, spacing_below: small, text: ' Files', tooltip: '', underline: false, visible: true}
       type: Button
     - event_bindings: {click: changelog_button_click}
       layout_properties: {grid_position: 'SAHYAI,DNXOFV'}

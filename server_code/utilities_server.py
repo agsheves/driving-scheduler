@@ -435,19 +435,27 @@ def export_instructor_eight_monthavailability():
             df.to_excel(writer, sheet_name=sheet_name)
 
     # Create media object and save to database
+    today = datetime.today().strftime('%B_%d_%Y')
+    filename = f"instructor_availability_240Days_{today}.xlsx"
     excel_media = anvil.BlobMedia(
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         output.getvalue(),
-        name="instructor_availability.xlsx",
+        name=filename,
     )
 
     app_tables.files.add_row(
-        filename="instructor_availability_240Days.xlsx",
+        filename=filename,
         file=excel_media,
         file_type="Excel",
     )
 
-    return excel_media
+    if excel_media:
+      result = True
+      return result, filename
+    else:
+      result = "error"
+      filename = "n/a"
+      return result, filename
 
 
 @anvil.server.callable

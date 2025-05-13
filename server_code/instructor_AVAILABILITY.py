@@ -379,8 +379,13 @@ def generate_capacity_report(days=180):
     )
 
     app_tables.files.add_row(filename=filename, file=excel_media, file_type="Excel")
-
-    return excel_media
+    if excel_media:
+      result = True
+      return result, filename
+    else:
+      result = "error"
+      filename = "n/a"
+      return result, filename
 
 
 @anvil.server.callable
@@ -473,6 +478,7 @@ def generate_seven_month_availability(instructor=None):
 
     # Calculate the target end date (8 months from today)
     today = datetime.now().date()
+  
     target_end_date = today + timedelta(days=240)  # 8 months from today
 
     # If we have existing availability, only add dates up to the target end date
