@@ -248,9 +248,10 @@ class Scheduler(SchedulerTemplate):
             return
         start_date = datetime.strptime(self.start_date, "%m-%d-%Y").date()
 
-        task_id = uuid.uuid4()
+        task_id = str(uuid.uuid4())
         anvil.server.call("create_full_classroom_schedule", school, start_date, task_id, num_students=None, classroom_type=None)
         self.set_and_monitor_background_task(task_id)
+        print("Running background classroom builder")
 
 
     def schedule_instructors_button_click(self, **event_args):
@@ -280,9 +281,9 @@ class Scheduler(SchedulerTemplate):
           alert(content = "There was an error downloading your report. Please try again", large=True, dismissible=True)
 
 
-    def check_for_background_task(task_id):
+    def check_for_background_task(self,task_id):
       while True:
-        row = app_tables.background_tasks.get(task_id=task_id)
+        row = app_tables.background_tasks_table.get(task_id=task_id)
         if row is None:
           alert("Task was not initiated properly. Please try again.", large=True, dismissible=True)
           return
@@ -294,11 +295,11 @@ class Scheduler(SchedulerTemplate):
           alert(content=results_message, large=True, dismissible=True)
           return
     
-        time.sleep(30)
+        sleep(30)
 
     def set_and_monitor_background_task(self,task_id):
         now = datetime.now()
-        app_tables.background_tasks.add_row(
+        app_tables.background_tasks_table.add_row(
           start_time=now,
           status='running',
           task_id=task_id
@@ -306,7 +307,7 @@ class Scheduler(SchedulerTemplate):
   
         n =Notification("Your task is running and you will receive an alert when it is complete")
         n.show()
-        time.sleep(5)
+        sleep(5)
         self.check_for_background_task(task_id)
 
     

@@ -253,6 +253,7 @@ def schedule_classes(classroom_name, start_date, num_students, course_structure)
     Classes must be on specific days of the week as defined in class_days.
     Returns a simplified object format suitable for table storage.
     """
+    print("Started scheduling classes")
     available_days = get_available_days(start_date, course_structure)
     class_schedule = []
     current_week = 1
@@ -265,6 +266,7 @@ def schedule_classes(classroom_name, start_date, num_students, course_structure)
     class_number = 1
 
     # For each week
+    print("bulding class day map")
     for week in range(1, 6):  # Assuming 5 weeks of classes
         # For each class in the week
         for i in range(classes_per_week):
@@ -274,9 +276,10 @@ def schedule_classes(classroom_name, start_date, num_students, course_structure)
             ]  # This assumes class_days is a list of day indices
             class_day_map[class_number] = day_index
             class_number += 1
-
+    print("adding classes") 
+    #error An error occurred: unsupported operand type(s) for +: 'int' and 'str'
     while current_class <= 15:
-        required_day = class_day_map[current_class]
+        required_day = int(class_day_map[current_class])
         week_offset = (current_week - 1) * 7
         target_date = start_date + timedelta(days=week_offset + required_day)
         class_date = None
@@ -358,6 +361,7 @@ def schedule_drives(classroom_name, start_date, num_students, course_structure):
     Schedule drives (1 per week for weeks 2-6)
     First creates a master schedule that repeats each week, then adjusts for vacation days
     """
+    print("Started scheduling drives")
     available_days = get_available_days(start_date, course_structure)
     num_pairs = num_students // 2
     drives = []
@@ -524,7 +528,7 @@ def create_full_classroom_schedule(school, start_date, task_id, num_students=Non
 
 @anvil.server.background_task
 def create_full_classroom_schedule_background(school, start_date, task_id, num_students=None, classroom_type=None):
-
+  print("Running background classroom builder server side")
   try:
     # Select course structure ONCE
     if classroom_type == "compressed":
@@ -533,7 +537,7 @@ def create_full_classroom_schedule_background(school, start_date, task_id, num_s
       course_structure = COURSE_STRUCTURE_STANDARD
 
       classroom_name = generate_classroom_name(school, start_date)
-
+      print(f"Classroom name: {classroom_name}")
     if num_students is None:
       capacity = calculate_weekly_capacity(start_date, school, course_structure)
       num_students = min(
@@ -542,11 +546,18 @@ def create_full_classroom_schedule_background(school, start_date, task_id, num_s
 
       # Creates ghost students as placeholders for actual students later
       students = create_ghost_students(classroom_name, num_students)
+      print(f"Created {num_students} ghost students")
     classes = schedule_classes(
       classroom_name, start_date, num_students, course_structure
     )
+    if classes:
+      print("Got classes")
     drives = schedule_drives(classroom_name, start_date, num_students, course_structure)
+    if drives:
+      print("Got drives")
     complete_schedule = anvil.server.call("create_merged_schedule", classroom_name)
+    if complete_schedule:
+      print("Got complete schedule")
 
     classroom_data_row = app_tables.classrooms.get(classroom_name=classroom_name)
     if classroom_data_row:
@@ -565,10 +576,11 @@ Max number of students: {num_students}\n
 Dates: {start_date} - {complete_schedule}\n
 """
 
+    print("Exporting full schedule")
     filename, download_message = anvil.server.call('export_classroom_schedule', classroom_name)
     results_message += f"Export results: {download_message}"
 
-    task_row = app_tables.background_tasks.get(task_id=task_id)
+    task_row = app_tables.background_tasks_table.get(task_id=task_id)
     now = datetime.now()
     if task_row:
       task_row.update(
@@ -579,7 +591,7 @@ Dates: {start_date} - {complete_schedule}\n
       )
 
   except Exception as e:
-    task_row = app_tables.background_tasks.get(task_id=task_id)
+    task_row = app_tables.background_tasks_table.get(task_id=task_id)
     now = datetime.now()
     error_message = f"An error occurred: {e}"
     if task_row:
