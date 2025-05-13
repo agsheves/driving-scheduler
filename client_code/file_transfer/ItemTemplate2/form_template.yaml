@@ -3,10 +3,6 @@ components:
   name: file_name
   properties: {}
   type: Label
-- layout_properties: {grid_position: 'OBKQIL,CFIMRR'}
-  name: contents_label
-  properties: {}
-  type: Label
 - components: []
   event_bindings: {click: download_link_click}
   layout_properties: {grid_position: 'OBKQIL,SPSWCJ'}
@@ -19,6 +15,6 @@ components:
   properties: {icon: 'fa:trash', text: Delete}
   type: Link
 container:
-  properties: {col_widths: '{"LRRRLV":25,"CFIMRR":20,"SPSWCJ":15}'}
+  properties: {col_widths: '{"LRRRLV":36,"SPSWCJ":9,"HBTATL":13}'}
   type: ColumnPanel
 is_package: true

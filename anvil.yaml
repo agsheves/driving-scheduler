@@ -1,7 +1,7 @@
 allow_embedding: false
 db_schema:
-  background_tasks:
-    client: search
+  background_tasks_table:
+    client: full
     columns:
     - admin_ui: {width: 200}
       name: task_id
@@ -22,7 +22,7 @@ db_schema:
       name: results_text
       type: string
     server: full
-    title: background_tasks
+    title: background_tasks_table
   change_log:
     client: search
     columns:

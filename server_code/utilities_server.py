@@ -514,12 +514,15 @@ def export_classroom_schedule(classroom_name):
         output.getvalue(),
         name=f"{classroom_name}_schedule.xlsx",
     )
-
+    filename=f"{classroom_name}_schedule.xlsx"
     app_tables.files.add_row(
-        filename=f"{classroom_name}_schedule.xlsx", file=excel_media, file_type="Excel"
+        filename=filename,
+        file=excel_media,
+        file_type="Excel"
     )
+    results_message = "Download created successfully"
 
-    return excel_media
+    return filename, results_message
 
 
 def format_time_12hr(t):
@@ -537,6 +540,7 @@ def export_merged_classroom_schedule(classroom_name):
     """
 
     # Get merged schedule
+    print("Building merged schedule download")
     has_instructor = False
     daily_schedules = app_tables.classrooms.get(classroom_name=classroom_name)[
         "complete_schedule"
@@ -560,6 +564,7 @@ def export_merged_classroom_schedule(classroom_name):
 
         # Fill in the data
         for day in daily_schedules:
+
             date_str = day["date"]
             for slot, slot_data in day["slots"].items():
                 if slot_data["type"] == "vacation":
@@ -577,7 +582,6 @@ def export_merged_classroom_schedule(classroom_name):
                     data[slot_to_time[slot]][date_str] = title
                 else:
                     data[slot_to_time[slot]][date_str] = ""
-
         if has_instructor:
             filename = f"{classroom_name}_merged_schedule_lessons_instructors.xlsx"
         else:
@@ -595,19 +599,23 @@ def export_merged_classroom_schedule(classroom_name):
         ]
 
         # Write to Excel without headers since we write them manually
+        print("Writing to Excel")
+      # Error here somewhere "An error occurred: cannot unpack non-iterable StreamingMedia object"
         df.to_excel(
             writer, sheet_name="Schedule", startrow=2, header=False
         )  # Start data at row 2
 
         # Get workbook and worksheet
+        print("Creating workbook")
         workbook = writer.book
         worksheet = writer.sheets["Schedule"]
 
         # Add formatting
+        print("Adding headers")
         header_format = workbook.add_format(
             {"bold": True, "bg_color": "#D9E1F2", "border": 1, "align": "center"}
         )
-
+        print("Adding dates")
         date_format = workbook.add_format(
             {"num_format": "yyyy-mm-dd", "align": "center"}
         )
@@ -620,7 +628,8 @@ def export_merged_classroom_schedule(classroom_name):
             {"bold": True, "bg_color": "#F2F2F2", "border": 1, "align": "center"}
         )
 
-        # Write headers
+        # Write headers        
+        print("Writing headers")
         worksheet.write(0, 0, "DATE", header_format)
         worksheet.write(1, 0, "DAY", header_format)
 
@@ -638,18 +647,24 @@ def export_merged_classroom_schedule(classroom_name):
         for i in range(1, len(df.columns) + 1):
             worksheet.set_column(i, i, 12)  # Date columns
 
-        for row_num, (index, row) in enumerate(
-            df.iterrows(), start=2
-        ):  # Start from row 2 (after headers)
-            worksheet.write(row_num, 0, index, time_format)  # First column: time slot
-            for col_num, value in enumerate(row, start=1):  # Data cells
-                worksheet.write(row_num, col_num, value, cell_format)
+        print("Iterating rows")
+        # An error occurred: cannot unpack non-iterable StreamingMedia object
+
+
+        for row_num, (index, row_series) in enumerate(df.iterrows(), start=2):
+          worksheet.write(row_num, 0, index, time_format)  # First column: time slot
+          print("Iterating columns")
+          for col_num, (col_name, value) in enumerate(row_series.items(), start=1):
+            worksheet.write(row_num, col_num, value, cell_format)
+
 
     # Create media object and save to database
+
+    print("Creating media object")
     excel_media = anvil.BlobMedia(
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        output.getvalue(),
-        name=f"{classroom_name}_merged_schedule.xlsx",
+      content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      content=output.getvalue(),
+      name=filename
     )
 
     app_tables.files.add_row(
@@ -657,9 +672,8 @@ def export_merged_classroom_schedule(classroom_name):
         file=excel_media,
         file_type="Excel",
     )
-
-    return excel_media
-
+    results_message = f"File created successfully! Filename: {filename}"
+    return filename, results_message
 
 @anvil.server.callable
 def import_instructor_availability_fromCSV(csv_file):

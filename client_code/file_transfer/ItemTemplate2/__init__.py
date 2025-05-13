@@ -15,7 +15,6 @@ class ItemTemplate2(ItemTemplate2Template):
     # Set Form properties and Data Bindings.
     self.init_components(**properties)
     self.file_name.text = self.item['filename']
-    self.contents_label.text = self.item['file_type']
 
 
   def download_link_click(self, **event_args):

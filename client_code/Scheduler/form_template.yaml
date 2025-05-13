@@ -3,40 +3,6 @@ components:
   name: label_1
   properties: {align: center, role: headline, text: Scheduling}
   type: Label
-- components:
-  - layout_properties: {grid_position: 'DVCXHV,DGGGIR'}
-    name: label_12
-    properties: {align: center, text: Show / Hide}
-    type: Label
-  - event_bindings: {}
-    layout_properties: {grid_position: 'SALZRG,NGYALA'}
-    name: show_instructor_schedule_button
-    properties:
-      role: filled-button
-      text: |-
-        Instructor
-        Availability
-    type: Button
-  - layout_properties: {grid_position: 'SALZRG,TXVCAC'}
-    name: show_classroom_builder_button
-    properties:
-      role: filled-button
-      text: |
-        Classroom
-        Builder
-    type: Button
-  - layout_properties: {grid_position: 'SALZRG,WSMUEV'}
-    name: instructor_schedulking_button
-    properties:
-      role: filled-button
-      text: |
-        Instructor
-        Scheduling
-    type: Button
-  layout_properties: {grid_position: 'EKDDSC,GWYQQV'}
-  name: control_panel
-  properties: {visible: false}
-  type: ColumnPanel
 - layout_properties: {grid_position: 'LPPIYF,JCSABL'}
   name: spacer_1
   properties: {height: 32}
@@ -47,11 +13,6 @@ components:
     name: upload_new_schedule_button
     properties: {role: elevated-button, text: Upload a New Schedule}
     type: FileLoader
-  - event_bindings: {click: export_schedule_button_click}
-    layout_properties: {grid_position: 'ODBQPT,XYEZKM'}
-    name: export_schedule_button
-    properties: {align: center, icon: 'fa:download', role: elevated-button, text: Download Schedule}
-    type: Button
   layout_properties: {grid_position: 'LIGOXM,KIBMTQ'}
   name: controls_panel
   properties: {visible: false}
@@ -205,26 +166,10 @@ components:
         name: schedule_print_box
         properties: {format: plain_text, visible: true}
         type: RichText
-      - event_bindings: {click: export_classroom_button_click}
-        layout_properties: {grid_position: 'ISCEWE,EZAIAA'}
-        name: export_classroom_button
-        properties:
-          align: right
-          icon: fa:download
-          role: outlined-button
-          text: |-
-            Export Classroom Schedule
-            (Lessons Only)
-          tooltip: Lesson schedule only - does not include instructor allocation
-        type: Button
       layout_properties: {grid_position: 'EIZVQB,VPJAFP'}
       name: schedule_builder_panel
       properties: {background: '', col_widths: '{"AWQMMP":10,"KLBFZZ":25,"QMYFLB":25}'}
       type: ColumnPanel
-    - layout_properties: {grid_position: 'CWKDZR,HNBLZN'}
-      name: schedule_export_notice_label
-      properties: {align: center, content: Check the 'File Transfer' panel for your classroom download, format: plain_text, visible: false}
-      type: RichText
     layout_properties: {grid_position: 'JJBCKZ,MHOXOY'}
     name: cohort_build_card
     properties: {role: outlined-card}
@@ -292,26 +237,6 @@ components:
           Add Instructors to
           Classroom Schedule
       type: Button
-    - layout_properties: {grid_position: 'MNTPXS,SBWUAU'}
-      name: scheduling_text_box
-      properties: {align: center, visible: true}
-      type: Label
-    - event_bindings: {click: export_classroom_and_schedule_button_click}
-      layout_properties: {grid_position: 'ZEJRYM,WUHAZJ'}
-      name: export_classroom_and_schedule_button
-      properties:
-        align: right
-        icon: fa:download
-        role: outlined-button
-        text: |-
-          Export Full Classroom Schedule
-          (Lesson & Instructors)
-        tooltip: ''
-      type: Button
-    - layout_properties: {grid_position: 'ZOJYIK,IIXKHW'}
-      name: full_classroom_export_notice_label
-      properties: {align: center, text: Check the 'File Transfer' panel for your classroom +  instructor download, visible: false}
-      type: Label
     layout_properties: {grid_position: 'XFROKB,DWMCTK'}
     name: instructor_allocation_card
     properties: {role: outlined-card}

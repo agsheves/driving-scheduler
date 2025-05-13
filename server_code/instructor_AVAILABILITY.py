@@ -124,9 +124,6 @@ def process_instructor_availability(instructors, start_date=None):
     break_slots = ["break_am", "break_lunch", "break_pm"]
     pivot_df = pivot_df[~pivot_df.index.get_level_values("slot").isin(break_slots)]
 
-    print("\nPivot table index (slots):", [slot for slot, _, _ in pivot_df.index])
-    print("Pivot table shape:", pivot_df.shape)
-
     # Sort by start time
     pivot_df = pivot_df.sort_values(by=["start_time"], ascending=False)
 
@@ -194,7 +191,6 @@ def process_instructor_availability(instructors, start_date=None):
         ],
         "instructors": [i["firstName"] for i in instructors],
     }
-    print("\nY labels being sent to client:", data["y_labels"])
     return data
 
 
@@ -336,7 +332,7 @@ def generate_capacity_report(days=180):
             df.loc["Total Booked", date] = 0  # Reserved for future use
 
     # Format the Excel file
-    filename = f"total_availability_as_at_{start_date.strftime('%Y%m%d')}.xlsx"
+    filename = f"capacity_oveview_{start_date.strftime('%Y%m%d')}.xlsx"
 
     # Create Excel writer
     output = io.BytesIO()

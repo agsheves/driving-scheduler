@@ -9,7 +9,9 @@ import anvil.tables.query as q
 from anvil.tables import app_tables
 import json
 from datetime import date, time, datetime, timedelta
+from time import sleep
 import plotly.graph_objects as go
+import uuid
 
 
 class Scheduler(SchedulerTemplate):
@@ -50,36 +52,9 @@ class Scheduler(SchedulerTemplate):
         self.populate_instructor_filter_drop_down()
         self.refresh_schedule_display()
 
-    # ##############################################
-    # Export schedule placeholder - not in use right now
-    def export_schedule_button_click(self, **event_args):
-        filename = f"Teen Schedule - version {date.today()}.csv"
-        csv_file = anvil.server.call(
-            "convert_JSON_to_csv_and_save", self.teen_schedule, filename
-        )
 
-    def upload_new_schedule_button_change(self, file, **event_args):
-        if file is not None:
-            c = confirm(
-                "⚠️ WARNING ⚠️ \nThis will overwrite the current lesson schedule. Only proceed if you are sure."
-            )
-            if c is True:
-                result = anvil.server.call("update_teen_drive_schedule", file)
-                if result is True:
-                    n = Notification("The schedule has been updated successfully.")
-
-                else:
-                    n = Notification("There was an error updating the schedule.")
-                n.show()
-                self.refresh_data_bindings()
-            else:
-                pass
-        from ..Frame import Frame
-
-        open_form("Frame", Scheduler)
-
-    # ##############################################
-    # Schedule preparation and display
+# ##############################################
+# Schedule preparation and display
 
     def populate_instructor_filter_drop_down(self):
         """Populate the dropdown with available instructors"""
@@ -91,21 +66,20 @@ class Scheduler(SchedulerTemplate):
         ]
         instructor_list_text = ", ".join(instructor_names)
         self.instructor_list.text = f"Instructors displayed: {instructor_list_text}"
-
-        # Populate dropdown with instructor names
         self.instructor_filter_drop_down.items = [
             (i["firstName"] + " " + i["surname"], i) for i in instructors
         ]
 
-        # Select first instructor as default if available
         if self.instructor_filter_drop_down.items:
             self.instructor_filter_drop_down.selected_value = (
                 self.instructor_filter_drop_down.items[0][1]
             )
-
-        # Initially hide the dropdown since filtering is off by default
         self.instructor_filter_drop_down.visible = False
 
+# ###########################################
+# Gets all current parameters and rebuilds the display including the availability heatmap
+# This is triggered after every function call so availability remains up to date
+  
     def refresh_schedule_display(self, start_date=None):
         if start_date is None:
             self.start_date = datetime.now().date()
@@ -125,23 +99,16 @@ class Scheduler(SchedulerTemplate):
             self.instructor_list.visible = True
 
         # Get data from server
-        print("Getting data:\n")
+
         data = anvil.server.call(
             "process_instructor_availability", selected_instructors, self.start_date
         )
-        print(data)
 
         if not data:
             self.schedule_plot_complete.visible = False
             print("no data to show")
             return
-        # data format: 'z_values': availability code (0-1)
-        # availability_mapping =
-        #  "No": 0,
-        # "Yes": 1,
-
-        # 'x_labels': Days,'y_labels': hours, 'instructors': [i['firstName'] for i in instructors]
-        # Create a simple heatmap
+ 
         text_matrix = []
         for row in data["z_values"]:
             text_row = []
@@ -206,6 +173,25 @@ class Scheduler(SchedulerTemplate):
         self.schedule_plot_complete.figure = fig
         self.schedule_plot_complete.visible = True
 
+# Availability display navigation
+  
+    def forward_day_button_click(self, **event_args):
+      new_start_date = self.start_date + timedelta(days=1)
+      self.start_date = new_start_date
+      self.refresh_schedule_display(self.start_date)
+
+    def back_day_button_click(self, **event_args):
+      new_start_date = self.start_date + timedelta(days=-1)
+      self.start_date = new_start_date
+      self.refresh_schedule_display(self.start_date)
+
+    def today_reset_link_click(self, **event_args):
+      self.start_date = datetime.now().date()
+      self.refresh_schedule_display(self.start_date)
+
+# ###########################################
+# UI change handling
+  
     def filter_schedule_switch_change(self, **event_args):
         self.filter_instructors = self.filter_schedule_switch.checked
         self.instructor_filter_drop_down.visible = self.filter_instructors
@@ -215,65 +201,71 @@ class Scheduler(SchedulerTemplate):
         self.filter_instructors = True
         self.refresh_schedule_display()
 
-    def classroom_builder_button_click(self, **event_args):
+    def school_selector_change(self, **event_args):
+      self.selected_school = self.school_selector.selected_value
 
+    def classroom_start_date_change(self, **event_args):
+      start_date = self.classroom_start_date.date
+      self.start_date = start_date.strftime("%m-%d-%Y")
+
+    def classroom_selector_change(self, **event_args):
+      classroom = app_tables.classrooms.get(
+        classroom_name=self.classroom_selector.selected_value
+      )
+      self.classroom_name_label.text = f"classroom selected: School - {classroom['school']}, Start date - {classroom['start_date']}"
+      self.classroom = classroom
+
+    def instructor_1_selector_change(self, **event_args):
+      self.instructor1 = self.instructor_1_selector.selected_value
+
+    def instructor_2_selector_change(self, **event_args):
+      self.instructor2 = self.instructor_2_selector.selected_value
+
+    def classroom_type_selector_change(self, **event_args):
+      if self.classroom_type_selector.checked is True:
+        self.COURSE_STRUCTURE = "COURSE_STRUCTURE_COMPRESSED"
+      else:
+        self.COURSE_STRUCTURE = "COURSE_STRUCTURE_STANDARD"
+
+    def availability_display_date_picker_change(self, **event_args):
+      self.start_date = self.availability_display_date_picker.date
+      self.refresh_schedule_display(self.start_date)
+
+# ######################################
+# Classroom builder and report generation
+
+    def classroom_builder_button_click(self, **event_args):
+    # Creates an ideal classroom of scheduled classes and drives
+    # Accounts for holidays and no-drive days
+    # Checks that there is overall ionstructor capacity available over this period to run a classroom
         if not self.school_selector.selected_value:
             self.schedule_print_box.content = "Please select a school"
             return
+        school = self.school_selector.selected_value
 
         if not self.start_date:
             self.schedule_print_box.content = "Please select a start date"
             return
-
-        # Convert the string date back to a date object for the API call
         start_date = datetime.strptime(self.start_date, "%m-%d-%Y").date()
 
-        self.classroom_schedule = anvil.server.call(
-            "create_full_classroom_schedule",
-            self.school_selector.selected_value,
-            start_date,
-            None,
-            self.COURSE_STRUCTURE,
-        )
+        task_id = str(uuid.uuid4())
+        anvil.server.call("create_full_classroom_schedule", school, start_date, task_id, num_students=None, classroom_type=None)
+        self.set_and_monitor_background_task(task_id)
+        print("Running background classroom builder")
 
-        if self.classroom_schedule:
-            self.classroom_name = self.classroom_schedule["classroom_name"]
-            formatted_output = (
-                f"classroom Schedule: {self.classroom_schedule['classroom_name']}\n\n"
-            )
 
-            # formatted_output += "Class Schedule:\n"
-            # for class_slot in self.classroom_schedule['classes']:
-            # formatted_output += f"Class {class_slot['class_number']}: {class_slot['date']} ({class_slot['day']})\n"
+    def schedule_instructors_button_click(self, **event_args):
+    # Adds instructors to the chosen classroom
+    # User selects instructors to prioritize and scheduler works around availability and school preference
+    # ⚠️ Make a background task and add anvil.server.call("export_merged_classroom_schedule", name)
+      instructor_allocation = anvil.server.call(
+        "schedule_instructors_for_classroom",
+        self.classroom,
+        self.instructor1,
+        self.instructor2,
+      )
 
-            # formatted_output += "\nDrive Schedule:\n"
-            # for drive in self.classroom_schedule['drives']:
-            # formatted_output += f"Pair {drive['pair_letter']}: {drive['date']} - Slot {drive['slot']} (Week {drive['week']})\n"
-
-            formatted_output += f"\nSummary:\n"
-            formatted_output += (
-                f"Number of Students: {self.classroom_schedule['num_students']}\n"
-            )
-            formatted_output += f"Start Date: {self.classroom_schedule['start_date']}\n"
-            formatted_output += f"End Date: {self.classroom_schedule['end_date']}"
-
-            self.schedule_print_box.content = f"The classroom has been completed successfully:\n\n{formatted_output}\n\n You can export this file now"
-        else:
-            self.schedule_print_box.content = "Error creating schedule"
-
-    def school_selector_change(self, **event_args):
-        self.selected_school = self.school_selector.selected_value
-
-    def classroom_start_date_change(self, **event_args):
-        start_date = self.classroom_start_date.date
-        self.start_date = start_date.strftime("%m-%d-%Y")
-
-    def export_classroom_button_click(self, **event_args):
-        name = self.classroom_name
-        anvil.server.call("export_merged_classroom_schedule", name)
-        self.classroom_name = ""
-        self.schedule_export_notice_label.visible = True
-
+  
     def create_availability_report_button_click(self, **event_args):
         result, filename = anvil.server.call("generate_capacity_report")
         if result is True:
@@ -289,56 +281,58 @@ class Scheduler(SchedulerTemplate):
           alert(content = "There was an error downloading your report. Please try again", large=True, dismissible=True)
 
 
-    def classroom_selector_change(self, **event_args):
-        classroom = app_tables.classrooms.get(
-            classroom_name=self.classroom_selector.selected_value
+    def check_for_background_task(self,task_id):
+      while True:
+        row = app_tables.background_tasks_table.get(task_id=task_id)
+        if row is None:
+          alert("Task was not initiated properly. Please try again.", large=True, dismissible=True)
+          return
+    
+        status = row['status']
+    
+        if status in ('complete', 'error'):
+          results_message = row['results_text']
+          alert(content=results_message, large=True, dismissible=True)
+          return
+    
+        sleep(30)
+
+    def set_and_monitor_background_task(self,task_id):
+        now = datetime.now()
+        app_tables.background_tasks_table.add_row(
+          start_time=now,
+          status='running',
+          task_id=task_id
         )
-        self.classroom_name_label.text = f"classroom selected: School - {classroom['school']}, Start date - {classroom['start_date']}"
-        self.classroom = classroom
+  
+        n =Notification("Your task is running and you will receive an alert when it is complete")
+        n.show()
+        sleep(5)
+        self.check_for_background_task(task_id)
 
-    def instructor_1_selector_change(self, **event_args):
-        self.instructor1 = self.instructor_1_selector.selected_value
+    
+            
+# ##############################################
+# Schedule upload which overwrites the availability schedule which are used for all FUTURE planning
 
-    def instructor_2_selector_change(self, **event_args):
-        self.instructor2 = self.instructor_2_selector.selected_value
-
-    def schedule_instructors_button_click(self, **event_args):
-        instructor_allocation = anvil.server.call(
-            "schedule_instructors_for_classroom",
-            self.classroom,
-            self.instructor1,
-            self.instructor2,
+    def upload_new_schedule_button_change(self, file, **event_args):
+      if file is not None:
+        c = confirm(
+          "⚠️ WARNING ⚠️ \nThis will overwrite the current lesson schedule. Only proceed if you are sure."
         )
-        self.scheduling_text_box.text = f"The instructors ({self.instructor1['firstName']}, {self.instructor2['firstName']}) have been successfully added to {self.classroom['classroom_name']}. You can export this file now."  # instructor_allocation
-
-    def export_classroom_and_schedule_button_click(self, **event_args):
-        name = self.classroom["classroom_name"]
-        anvil.server.call("export_merged_classroom_schedule", name)
-        self.classroom = ""
-
-
-
-    def forward_day_button_click(self, **event_args):
-        new_start_date = self.start_date + timedelta(days=1)
-        self.start_date = new_start_date
-        self.refresh_schedule_display(self.start_date)
-
-    def back_day_button_click(self, **event_args):
-        new_start_date = self.start_date + timedelta(days=-1)
-        self.start_date = new_start_date
-        self.refresh_schedule_display(self.start_date)
-
-    def classroom_type_selector_change(self, **event_args):
-        if self.classroom_type_selector.checked is True:
-            self.COURSE_STRUCTURE = "COURSE_STRUCTURE_COMPRESSED"
+        if c is True:
+          result = anvil.server.call("update_teen_drive_schedule", file)
+          if result is True:
+            n = Notification("The schedule has been updated successfully.")
+  
+          else:
+            n = Notification("There was an error updating the schedule.")
+            n.show()
+          self.refresh_data_bindings()
         else:
-            self.COURSE_STRUCTURE = "COURSE_STRUCTURE_STANDARD"
+          pass
+          from ..Frame import Frame
+  
+      open_form("Frame", Scheduler)        
 
-    def availability_display_date_picker_change(self, **event_args):
-      self.start_date = self.availability_display_date_picker.date
-      self.refresh_schedule_display(self.start_date)
-
-    def today_reset_link_click(self, **event_args):
-      self.start_date = datetime.now().date()
-      self.refresh_schedule_display(self.start_date)
-
+      
