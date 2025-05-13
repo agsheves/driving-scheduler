@@ -290,11 +290,13 @@ def schedule_classes(classroom_name, start_date, num_students, course_structure)
             print(f"Warning: Could not find available date for Class {current_class}")
             break
         class_slot = {
-            "class_number": current_class,
-            "date": class_date.isoformat(),
-            "week": current_week,
-            "day": class_date.strftime("%A"),
-            "status": "scheduled",
+          "classroom": classroom_name,  # Optional for full consistency
+          "class_number": current_class,
+          "date": class_date.isoformat(),
+          "week": current_week,
+          "day": class_date.strftime("%A"),
+          "status": "scheduled",
+          "slot": "lesson_slot_5"  
         }
         class_schedule.append(class_slot)
         current_class += 1
@@ -317,8 +319,16 @@ def schedule_classes(classroom_name, start_date, num_students, course_structure)
         if slot["week"] != current_week:
             print(f"Week {current_week} -> {slot['week']}")
             current_week = slot["week"]
+          
+    occupied_slots = {}
+    for class_slot in class_schedule:
+      date_str = class_slot["date"]
+      slot_name = class_slot["slot"]  # This is the new field we added
+      if date_str not in occupied_slots:
+        occupied_slots[date_str] = []
+        occupied_slots[date_str].append(slot_name)
 
-    return class_schedule
+    return class_schedule, occupied_slots
 
 
 def get_weekly_lesson_slots(week_number, course_structure):
@@ -355,7 +365,7 @@ def get_weekly_lesson_slots(week_number, course_structure):
 
 
 @anvil.server.callable
-def schedule_drives(classroom_name, start_date, num_students, course_structure):
+def schedule_drives(classroom_name, start_date, num_students, course_structure, occupied_slots):
     """
     Schedule drives (1 per week for weeks 2-6)
     First creates a master schedule that repeats each week, then adjusts for vacation days
@@ -369,20 +379,31 @@ def schedule_drives(classroom_name, start_date, num_students, course_structure):
         for date_str in no_class_days.keys()
     ]
     spare_slots = {
-        "Tuesday": "lesson_slot_5",
-        "Thursday": "lesson_slot_5",
+        "Sunday": "lesson_slot_1",
         "Sunday": "lesson_slot_5",
     }
     master_schedule = []
     used_slots = {
-        "Monday": [],
-        "Tuesday": [],
-        "Wednesday": [],
-        "Thursday": [],
-        "Friday": [],
-        "Saturday": [],
-        "Sunday": [],
+      "Monday": [],
+      "Tuesday": [],
+      "Wednesday": [],
+      "Thursday": [],
+      "Friday": [],
+      "Saturday": [],
+      "Sunday": [],
     }
+  
+    # Populate used_slots with already occupied class slots
+    for date_str, slots in occupied_slots.items():
+      # Convert the date string to a date object and get the day of week
+      date_obj = datetime.fromisoformat(date_str).date()
+      day_of_week = date_obj.strftime("%A")
+
+    # Add the occupied slots to the used_slots for that day
+    for slot in slots:
+      if slot not in used_slots[day_of_week]:
+        used_slots[day_of_week].append(slot)
+
     weekly_slots = get_weekly_lesson_slots(2, course_structure)
     for pair in range(num_pairs):
         pair_letter = chr(65 + pair)
@@ -546,12 +567,12 @@ def create_full_classroom_schedule_background(school, start_date, task_id, num_s
       # Creates ghost students as placeholders for actual students later
       students = create_ghost_students(classroom_name, num_students)
       print(f"Created {num_students} ghost students")
-    classes = schedule_classes(
+    classes, occupied_slots = schedule_classes(
       classroom_name, start_date, num_students, course_structure
     )
     if classes:
       print("Got classes")
-    drives = schedule_drives(classroom_name, start_date, num_students, course_structure)
+    drives = schedule_drives(classroom_name, start_date, num_students, course_structure, occupied_slots)
     if drives:
       print("Got drives")
     complete_schedule = anvil.server.call("create_merged_schedule", classroom_name)
@@ -769,14 +790,14 @@ def create_merged_schedule(classroom_name):
         if not day_schedule["is_vacation"]:
             for class_slot in class_schedule:
                 if class_slot["date"] == date_str:
-                    day_schedule["slots"]["lesson_slot_5"] = {
-                        "type": "class",
-                        "title": f"Class {class_slot['class_number']}",
-                        "details": {
-                            "week": class_slot["week"],
-                            "status": class_slot["status"],
-                        },
-                    }
+                  day_schedule["slots"][class_slot["slot"]] = {
+                    "type": "class",
+                    "title": f"Class {class_slot['class_number']}",
+                    "details": {
+                      "week": class_slot["week"],
+                      "status": class_slot["status"],
+                    },
+                  }
 
         # Add drive assignments (only for non-vacation days)
         if not day_schedule["is_vacation"]:
