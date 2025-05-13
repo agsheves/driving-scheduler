@@ -517,63 +517,78 @@ def schedule_drives(classroom_name, start_date, num_students, course_structure):
     if classroom_data_row:
         classroom_data_row.update(drive_schedule=drives)
     return drives
-
-# ⚠️ Change to background task
-# add this to background task  anvil.server.call("export_merged_classroom_schedule", name)
-@anvil.server.call
-def create_full_classroom_schedule_background(school, start_date, task_id, num_students=None, classroom_type=None):
-  create_full_classroom_schedule(school, start_date, task_id, num_students=None, classroom_type=None)
-
-@anvil.server.background
+  
+@anvil.server.callable
 def create_full_classroom_schedule(school, start_date, task_id, num_students=None, classroom_type=None):
-    """
-    Create a complete schedule for a new classroom including:
-    - classroom creation
-    - Student assignment
-    - Class scheduling
-    - Drive scheduling
-    """
+  anvil.server.launch_background_task('create_full_classroom_schedule_background', school, start_date, task_id, num_students, classroom_type)
+
+@anvil.server.background_task
+def create_full_classroom_schedule_background(school, start_date, task_id, num_students=None, classroom_type=None):
+
+  try:
     # Select course structure ONCE
     if classroom_type == "compressed":
-        course_structure = COURSE_STRUCTURE_COMPRESSED
+      course_structure = COURSE_STRUCTURE_COMPRESSED
     else:
-        course_structure = COURSE_STRUCTURE_STANDARD
+      course_structure = COURSE_STRUCTURE_STANDARD
 
+      classroom_name = generate_classroom_name(school, start_date)
 
-    classroom_name = generate_classroom_name(school, start_date)
     if num_students is None:
-        capacity = calculate_weekly_capacity(start_date, school, course_structure)
-        num_students = min(
-            capacity["max_students"], course_structure["class_sessions"]["max_students"]
-        )
-    # Creates ghost students as placeholders for actual students later
-    students = create_ghost_students(classroom_name, num_students)
+      capacity = calculate_weekly_capacity(start_date, school, course_structure)
+      num_students = min(
+        capacity["max_students"], course_structure["class_sessions"]["max_students"]
+      )
+
+      # Creates ghost students as placeholders for actual students later
+      students = create_ghost_students(classroom_name, num_students)
     classes = schedule_classes(
-        classroom_name, start_date, num_students, course_structure
+      classroom_name, start_date, num_students, course_structure
     )
     drives = schedule_drives(classroom_name, start_date, num_students, course_structure)
     complete_schedule = anvil.server.call("create_merged_schedule", classroom_name)
+
     classroom_data_row = app_tables.classrooms.get(classroom_name=classroom_name)
     if classroom_data_row:
-        classroom_data_row.update(
-            student_list=students,
-            class_schedule=classes,
-            drive_schedule=drives,
-            status="scheduled",
-            complete_schedule=complete_schedule,
-        )
+      classroom_data_row.update(
+        student_list=students,
+        class_schedule=classes,
+        drive_schedule=drives,
+        status="scheduled",
+        complete_schedule=complete_schedule,
+      )
 
-    results_message = f"""Classroom created successfully:\n
+      results_message = f"""Classroom created successfully:\n
 Name: {classroom_name}\n
 School: {school}\n
 Max number of students: {num_students}\n
 Dates: {start_date} - {complete_schedule}\n
 """
+
     filename, download_message = anvil.server.call('export_classroom_schedule', classroom_name)
     results_message += f"Export results: {download_message}"
+
     task_row = app_tables.background_tasks.get(task_id=task_id)
     now = datetime.now()
-    task_row.update(status='complete', results_text=results_message, end_time=now, output_filename=filename)
+    if task_row:
+      task_row.update(
+        status='complete',
+        results_text=results_message,
+        end_time=now,
+        output_filename=filename
+      )
+
+  except Exception as e:
+    task_row = app_tables.background_tasks.get(task_id=task_id)
+    now = datetime.now()
+    error_message = f"An error occurred: {e}"
+    if task_row:
+      task_row.update(
+        status='error',
+        results_text=error_message,
+        end_time=now
+      )
+
 
 @anvil.server.callable
 def test_capacity_calculation(start_date=None, school=None):

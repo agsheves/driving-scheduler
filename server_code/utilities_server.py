@@ -514,9 +514,11 @@ def export_classroom_schedule(classroom_name):
         output.getvalue(),
         name=f"{classroom_name}_schedule.xlsx",
     )
-    filename=f"{classroom_name}_schedule.xlsx", file=excel_media, file_type="Excel"
+    filename=f"{classroom_name}_schedule.xlsx"
     app_tables.files.add_row(
-        filename=filename
+        filename=filename,
+        file=excel_media,
+        file_type="Excel"
     )
     results_message = "Download created successfully"
 
