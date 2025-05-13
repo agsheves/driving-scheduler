@@ -191,7 +191,6 @@ def process_instructor_availability(instructors, start_date=None):
         ],
         "instructors": [i["firstName"] for i in instructors],
     }
-    print("\nY labels being sent to client:", data["y_labels"])
     return data
 
 

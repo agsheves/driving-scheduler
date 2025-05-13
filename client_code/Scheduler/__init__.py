@@ -232,11 +232,12 @@ class Scheduler(SchedulerTemplate):
       self.refresh_schedule_display(self.start_date)
 
 # ######################################
-# Schedule builders
-
+# Classroom builder and report generation
 
     def classroom_builder_button_click(self, **event_args):
-      
+    # Creates an ideal classroom of scheduled classes and drives
+    # Accounts for holidays and no-drive days
+    # Checks that there is overall ionstructor capacity available over this period to run a classroom
         if not self.school_selector.selected_value:
             self.schedule_print_box.content = "Please select a school"
             return
@@ -245,6 +246,8 @@ class Scheduler(SchedulerTemplate):
             self.schedule_print_box.content = "Please select a start date"
             return
         start_date = datetime.strptime(self.start_date, "%m-%d-%Y").date()
+        # ⚠️ Change to background task
+      # add this to background task  anvil.server.call("export_merged_classroom_schedule", name)
         self.classroom_schedule = anvil.server.call(
             "create_full_classroom_schedule",
             self.school_selector.selected_value,
@@ -253,31 +256,18 @@ class Scheduler(SchedulerTemplate):
             self.COURSE_STRUCTURE,
         )
 
-        if self.classroom_schedule:
-            self.classroom_name = self.classroom_schedule["classroom_name"]
-            formatted_output = (
-                f"classroom Schedule: {self.classroom_schedule['classroom_name']}\n\n"
-            )
-            formatted_output += f"\nSummary:\n"
-            formatted_output += (
-                f"Number of Students: {self.classroom_schedule['num_students']}\n"
-            )
-            formatted_output += f"Start Date: {self.classroom_schedule['start_date']}\n"
-            formatted_output += f"End Date: {self.classroom_schedule['end_date']}"
 
-            self.schedule_print_box.content = f"The classroom has been completed successfully:\n\n{formatted_output}\n\n You can export this file now"
-        else:
-            self.schedule_print_box.content = "Error creating schedule"
+    def schedule_instructors_button_click(self, **event_args):
+    # Adds instructors to the chosen classroom
+    # User selects instructors to prioritize and scheduler works around availability and school preference
+    # ⚠️ Make a background task and add anvil.server.call("export_merged_classroom_schedule", name)
+      instructor_allocation = anvil.server.call(
+        "schedule_instructors_for_classroom",
+        self.classroom,
+        self.instructor1,
+        self.instructor2,
+      )
 
-    def export_classroom_button_click(self, **event_args):
-        name = self.classroom_name
-        anvil.server.call("export_merged_classroom_schedule", name)
-        self.classroom_name = ""
-        self.schedule_export_notice_label.visible = True
-
-
-    # ##################################
-    # Report creation and handling
   
     def create_availability_report_button_click(self, **event_args):
         result, filename = anvil.server.call("generate_capacity_report")
@@ -293,20 +283,6 @@ class Scheduler(SchedulerTemplate):
         else:
           alert(content = "There was an error downloading your report. Please try again", large=True, dismissible=True)
 
-
-    def schedule_instructors_button_click(self, **event_args):
-        instructor_allocation = anvil.server.call(
-            "schedule_instructors_for_classroom",
-            self.classroom,
-            self.instructor1,
-            self.instructor2,
-        )
-        self.scheduling_text_box.text = f"The instructors ({self.instructor1['firstName']}, {self.instructor2['firstName']}) have been successfully added to {self.classroom['classroom_name']}. You can export this file now."  # instructor_allocation
-
-    def export_classroom_and_schedule_button_click(self, **event_args):
-        name = self.classroom["classroom_name"]
-        anvil.server.call("export_merged_classroom_schedule", name)
-        self.classroom = ""
 
     def check_for_background_task(task_id):
       while True:
@@ -340,7 +316,7 @@ class Scheduler(SchedulerTemplate):
     
             
 # ##############################################
-# Schedule upload which overwrites the svaioabilty schedule which are used for all FUTURE planning
+# Schedule upload which overwrites the availability schedule which are used for all FUTURE planning
 
     def upload_new_schedule_button_change(self, file, **event_args):
       if file is not None:
@@ -361,4 +337,5 @@ class Scheduler(SchedulerTemplate):
           from ..Frame import Frame
   
       open_form("Frame", Scheduler)        
+
       
