@@ -250,10 +250,14 @@ def schedule_classes(classroom_name, start_date, num_students, course_structure)
     """
     print("Started scheduling classes")
     available_days = get_available_days(start_date, course_structure)
+    min_course_length = course_structure["sequence"]["MIN_COURSE_LENGTH"]
+    weeks_needed = min_course_length // 7  # Integer division to get whole weeks
+
     class_schedule = []
     current_week = 1
     current_class = 1
-    class_days = course_structure["class_sessions"]["class_days"]
+    class_days = course_structure["class_sessions"]["class_days"] # example "class_days": ["Tuesday", "Thursday"],
+    class_days = [["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].index(d) for d in class_days]
     classes_per_week = course_structure["class_sessions"]["classes_per_week"]
 
     # Create a dynamic class_day_map
@@ -262,7 +266,7 @@ def schedule_classes(classroom_name, start_date, num_students, course_structure)
 
     # For each week
     print("bulding class day map")
-    for week in range(1, 6):  # Assuming 5 weeks of classes
+    for week in range(1, weeks_needed +1):  # Assuming 5 weeks of classes
         # For each class in the week
         for i in range(classes_per_week):
             # Get the day index (0-6) for this class
@@ -274,9 +278,11 @@ def schedule_classes(classroom_name, start_date, num_students, course_structure)
     print("adding classes") 
     #error An error occurred: unsupported operand type(s) for +: 'int' and 'str'
     while current_class <= 15:
-        required_day = int(class_day_map[current_class])
+        required_day = class_day_map[current_class]
+        print(required_day)
         week_offset = (current_week - 1) * 7
         target_date = start_date + timedelta(days=week_offset + required_day)
+        print(target_date)
         class_date = None
         for day in available_days:
             if day >= target_date and day.weekday() == required_day:
@@ -572,7 +578,7 @@ Dates: {start_date} - {complete_schedule}\n
 """
 
     print("Exporting full schedule")
-    filename, download_message = anvil.server.call('export_classroom_schedule', classroom_name)
+    filename, download_message = anvil.server.call('export', classroom_name)
     results_message += f"Export results: {download_message}"
 
     task_row = app_tables.background_tasks_table.get(task_id=task_id)
