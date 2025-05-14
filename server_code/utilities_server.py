@@ -529,7 +529,7 @@ def format_time_12hr(t):
   return datetime.strptime(t, "%H:%M").strftime("%-I:%M %p")
 
 @anvil.server.callable
-def export_merged_classroom_schedule(classroom_name):
+def export_merged_classroom_schedule(classroom_name, type=None):
     """
     Export merged classroom schedule to Excel.
     Creates a single sheet with days as columns and slots as rows.
@@ -541,10 +541,16 @@ def export_merged_classroom_schedule(classroom_name):
 
     # Get merged schedule
     print("Building merged schedule download")
-    has_instructor = False
-    daily_schedules = app_tables.classrooms.get(classroom_name=classroom_name)[
-        "complete_schedule"
-    ]
+    if type == 'lessons':
+      daily_schedules = app_tables.classrooms.get(classroom_name=classroom_name)[ "complete_schedule"]
+      has_instructor = False
+    elif type == 'instructors':
+      daily_schedules = app_tables.classrooms.get(classroom_name=classroom_name)[ "complete_schedule_with_instructors"]
+      has_instructor = True
+    else:
+      print("could not find")
+  
+        
 
     # Create Excel writer
     output = io.BytesIO()

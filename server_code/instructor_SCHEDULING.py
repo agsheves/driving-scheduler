@@ -69,7 +69,7 @@ def schedule_instructors_for_classroom_and_export_background(classroom_name, ins
   
     results_message = f"Instructors added to {classroom_name} successfully\n"
     print("Exporting full schedule with instructors")
-    filename, download_message = anvil.server.call('export_merged_classroom_schedule', classroom_name)
+    filename, download_message = anvil.server.call('export_merged_classroom_schedule', classroom_name, 'instructors')
     results_message += f"Export results: {download_message}"
     
     task_row = app_tables.background_tasks_table.get(task_id=task_id)
@@ -134,7 +134,7 @@ def _schedule_classes(
               _update_instructor_availability(availabilities[instructor], date_str, slot, instructor)
               break
 
-    return daily_schedules
+  return daily_schedules
 
 
 def _schedule_drives(
@@ -170,7 +170,7 @@ def _schedule_drives(
               _update_instructor_availability(availabilities[instructor], date_str, slot, instructor)
               break
 
-    return daily_schedules
+  return daily_schedules
 
 
 def _can_teach_class(availability, date_str, slot):
