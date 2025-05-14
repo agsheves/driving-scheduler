@@ -415,7 +415,7 @@ def export_instructor_eight_monthavailability():
             for slot in slots:
                 start = format_time_12hr(LESSON_SLOTS[slot]['start_time'])
                 end = format_time_12hr(LESSON_SLOTS[slot]['end_time'])
-                row_data = {"Lesson": f"{slot} ({start}–{end})"}
+                row_data = {"Lesson": f"{start}–{end}"}
                 for date in all_dates:
                     # Get the value directly from the availability data
                     value = availability[date].get(slot, 0)
@@ -433,6 +433,7 @@ def export_instructor_eight_monthavailability():
             # Write to Excel
             sheet_name = f"{instructor['firstName']} {instructor['surname']}"
             df.to_excel(writer, sheet_name=sheet_name)
+            worksheet.write(0, 0, "Time Slot", header_format)
 
     # Create media object and save to database
     today = datetime.today().strftime('%B_%d_%Y')

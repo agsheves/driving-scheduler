@@ -332,7 +332,7 @@ def generate_capacity_report(days=180):
             df.loc["Total Booked", date] = 0  # Reserved for future use
 
     # Format the Excel file
-    filename = f"capacity_oveview_{start_date.strftime('%Y%m%d')}.xlsx"
+    filename = f"capacity_oveview_{start_date.strftime('%b_%d_%Y')}.xlsx"
 
     # Create Excel writer
     output = io.BytesIO()
@@ -363,7 +363,7 @@ def generate_capacity_report(days=180):
             worksheet.set_column(i, i, 12)  # Date columns
 
         # Add date formatting
-        date_format = workbook.add_format({"num_format": "dd/mm/yyyy"})
+        date_format = workbook.add_format({"num_format": "mm/dd/yyyy"})
         for col_num, value in enumerate(df.columns.values):
             worksheet.write(0, col_num + 1, value, date_format)
 
