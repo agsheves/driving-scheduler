@@ -44,10 +44,10 @@ class Scheduler(SchedulerTemplate):
         instructor_items = [
             (i["firstName"] + " " + i["surname"], i) for i in self.instructors
         ]
-        self.instructor_1_selector.items = instructor_placeholder + instructor_items
-        self.instructor_2_selector.items = instructor_placeholder + instructor_items
-        self.instructor_1_selector.selected_value = None
-        self.instructor_2_selector.selected_value = None
+
+        self.instructor_schedule_multi_select.items = instructor_placeholder + instructor_items
+
+
 
         self.populate_instructor_filter_drop_down()
         self.refresh_schedule_display()
@@ -215,11 +215,6 @@ class Scheduler(SchedulerTemplate):
       self.classroom_name_label.text = f"classroom selected: School - {classroom['school']}, Start date - {classroom['start_date']}"
       self.classroom = classroom
 
-    def instructor_1_selector_change(self, **event_args):
-      self.instructor1 = self.instructor_1_selector.selected_value
-
-    def instructor_2_selector_change(self, **event_args):
-      self.instructor2 = self.instructor_2_selector.selected_value
 
     def classroom_type_selector_change(self, **event_args):
       if self.classroom_type_selector.checked is True:
@@ -258,11 +253,13 @@ class Scheduler(SchedulerTemplate):
     # Adds instructors to the chosen classroom
     # User selects instructors to prioritize and scheduler works around availability and school preference
     # ⚠️ Make a background task and add anvil.server.call("export_merged_classroom_schedule", name)
-      instructor_allocation = anvil.server.call(
+      anvil.server.call(
         "schedule_instructors_for_classroom",
         self.classroom,
         self.instructor1,
         self.instructor2,
+        self.instructor3, 
+        task_id = str(uuid.uuid4())
       )
   
     def create_availability_report_button_click(self, **event_args):
@@ -333,5 +330,13 @@ class Scheduler(SchedulerTemplate):
           from ..Frame import Frame
   
       open_form("Frame", Scheduler)        
+
+    def instructor_schedule_multi_select_change(self, **event_args):
+      self.selected_instructors = self.instructor_schedule_multi_select.selected_keys
+      self.instrucror_1 = self.selected_instructors[0]
+      self.instrucror_2 = self.selected_instructors[1]
+      self.instrucror_3 = self.selected_instructors[2]
+      if self.instrucror_1 and self.instrucror_2 and self.instrucror_3 is not None:
+        self.task_summary_label.text = f"You are scheduling {self.instrucror_1['name']} for {self.classroom}."
 
       
