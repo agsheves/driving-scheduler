@@ -368,7 +368,7 @@ class Scheduler(SchedulerTemplate):
       task_id = str(uuid.uuid4())
       anvil.server.call(
         "schedule_instructors_for_classroom",
-        self.classroom,
+        self.classroom['classroom_name'],
         self.instructor_1,
         self.instructor_2,
         self.instructor_3, 

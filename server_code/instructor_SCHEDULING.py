@@ -13,12 +13,12 @@ def schedule_instructors_for_classroom(classroom_name, instructor1, instructor2,
 def schedule_instructors_for_classroom_and_export_background(classroom_name, instructor1, instructor2, instructor3, task_id):
   print("Checking for classroom")
   try:
-    classroom = app_tables.classrooms.get(classroom_name=classroom_name["classroom_name"])
+    classroom = app_tables.classrooms.get(classroom_name=classroom_name)
+    print(f"Found {classroom_name}")
     if not classroom:
       raise ValueError(f"classroom {classroom_name} not found")
   
     print("Checking for instructors")
-    print(instructor1)
     print(instructor1["firstName"])
     print(instructor2["firstName"])
     print(instructor3["firstName"])
@@ -61,13 +61,13 @@ def schedule_instructors_for_classroom_and_export_background(classroom_name, ins
       instructor3_availability,
     )
   
-    classroom.update(complete_schedule=daily_schedules)
+    classroom.update(complete_schedule_with_instructors=daily_schedules)
   
     _persist_instructor_availability(instructor1, instructor1_availability)
     _persist_instructor_availability(instructor2, instructor2_availability)
     _persist_instructor_availability(instructor3, instructor3_availability)
   
-    
+    results_message = f"Instructors added to {classroom_name} successfully\n"
     print("Exporting full schedule with instructors")
     filename, download_message = anvil.server.call('export_merged_classroom_schedule', classroom_name)
     results_message += f"Export results: {download_message}"
