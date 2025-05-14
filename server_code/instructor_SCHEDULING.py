@@ -5,278 +5,199 @@ from anvil.tables import app_tables
 from datetime import datetime
 from .globals import LESSON_SLOTS, AVAILABILITY_MAPPING
 
-
 @anvil.server.callable
-def schedule_instructors_for_classroom(classroom_name, instructor1, instructor2):
-    """
-    Schedule instructors for a classroom's lessons based on availability.
-    Alternates primary instructor by week.
+def schedule_instructors_for_classroom(classroom_name, instructor1, instructor2, instructor3, task_id):
+  schedule_instructors_for_classroom_and_export_background(classroom_name, instructor1, instructor2, instructor3, task_id)
 
-    Args:
-        classroom_name (str): Name of the classroom to schedule
-        instructor1_name (str): First instructor's name
-        instructor2_name (str): Second instructor's name
-
-    Returns:
-        dict: Updated classroom schedule with instructor assignments
-    """
-    # Get classroom data
-    print("Checking for classroom")
+@anvil.server.background_task
+def schedule_instructors_for_classroom_and_export_background(classroom_name, instructor1, instructor2, instructor3, task_id):
+  print("Checking for classroom")
+  try:
     classroom = app_tables.classrooms.get(classroom_name=classroom_name["classroom_name"])
     if not classroom:
-        raise ValueError(f"classroom {classroom_name} not found")
-
-    # Get instructor data
-    # UI will retutn a row for instructor
+      raise ValueError(f"classroom {classroom_name} not found")
+  
     print("Checking for instructors")
     print(instructor1["firstName"])
     print(instructor2["firstName"])
-
-    if not instructor1 or not instructor2:
-        raise ValueError("One or both instructors not found")
-
-    # Get instructor schedules
+    print(instructor3["firstName"])
+  
+    if not instructor1 or not instructor2 or not instructor3:
+      raise ValueError("Some instructors not found")
+  
     print("Checking for instructor schedules")
     instructor1_schedule = app_tables.instructor_schedules.get(instructor=instructor1)
     instructor2_schedule = app_tables.instructor_schedules.get(instructor=instructor2)
-
-    if not instructor1_schedule or not instructor2_schedule:
-        raise ValueError("One or both instructor schedules not found")
-
-    # Get availability data
+    instructor3_schedule = app_tables.instructor_schedules.get(instructor=instructor3)
+  
+    if not instructor1_schedule or not instructor2_schedule or not instructor3_schedule:
+      raise ValueError("Some instructor schedules not found")
+  
     instructor1_availability = instructor1_schedule["current_seven_month_availability"]
     instructor2_availability = instructor2_schedule["current_seven_month_availability"]
-
-    # Get the complete schedule
+    instructor3_availability = instructor3_schedule["current_seven_month_availability"]
+  
     daily_schedules = classroom["complete_schedule"]
     print("Checked initial info collection")
-
-    # First pass: Schedule classes
+  
     daily_schedules = _schedule_classes(
-        daily_schedules,
-        instructor1,
-        instructor2,
-        instructor1_availability,
-        instructor2_availability,
+      daily_schedules,
+      instructor1,
+      instructor2,
+      instructor3,
+      instructor1_availability,
+      instructor2_availability,
+      instructor3_availability,
     )
-
-    # Second pass: Schedule remaining lessons
-    daily_schedules = _schedule_remaining_lessons(
-        daily_schedules,
-        instructor1,
-        instructor2,
-        instructor1_availability,
-        instructor2_availability,
+  
+    daily_schedules = _schedule_drives(
+      daily_schedules,
+      instructor1,
+      instructor2,
+      instructor3,
+      instructor1_availability,
+      instructor2_availability,
+      instructor3_availability,
     )
-
-    # Update classroom with new schedule
+  
     classroom.update(complete_schedule=daily_schedules)
-
-    # Log the final availability updates that would be persisted
+  
     _persist_instructor_availability(instructor1, instructor1_availability)
     _persist_instructor_availability(instructor2, instructor2_availability)
+    _persist_instructor_availability(instructor3, instructor3_availability)
+  
+    
+    print("Exporting full schedule with instructors")
+    filename, download_message = anvil.server.call('export_merged_classroom_schedule', classroom_name)
+    results_message += f"Export results: {download_message}"
+    
+    task_row = app_tables.background_tasks_table.get(task_id=task_id)
+    now = datetime.now()
+    if task_row:
+      task_row.update(
+        status='complete',
+        results_text=results_message,
+        end_time=now,
+        output_filename=filename
+    )
+  
+  except Exception as e:
+    task_row = app_tables.background_tasks_table.get(task_id=task_id)
+    now = datetime.now()
+    error_message = f"An error occurred: {e}"
+    if task_row:
+      task_row.update(
+        status='error',
+        results_text=error_message,
+        end_time=now
+      )
 
-    return daily_schedules
 
-
-def _get_primary_instructor(date_str, instructor1, instructor2):
-    """
-    Determine which instructor is primary for the week containing the given date.
-    Alternates by week, with instructor1 being primary for odd weeks.
-    """
-    date = datetime.strptime(date_str, "%Y-%m-%d")
-    week_number = date.isocalendar()[1]  # Get ISO week number
-    return instructor1 if week_number % 2 == 1 else instructor2
+def _get_primary_instructor(date_str, instructor1, instructor2, instructor3):
+  date = datetime.strptime(date_str, "%Y-%m-%d")
+  week_number = date.isocalendar()[1]
+  instructors = [instructor1, instructor2, instructor3]
+  return instructors[week_number % len(instructors)]
 
 
 def _schedule_classes(
-    daily_schedules,
-    instructor1,
-    instructor2,
-    instructor1_availability,
-    instructor2_availability,
+  daily_schedules,
+  instructor1,
+  instructor2,
+  instructor3,
+  instructor1_availability,
+  instructor2_availability,
+  instructor3_availability,
 ):
-    """
-    Schedule classes first, checking for 'Yes' or 'Class Only' availability.
-    Primary instructor for the week gets first choice of slots.
-    """
-    for day in daily_schedules:
-        date_str = day["date"]
-        primary_instructor = _get_primary_instructor(date_str, instructor1, instructor2)
-        secondary_instructor = (
-            instructor2 if primary_instructor == instructor1 else instructor1
-        )
+  instructors = [instructor1, instructor2, instructor3]
+  availabilities = {
+    instructor1: instructor1_availability,
+    instructor2: instructor2_availability,
+    instructor3: instructor3_availability,
+  }
 
-        for slot, slot_data in day["slots"].items():
-            if slot_data["type"] is None:
-                pass
-            elif slot_data["type"] == "class":
-                # Check primary instructor first
-                primary_available = _can_teach_class(
-                    (
-                        instructor1_availability
-                        if primary_instructor == instructor1
-                        else instructor2_availability
-                    ),
-                    date_str,
-                    slot,
-                )
+  for day in daily_schedules:
+    date_str = day["date"]
+    primary_instructor = _get_primary_instructor(date_str, *instructors)
+    secondary_instructors = [i for i in instructors if i != primary_instructor]
 
-                if primary_available:
-                    slot_data["instructor"] = primary_instructor["firstName"]
-                    _update_instructor_availability(
-                        (
-                            instructor1_availability
-                            if primary_instructor == instructor1
-                            else instructor2_availability
-                        ),
-                        date_str,
-                        slot,
-                        primary_instructor,
-                    )
-                else:
-                    # Check secondary instructor
-                    secondary_available = _can_teach_class(
-                        (
-                            instructor1_availability
-                            if secondary_instructor == instructor1
-                            else instructor2_availability
-                        ),
-                        date_str,
-                        slot,
-                    )
-
-                    if secondary_available:
-                        slot_data["instructor"] = secondary_instructor["firstName"]
-                        _update_instructor_availability(
-                            (
-                                instructor1_availability
-                                if secondary_instructor == instructor1
-                                else instructor2_availability
-                            ),
-                            date_str,
-                            slot,
-                            secondary_instructor,
-                        )
+    for slot, slot_data in day["slots"].items():
+      if slot_data["type"] == "class":
+        if _can_teach_class(availabilities[primary_instructor], date_str, slot):
+          slot_data["instructor"] = primary_instructor["firstName"]
+          _update_instructor_availability(availabilities[primary_instructor], date_str, slot, primary_instructor)
+        else:
+          for instructor in secondary_instructors:
+            if _can_teach_class(availabilities[instructor], date_str, slot):
+              slot_data["instructor"] = instructor["firstName"]
+              _update_instructor_availability(availabilities[instructor], date_str, slot, instructor)
+              break
 
     return daily_schedules
 
 
-def _schedule_remaining_lessons(
-    daily_schedules,
-    instructor1,
-    instructor2,
-    instructor1_availability,
-    instructor2_availability,
+def _schedule_drives(
+  daily_schedules,
+  instructor1,
+  instructor2,
+  instructor3,
+  instructor1_availability,
+  instructor2_availability,
+  instructor3_availability,
 ):
-    """
-    Schedule remaining lessons (drives) based on availability.
-    Primary instructor for the week gets first choice of slots.
-    """
-    for day in daily_schedules:
-        date_str = day["date"]
-        primary_instructor = _get_primary_instructor(date_str, instructor1, instructor2)
-        secondary_instructor = (
-            instructor2 if primary_instructor == instructor1 else instructor1
-        )
+  instructors = [instructor1, instructor2, instructor3]
+  availabilities = {
+    instructor1: instructor1_availability,
+    instructor2: instructor2_availability,
+    instructor3: instructor3_availability,
+  }
 
-        for slot, slot_data in day["slots"].items():
-            if slot_data["type"] == "drive" and "instructor" not in slot_data:
-                # Check primary instructor first
-                primary_available = _can_teach_drive(
-                    (
-                        instructor1_availability
-                        if primary_instructor == instructor1
-                        else instructor2_availability
-                    ),
-                    date_str,
-                    slot,
-                )
+  for day in daily_schedules:
+    date_str = day["date"]
+    primary_instructor = _get_primary_instructor(date_str, *instructors)
+    secondary_instructors = [i for i in instructors if i != primary_instructor]
 
-                if primary_available:
-                    slot_data["instructor"] = primary_instructor["firstName"]
-                    _update_instructor_availability(
-                        (
-                            instructor1_availability
-                            if primary_instructor == instructor1
-                            else instructor2_availability
-                        ),
-                        date_str,
-                        slot,
-                        primary_instructor,
-                    )
-                else:
-                    # Check secondary instructor
-                    secondary_available = _can_teach_drive(
-                        (
-                            instructor1_availability
-                            if secondary_instructor == instructor1
-                            else instructor2_availability
-                        ),
-                        date_str,
-                        slot,
-                    )
-
-                    if secondary_available:
-                        slot_data["instructor"] = secondary_instructor["firstName"]
-                        _update_instructor_availability(
-                            (
-                                instructor1_availability
-                                if secondary_instructor == instructor1
-                                else instructor2_availability
-                            ),
-                            date_str,
-                            slot,
-                            secondary_instructor,
-                        )
+    for slot, slot_data in day["slots"].items():
+      if slot_data["type"] == "drive" and "instructor" not in slot_data:
+        if _can_teach_drive(availabilities[primary_instructor], date_str, slot):
+          slot_data["instructor"] = primary_instructor["firstName"]
+          _update_instructor_availability(availabilities[primary_instructor], date_str, slot, primary_instructor)
+        else:
+          for instructor in secondary_instructors:
+            if _can_teach_drive(availabilities[instructor], date_str, slot):
+              slot_data["instructor"] = instructor["firstName"]
+              _update_instructor_availability(availabilities[instructor], date_str, slot, instructor)
+              break
 
     return daily_schedules
 
 
 def _can_teach_class(availability, date_str, slot):
-    """
-    Check if instructor can teach a class based on availability.
-    Returns True if availability is 'Yes' or 'Class Only'.
-    """
-    if date_str not in availability or slot not in availability[date_str]:
-        return False
+  if date_str not in availability or slot not in availability[date_str]:
+    return False
 
-    slot_availability = availability[date_str][slot]
-    return slot_availability in [
-        AVAILABILITY_MAPPING["Yes"],
-        AVAILABILITY_MAPPING["Class Only"],
-    ]
+  slot_availability = availability[date_str][slot]
+  return slot_availability in [
+    AVAILABILITY_MAPPING["Yes"],
+    AVAILABILITY_MAPPING["Class Only"],
+  ]
 
 
 def _can_teach_drive(availability, date_str, slot):
-    """
-    Check if instructor can teach a drive based on availability.
-    Returns True if availability is 'Yes' or 'Drive Only'.
-    """
-    if date_str not in availability or slot not in availability[date_str]:
-        return False
+  if date_str not in availability or slot not in availability[date_str]:
+    return False
 
-    slot_availability = availability[date_str][slot]
-    return slot_availability in [
-        AVAILABILITY_MAPPING["Yes"],
-        AVAILABILITY_MAPPING["Drive Only"],
-    ]
-
+  slot_availability = availability[date_str][slot]
+  return slot_availability in [
+    AVAILABILITY_MAPPING["Yes"],
+    AVAILABILITY_MAPPING["Drive Only"],
+  ]
 
 def _update_instructor_availability(availability, date_str, slot, instructor):
-    """
-    Update instructor's availability to 'Scheduled' for a slot.
-    Logs the update instead of writing to database for testing.
-    """
-    if date_str in availability and slot in availability[date_str]:
-        availability[date_str][slot] = AVAILABILITY_MAPPING["Scheduled"]
-
+  if date_str in availability and slot in availability[date_str]:
+    availability[date_str][slot] = AVAILABILITY_MAPPING["Scheduled"]
 
 def _persist_instructor_availability(instructor, availability):
-    """
-    Persist instructor's availability to the database.
-    Currently just logs the update for testing.
-    """
-    instructor_schedule = app_tables.instructor_schedules.get(instructor=instructor)
-    if instructor_schedule:
-        instructor_schedule.update(current_seven_month_availability=availability)
+  schedule_row = app_tables.instructor_schedules.get(instructor=instructor)
+  if schedule_row:
+    schedule_row.update(current_seven_month_availability=availability)

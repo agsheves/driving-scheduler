@@ -237,7 +237,7 @@ class Scheduler(SchedulerTemplate):
     def classroom_builder_button_click(self, **event_args):
     # Creates an ideal classroom of scheduled classes and drives
     # Accounts for holidays and no-drive days
-    # Checks that there is overall ionstructor capacity available over this period to run a classroom
+    # Checks that there is overall instructor capacity available over this period to run a classroom
         if not self.school_selector.selected_value:
             self.schedule_print_box.content = "Please select a school"
             return
@@ -264,7 +264,6 @@ class Scheduler(SchedulerTemplate):
         self.instructor1,
         self.instructor2,
       )
-
   
     def create_availability_report_button_click(self, **event_args):
         result, filename = anvil.server.call("generate_capacity_report")
