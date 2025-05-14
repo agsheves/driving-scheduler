@@ -373,7 +373,6 @@ def generate_capacity_report(days=180):
         output.getvalue(),
         name=filename,
     )
-
     app_tables.files.add_row(filename=filename, file=excel_media, file_type="Excel")
     if excel_media:
       result = True
