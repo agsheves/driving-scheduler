@@ -529,7 +529,7 @@ def format_time_12hr(t):
   return datetime.strptime(t, "%H:%M").strftime("%-I:%M %p")
 
 @anvil.server.callable
-def export_merged_classroom_schedule(classroom_name):
+def export_merged_classroom_schedule(classroom_name, type=None):
     """
     Export merged classroom schedule to Excel.
     Creates a single sheet with days as columns and slots as rows.
@@ -541,10 +541,16 @@ def export_merged_classroom_schedule(classroom_name):
 
     # Get merged schedule
     print("Building merged schedule download")
-    has_instructor = False
-    daily_schedules = app_tables.classrooms.get(classroom_name=classroom_name)[
-        "complete_schedule"
-    ]
+    if type == 'lessons':
+      daily_schedules = app_tables.classrooms.get(classroom_name=classroom_name)[ "complete_schedule"]
+      has_instructor = False
+    elif type == 'instructors':
+      daily_schedules = app_tables.classrooms.get(classroom_name=classroom_name)[ "complete_schedule_with_instructors"]
+      has_instructor = True
+    else:
+      print("could not find")
+  
+        
 
     # Create Excel writer
     output = io.BytesIO()
@@ -598,20 +604,15 @@ def export_merged_classroom_schedule(classroom_name):
             for t in df.index
         ]
 
-        # Write to Excel without headers since we write them manually
-        print("Writing to Excel")
-      # Error here somewhere "An error occurred: cannot unpack non-iterable StreamingMedia object"
         df.to_excel(
             writer, sheet_name="Schedule", startrow=2, header=False
         )  # Start data at row 2
 
         # Get workbook and worksheet
-        print("Creating workbook")
         workbook = writer.book
         worksheet = writer.sheets["Schedule"]
 
         # Add formatting
-        print("Adding headers")
         header_format = workbook.add_format(
             {"bold": True, "bg_color": "#D9E1F2", "border": 1, "align": "center"}
         )
@@ -629,7 +630,6 @@ def export_merged_classroom_schedule(classroom_name):
         )
 
         # Write headers        
-        print("Writing headers")
         worksheet.write(0, 0, "DATE", header_format)
         worksheet.write(1, 0, "DAY", header_format)
 
@@ -647,13 +647,10 @@ def export_merged_classroom_schedule(classroom_name):
         for i in range(1, len(df.columns) + 1):
             worksheet.set_column(i, i, 12)  # Date columns
 
-        print("Iterating rows")
-        # An error occurred: cannot unpack non-iterable StreamingMedia object
 
 
         for row_num, (index, row_series) in enumerate(df.iterrows(), start=2):
           worksheet.write(row_num, 0, index, time_format)  # First column: time slot
-          print("Iterating columns")
           for col_num, (col_name, value) in enumerate(row_series.items(), start=1):
             worksheet.write(row_num, col_num, value, cell_format)
 

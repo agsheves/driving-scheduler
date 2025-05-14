@@ -597,7 +597,7 @@ Start date: {start_date}\n
 """
 
     print("Exporting full schedule")
-    filename, download_message = anvil.server.call('export_merged_classroom_schedule', classroom_name)
+    filename, download_message = anvil.server.call('export_merged_classroom_schedule', classroom_name, 'lessons')
     results_message += f"Export results: {download_message}"
 
     task_row = app_tables.background_tasks_table.get(task_id=task_id)
