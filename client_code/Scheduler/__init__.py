@@ -241,7 +241,7 @@ class Scheduler(SchedulerTemplate):
           alert(content = "There was an error downloading your report. Please try again", large=True, dismissible=True)
 
     def download_availability_button_click(self, **event_args):
-        result, filename = anvil.server.call("export_instructor_eight_monthavailability")
+        result, filename = anvil.server.call("export_instructor_eight_month_availability")
         if result is True:
           alert(content = f"Your report was downloaded to the files list as:\n{filename}", large=True, dismissible=True)
         else:

@@ -377,7 +377,7 @@ def export_instructor_availability():
 
 
 @anvil.server.callable
-def export_instructor_eight_monthavailability():
+def export_instructor_eight_month_availability():
     """
     Export instructor availability to Excel.
     Creates one sheet per instructor with their weekly availability.
@@ -433,7 +433,6 @@ def export_instructor_eight_monthavailability():
             # Write to Excel
             sheet_name = f"{instructor['firstName']} {instructor['surname']}"
             df.to_excel(writer, sheet_name=sheet_name)
-            worksheet.write(0, 0, "Time Slot", header_format)
 
     # Create media object and save to database
     today = datetime.today().strftime('%B_%d_%Y')
