@@ -409,23 +409,32 @@ def export_instructor_eight_month_availability():
 
             # Get all dates (they are the top-level keys)
             all_dates = sorted(list(availability.keys()))
-
+            # Before creating the DataFrame, transform the date strings in all_dates
+            formatted_dates = []
+            for date in all_dates:
+              # Parse the ISO date string
+              date_obj = datetime.strptime(date, "%Y-%m-%d")
+              # Format as MM/DD/YYYY
+              formatted_date = date_obj.strftime("%m/%d/%Y")
+              formatted_dates.append((date, formatted_date))  # Keep original for lookup, formatted for display
+            
             # Create data structure
             data = []
             for slot in slots:
-                start = format_time_12hr(LESSON_SLOTS[slot]['start_time'])
-                end = format_time_12hr(LESSON_SLOTS[slot]['end_time'])
-                row_data = {"Lesson": f"{start}–{end}"}
-                for date in all_dates:
-                    # Get the value directly from the availability data
-                    value = availability[date].get(slot, 0)
-                    # Convert numeric value to text using reverse mapping
-                    text_value = next(
-                        (k for k, v in AVAILABILITY_MAPPING.items() if v == value),
-                        "Unknown",
-                    )
-                    row_data[date] = text_value
-                data.append(row_data)
+              start = format_time_12hr(LESSON_SLOTS[slot]['start_time'])
+              end = format_time_12hr(LESSON_SLOTS[slot]['end_time'])
+              row_data = {"Lesson": f"{start}–{end}"}
+              for orig_date, formatted_date in formatted_dates:
+                # Get the value directly from the availability data (using original date as key)
+                value = availability[orig_date].get(slot, 0)
+                # Convert numeric value to text using reverse mapping
+                text_value = next(
+                  (k for k, v in AVAILABILITY_MAPPING.items() if v == value),
+                  "Unknown",
+                )
+                # Use the formatted date as the column name
+                row_data[formatted_date] = text_value
+            data.append(row_data)
 
             df = pd.DataFrame(data)
             df.set_index("Lesson", inplace=True)
