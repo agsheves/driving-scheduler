@@ -429,6 +429,7 @@ def export_instructor_eight_month_availability():
 
             df = pd.DataFrame(data)
             df.set_index("Lesson", inplace=True)
+            df.index.name = "Time Slot" 
 
             # Write to Excel
             sheet_name = f"{instructor['firstName']} {instructor['surname']}"
