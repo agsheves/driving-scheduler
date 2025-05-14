@@ -41,13 +41,6 @@ class Scheduler(SchedulerTemplate):
 
         instructor_placeholder = [("Select an instructor", None)]
         self.instructors = app_tables.users.search(is_instructor=True)
-        instructor_items = [
-            (i["firstName"] + " " + i["surname"], i) for i in self.instructors
-        ]
-
-        self.instructor_schedule_multi_select.items = instructor_placeholder + instructor_items
-
-
 
         self.populate_instructor_filter_drop_down()
         self.refresh_schedule_display()
@@ -208,14 +201,6 @@ class Scheduler(SchedulerTemplate):
       start_date = self.classroom_start_date.date
       self.start_date = start_date.strftime("%m-%d-%Y")
 
-    def classroom_selector_change(self, **event_args):
-      classroom = app_tables.classrooms.get(
-        classroom_name=self.classroom_selector.selected_value
-      )
-      self.classroom_name_label.text = f"classroom selected: School - {classroom['school']}, Start date - {classroom['start_date']}"
-      self.classroom = classroom
-
-
     def classroom_type_selector_change(self, **event_args):
       if self.classroom_type_selector.checked is True:
         self.COURSE_STRUCTURE = "COURSE_STRUCTURE_COMPRESSED"
@@ -247,20 +232,6 @@ class Scheduler(SchedulerTemplate):
         anvil.server.call("create_full_classroom_schedule", school, start_date, task_id, num_students=None, classroom_type=None)
         self.set_and_monitor_background_task(task_id)
         print("Running background classroom builder")
-
-
-    def schedule_instructors_button_click(self, **event_args):
-    # Adds instructors to the chosen classroom
-    # User selects instructors to prioritize and scheduler works around availability and school preference
-    # ⚠️ Make a background task and add anvil.server.call("export_merged_classroom_schedule", name)
-      anvil.server.call(
-        "schedule_instructors_for_classroom",
-        self.classroom,
-        self.instructor1,
-        self.instructor2,
-        self.instructor3, 
-        task_id = str(uuid.uuid4())
-      )
   
     def create_availability_report_button_click(self, **event_args):
         result, filename = anvil.server.call("generate_capacity_report")
@@ -275,7 +246,6 @@ class Scheduler(SchedulerTemplate):
           alert(content = f"Your report was downloaded to the files list as:\n{filename}", large=True, dismissible=True)
         else:
           alert(content = "There was an error downloading your report. Please try again", large=True, dismissible=True)
-
 
     def check_for_background_task(self,task_id):
       while True:
@@ -331,12 +301,83 @@ class Scheduler(SchedulerTemplate):
   
       open_form("Frame", Scheduler)        
 
-    def instructor_schedule_multi_select_change(self, **event_args):
-      self.selected_instructors = self.instructor_schedule_multi_select.selected_keys
-      self.instrucror_1 = self.selected_instructors[0]
-      self.instrucror_2 = self.selected_instructors[1]
-      self.instrucror_3 = self.selected_instructors[2]
-      if self.instrucror_1 and self.instrucror_2 and self.instrucror_3 is not None:
-        self.task_summary_label.text = f"You are scheduling {self.instrucror_1['name']} for {self.classroom}."
+# #################################
+# Adding instructors to a classroom schedule
+
+    def classroom_selector_change(self, **event_args):
+      classroom = app_tables.classrooms.get(
+        classroom_name=self.classroom_selector.selected_value
+      )
+      self.classroom_name_label.text = f"Classroom selected: School - {classroom['school']}, Start date - {classroom['start_date']}"
+      self.classroom = classroom
+    
+      self.available_instructors = app_tables.users.search(is_instructor=True)
+      self.available_instructors_school = []
+    
+      for instructor in self.available_instructors:
+        # instructor here is a user row (users table)
+        schedule = app_tables.instructor_schedules.get(instructor=instructor)
+        if schedule and self.classroom['school'] not in schedule['school_preferences'].get('no', []):
+          self.available_instructors_school.append(instructor)
 
       
+      # Now build the dropdown list using names from the users table
+      instructor_items_school = [
+        {
+          'value': instructor,                  # actual row object for internal use
+          'label': instructor['firstName'],     # not used for display in this component
+          'key': instructor['firstName']        # Use firstName as the display text
+        }
+        for instructor in self.available_instructors_school
+      ]
+      
+      self.instructor_schedule_multi_select.items = instructor_items_school
+      self.instructor_schedule_multi_select.enabled = True
+
+    
+    def instructor_schedule_multi_select_change(self, **event_args):
+      selected_keys = self.instructor_schedule_multi_select.selected_keys
+    
+      # Need to map from firstName back to the instructor objects
+      self.selected_instructors = []
+      for key in selected_keys:  # keys are now firstNames
+        for instructor in self.available_instructors_school:
+          if instructor['firstName'] == key:
+            self.selected_instructors.append(instructor)
+            break
+    
+      if len(self.selected_instructors) >= 3:
+        self.instructor_1 = self.selected_instructors[0]
+        self.instructor_2 = self.selected_instructors[1]
+        self.instructor_3 = self.selected_instructors[2]
+    
+        self.task_summary_label.text = (
+          f"You are scheduling {self.instructor_1['firstName']}, "
+          f"{self.instructor_2['firstName']}, and {self.instructor_3['firstName']} "
+          f"for {self.classroom['classroom_name']}."
+        )
+      else:
+        self.task_summary_label.text = "Please select at least 3 instructors."
+
+
+
+    def schedule_instructors_button_click(self, **event_args):
+      # Adds instructors to the chosen classroom
+      # User selects instructors to prioritize and scheduler works around availability and school preference
+      print("Scheduling instructors")
+      task_id = str(uuid.uuid4())
+      anvil.server.call(
+        "schedule_instructors_for_classroom",
+        self.classroom,
+        self.instructor_1,
+        self.instructor_2,
+        self.instructor_3, 
+        task_id
+      )
+      self.set_and_monitor_background_task(task_id)
+
+      self.instructor_1 = ""
+      self.instructor_2 = ""
+      self.instructor_3 = ""
+      self.classroom = ""
+    

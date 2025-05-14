@@ -7,7 +7,7 @@ from .globals import LESSON_SLOTS, AVAILABILITY_MAPPING
 
 @anvil.server.callable
 def schedule_instructors_for_classroom(classroom_name, instructor1, instructor2, instructor3, task_id):
-  schedule_instructors_for_classroom_and_export_background(classroom_name, instructor1, instructor2, instructor3, task_id)
+  anvil.server.launch_background_task('schedule_instructors_for_classroom_and_export_background', classroom_name, instructor1, instructor2, instructor3, task_id)
 
 @anvil.server.background_task
 def schedule_instructors_for_classroom_and_export_background(classroom_name, instructor1, instructor2, instructor3, task_id):
@@ -18,6 +18,7 @@ def schedule_instructors_for_classroom_and_export_background(classroom_name, ins
       raise ValueError(f"classroom {classroom_name} not found")
   
     print("Checking for instructors")
+    print(instructor1)
     print(instructor1["firstName"])
     print(instructor2["firstName"])
     print(instructor3["firstName"])
