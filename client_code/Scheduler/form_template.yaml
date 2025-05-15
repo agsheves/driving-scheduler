@@ -156,6 +156,7 @@ components:
         name: classroom_builder_button
         properties:
           align: right
+          enabled: true
           icon: fa:car
           role: outlined-button
           text: |
@@ -222,11 +223,16 @@ components:
       name: task_summary_label
       properties: {}
       type: Label
+    - layout_properties: {grid_position: 'EROZNI,IIXNWX'}
+      name: instructor_alert_box
+      properties: {align: right, foreground: 'theme:Error', role: body, visible: false}
+      type: Label
     - event_bindings: {click: schedule_instructors_button_click}
       layout_properties: {grid_position: 'EQBNIB,SUDLLL'}
       name: schedule_instructors_button
       properties:
         align: right
+        enabled: true
         icon: fa:users
         role: outlined-button
         text: |
