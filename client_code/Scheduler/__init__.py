@@ -25,8 +25,8 @@ class Scheduler(SchedulerTemplate):
 
         school_list = app_tables.schools.search()
         self.school_selector.items = [
-            (s["school_name"], s["abbreviation"]) for s in school_list
-        ]
+            (s['abbreviation'], s["abbreviation"]) for s in school_list
+        ] # f"{s['abbreviation']} - {s['school_name']}"
         self.filter_instructors = False
 
         self.COURSE_STRUCTURE = "None"
@@ -356,6 +356,7 @@ class Scheduler(SchedulerTemplate):
           f"{self.instructor_2['firstName']}, and {self.instructor_3['firstName']} "
           f"for {self.classroom['classroom_name']}."
         )
+        self.schedule_instructors_button.enabled = True
       else:
         self.task_summary_label.text = "Please select at least 3 instructors."
 
@@ -364,6 +365,14 @@ class Scheduler(SchedulerTemplate):
     def schedule_instructors_button_click(self, **event_args):
       # Adds instructors to the chosen classroom
       # User selects instructors to prioritize and scheduler works around availability and school preference
+      if not self.classroom_selector.selected_value:
+        self.instructor_alert_box.visible = True
+        self.instructor_alert_box.text = "Please select a classroom"
+        return
+      if len(self.instructor_schedule_multi_select.selected_keys) != 3:
+        self.instructor_alert_box.visible = True
+        self.instructor_alert_box.text = "Please select three instructors"
+        return
       print("Scheduling instructors")
       task_id = str(uuid.uuid4())
       anvil.server.call(
