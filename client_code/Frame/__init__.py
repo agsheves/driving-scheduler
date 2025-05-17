@@ -18,7 +18,7 @@ class Frame(FrameTemplate):
   def __init__(self, display_form=None, **properties):
     self.init_components(**properties)
     
-    anvil.users.login_with_form()
+    #anvil.users.login_with_form()
     if display_form is None:
       self.dynamic_panel_1.add_component(Scheduler())
     else:
