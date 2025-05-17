@@ -127,6 +127,20 @@ db_schema:
       type: simpleObject
     server: full
     title: global_variables_EDIT_WITH_CARE
+  help_items:
+    client: search
+    columns:
+    - admin_ui: {order: 0, width: 200}
+      name: title
+      type: string
+    - admin_ui: {order: 1, width: 200}
+      name: description
+      type: string
+    - admin_ui: {order: 2, width: 200}
+      name: youtube_url
+      type: string
+    server: full
+    title: help_items
   instructor_schedules:
     client: search
     columns:

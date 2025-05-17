@@ -267,7 +267,7 @@ def generate_capacity_report(days=180):
     """
     # Get all instructors
     instructors = app_tables.users.search(
-        tables.order_by("display_order", ascending=True), is_instructor=True
+        tables.order_by("display_order", ascending=True), is_instructor=True,
     )
     # Get vacation days
     vacation_days = app_tables.no_class_days.search()
@@ -391,7 +391,7 @@ def generate_seven_month_availability(instructor=None):
     It will append new dates to existing availability, ensuring 8 months of forward-looking availability.
     """
     if instructor is None:
-        instructor = app_tables.users.get(firstName="Leslie")
+        instructor = app_tables.users.get(firstName="Tony")
         print(instructor)
     print(f"Generating seven-month availability for {instructor['firstName']}")
 

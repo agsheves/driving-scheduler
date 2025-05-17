@@ -30,22 +30,27 @@ components:
     - event_bindings: {click: schedule_page_link_click}
       layout_properties: {grid_position: 'UFLGJQ,VMTFYS'}
       name: schedule_page_link
-      properties: {align: center, background: '', bold: false, border: '', enabled: true, font: '', font_size: 18, foreground: '', icon: 'fa:clock-o', icon_align: left, italic: false, role: null, spacing_above: small, spacing_below: small, text: ' Scheduling', tooltip: '', underline: false, visible: true}
+      properties: {align: right, background: '', bold: false, border: '', enabled: true, font: '', font_size: 18, foreground: '', icon: 'fa:clock-o', icon_align: left, italic: false, role: null, spacing_above: small, spacing_below: small, text: ' Scheduling', tooltip: '', underline: false, visible: true}
       type: Button
     - event_bindings: {click: instructor_page_link_click}
       layout_properties: {grid_position: 'KXVKEE,SNUQXO'}
       name: instructor_page_link
-      properties: {align: center, background: '', bold: false, border: '', enabled: true, font: '', font_size: 18, foreground: '', icon: 'fa:users', icon_align: left, italic: false, role: null, spacing_above: small, spacing_below: small, text: ' Instructors', tooltip: '', underline: false, visible: true}
+      properties: {align: right, background: '', bold: false, border: '', enabled: true, font: '', font_size: 18, foreground: '', icon: 'fa:users', icon_align: left, italic: false, role: null, spacing_above: small, spacing_below: small, text: ' Instructors', tooltip: '', underline: false, visible: true}
       type: Button
     - event_bindings: {click: file_transfer_link_click}
       layout_properties: {grid_position: 'ATKKKJ,DBSYGY'}
       name: file_transfer_link
-      properties: {align: center, background: '', bold: false, border: '', enabled: true, font: '', font_size: 18, foreground: '', icon: 'fa:floppy-o', icon_align: left, italic: false, role: null, spacing_above: small, spacing_below: small, text: ' Files', tooltip: '', underline: false, visible: true}
+      properties: {align: right, background: '', bold: false, border: '', enabled: true, font: '', font_size: 18, foreground: '', icon: 'fa:floppy-o', icon_align: left, italic: false, role: null, spacing_above: small, spacing_below: small, text: ' Files', tooltip: '', underline: false, visible: true}
       type: Button
     - event_bindings: {click: changelog_button_click}
       layout_properties: {grid_position: 'SAHYAI,DNXOFV'}
       name: changelog_button
-      properties: {font_size: 18, foreground: 'theme:Primary', icon: 'fa:code-fork', role: null, text: ChangeLog}
+      properties: {align: right, font_size: 18, foreground: 'theme:Primary', icon: 'fa:code-fork', role: null, text: ChangeLog}
+      type: Button
+    - event_bindings: {click: help_button_click}
+      layout_properties: {grid_position: 'NSDDFP,AEVRCM'}
+      name: help_button
+      properties: {align: right, font_size: 18, foreground: 'theme:Primary', icon: 'fa:life-bouy', role: null, text: Help & How To}
       type: Button
     - layout_properties: {grid_position: 'KHSNGK,VNCASN'}
       name: label_1

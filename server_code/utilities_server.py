@@ -434,7 +434,7 @@ def export_instructor_eight_month_availability():
                 )
                 # Use the formatted date as the column name
                 row_data[formatted_date] = text_value
-            data.append(row_data)
+              data.append(row_data)
 
             df = pd.DataFrame(data)
             df.set_index("Lesson", inplace=True)
