@@ -1,0 +1,7 @@
+components:
+- layout_properties: {grid_position: 'MMFUQS,BRSAOR'}
+  name: outlined_card_1
+  properties: {role: outlined-card}
+  type: ColumnPanel
+container: {type: ColumnPanel}
+is_package: true
