@@ -12,7 +12,7 @@ class help(helpTemplate):
   def __init__(self, **properties):
     # Set Form properties and Data Bindings.
     self.init_components(**properties)
-    help_items = app_tables.help_items.search()
+    help_items = app_tables.help_items.search(youtube_url=q.not_(None))
     self.help_items_panel.items = help_items
 
     # Any code you write here will run before the form opens.
